@@ -79,6 +79,7 @@ theorem nums {D : D7} {L : SizeData₂ D} (h : SizesAt L) :
   have hk : (1 : ℝ) ≤ D.R.k := by exact_mod_cast (by omega : 1 ≤ D.R.k)
   have hmk : (D.R.m : ℝ) ≤ D.R.k := by exact_mod_cast (by omega : D.R.m ≤ D.R.k)
   have hf : (1 : ℝ) ≤ D.R.f := by exact_mod_cast (by omega : 1 ≤ D.R.f)
+  have hk0 : (0 : ℝ) < D.R.k := zero_lt_one.trans_le hk
   have hn : (1 : ℝ) ≤ D.R.n := by exact_mod_cast D.R.ord_pos
   have ht : (1 : ℝ) ≤ D.R.t := L.t_win.1
   have hN : (1 : ℝ) ≤ D.R.N D.R.m := by
@@ -91,44 +92,47 @@ theorem nums {D : D7} {L : SizeData₂ D} (h : SizesAt L) :
       (D.R.k : ℝ) * (D.R.n : ℝ) ^ 2 * (L.Sc + D.R.t + L.sc.L) := by
     have a1 : 0 ≤ (D.R.n : ℝ) * (D.R.t : ℝ) ^ 2 * ((D.R.N D.R.m : ℝ) + D.R.t) * L.sc.L ^ 2 := by positivity
     have a2 : (1 : ℝ) ≤ (D.R.n : ℝ) ^ 2 * (L.Sc + D.R.t + L.sc.L) :=
-      one_le_mul_of_one_le_of_one_le (one_le_pow₀ hn) (by linarith)
-    have a3 := le_mul_of_one_le_right (by linarith : (0 : ℝ) ≤ D.R.k) a2
+      one_le_mul_of_one_le_of_one_le (one_le_pow₀ hn) (by linarith only [hS, ht, hL])
+    have a3 := le_mul_of_one_le_right hk0.le a2
     rw [← mul_assoc] at a3
-    linarith
+    exact a3.trans (le_add_of_nonneg_left a1)
   have hl1 : szlStar L ≤ D.R.m * L.sc.b / D.R.k :=
-    div_le_div_of_nonneg_left (by positivity) (by linarith) hden
-  have hl0 : 0 ≤ szlStar L := div_nonneg (by positivity) (by linarith)
+    div_le_div_of_nonneg_left (by positivity) hk0 hden
+  have hl0 : 0 ≤ szlStar L := div_nonneg (by positivity) (hk0.le.trans hden)
   have hl2 : L.sc.b' + L.Sc + L.etaSz ≤ D.R.m * L.sc.b / D.R.k := by
-    have := hLs.1
     have a : 0 ≤ L.sc.b / szlStar L := div_nonneg hb.le hl0
-    linarith
+    linarith only [hLs.1, a, hl1]
   have hl3 : (D.R.m : ℝ) * L.sc.b / D.R.k ≤ L.sc.b := by
-    rw [div_le_iff₀ (by linarith)]
-    nlinarith
+    rw [div_le_iff₀ hk0, mul_comm L.sc.b]
+    exact mul_le_mul_of_nonneg_right hmk hb.le
   have hw : L.sc.w'' D.R.n ≤ L.sc.b' :=
     div_le_self hb'.le (one_le_mul_of_one_le_of_one_le hx1.le hn)
   have hw0 : 0 < L.sc.w'' D.R.n := div_pos hb' (by positivity)
   have hxη : L.sc.x * L.etaSz ≤ L.sc.w'' D.R.n := by
     have a := hEta.2.2.2.1
-    rw [le_div_iff₀ hx] at a
     have a2 : L.etaSz ≤ D.R.t * L.etaSz := le_mul_of_one_le_left hη.le ht
-    nlinarith
+    simpa only [mul_comm L.sc.x] using (le_div_iff₀ hx).mp (a2.trans a)
   have hN3 : 4 * (D.R.N D.R.m : ℝ) ^ 3 + 6 ≤ L.etaSz := by
-    have := hNodes.2.2.2.1
-    linarith
+    linarith only [hNodes.2.2.2.1, hηm, ht]
   have a3 : (D.R.N D.R.m : ℝ) ^ 2 ≤ (D.R.N D.R.m : ℝ) ^ 3 := pow_le_pow_right₀ hN (by norm_num)
   have a4 : (D.R.N D.R.m : ℝ) ^ 1 ≤ (D.R.N D.R.m : ℝ) ^ 3 := pow_le_pow_right₀ hN (by norm_num)
   rw [pow_one] at a4
-  refine ⟨?_, by linarith, by linarith, ?_, by unfold Nm; linarith, by unfold Nm; linarith, ?_, ?_, ?_, ?_, hw, hw0⟩
-  · rw [le_div_iff₀ (by linarith)] at hl2
-    nlinarith
+  have hsum := hl2.trans hl3
+  refine ⟨?_, by linarith only [hsum, hb', hη], by linarith only [hsum, hS, hη], ?_,
+    ?_, ?_, ?_, ?_, ?_, ?_, hw, hw0⟩
+  · have hsum' : L.sc.b' + L.etaSz ≤ D.R.m * L.sc.b / D.R.k := by linarith only [hl2, hS]
+    simpa only [mul_comm (D.R.k : ℝ)] using (le_div_iff₀ hk0).mp hsum'
   · unfold Scale.X'' Scale.a
     rw [div_mul_eq_mul_div, div_le_iff₀ hw0]
-    nlinarith
+    linarith only [mul_le_mul_of_nonneg_right hxη hb.le]
+  · unfold Nm
+    linarith only [hN3, a3, sq_nonneg (D.R.N D.R.m : ℝ)]
+  · unfold Nm
+    linarith only [hN3, a4]
   · have a := hNodes.2.1
     have a2 : L.sc.L ≤ D.R.k * D.R.t * L.sc.L :=
-      le_mul_of_one_le_left (by linarith) (one_le_mul_of_one_le_of_one_le hk ht)
-    linarith
+      le_mul_of_one_le_left (zero_le_one.trans hL) (one_le_mul_of_one_le_of_one_le hk ht)
+    exact a2.trans (a.trans hηm)
   · have a1 := hEta.2.1
     rw [le_div_iff₀ (by positivity)] at a1
     have a2 : (1 : ℝ) ≤ (D.R.t : ℝ) ^ 3 * (D.R.k : ℝ) ^ 3 :=
@@ -138,23 +142,23 @@ theorem nums {D : D7} {L : SizeData₂ D} (h : SizesAt L) :
     calc _ ≤ _ := a3
       _ = L.etaSz * ((D.R.t : ℝ) ^ 3 * D.R.f * (D.R.k : ℝ) ^ 3) := by ring
       _ ≤ _ := a1
-  · have : L.sc.x * 2 ≤ L.sc.x * L.etaSz := mul_le_mul_of_nonneg_left (by nlinarith) hx.le
-    linarith
+  · have : L.sc.x * 2 ≤ L.sc.x * L.etaSz := mul_le_mul_of_nonneg_left (by linarith only [hN3, a4, hN]) hx.le
+    linarith only [this, hxη, hw, hsum, hS, hη]
   · intro t
     have hLa0 : 0 ≤ L.LaG := le_trans (by positivity) hLa.1
     have hx2 : L.sc.x ^ (-2 : ℝ) ≤ 1 := Real.rpow_le_one_of_one_le_of_nonpos hx1.le (by norm_num)
     have h5 : 0 ≤ L.sc.x ^ szTh L * Real.log L.sc.x * L.LaG / D.R.k :=
-      div_nonneg (mul_nonneg (mul_nonneg (by positivity) (Real.log_nonneg hx1.le)) hLa0) (by linarith)
+      div_nonneg (mul_nonneg (mul_nonneg (by positivity) (Real.log_nonneg hx1.le)) hLa0) hk0.le
     unfold SizeRho at hRho
     have h6 : szNst L * L.sc.x ^ L.sc.eps * L.LaG / D.R.k ≤ 1 / 4 := by
       have : 4 * szNst L * L.sc.x ^ L.sc.eps * L.LaG / D.R.k =
         4 * (szNst L * L.sc.x ^ L.sc.eps * L.LaG / D.R.k) := by ring
-      linarith
+      linarith only [this, hRho, hx2, h5]
     have h7 := hBot t
     have h8 : szNst L * L.sc.x ^ L.sc.eps * L.LaG * L.sc.b' / D.R.k =
       (szNst L * L.sc.x ^ L.sc.eps * L.LaG / D.R.k) * L.sc.b' := by ring
     have h9 := mul_le_mul_of_nonneg_right h6 hb'.le
-    linarith
+    linarith only [h7, h8, h9, hb']
 
 theorem wPl_bounds {D : D7} {L : SizeData₂ D} (h : SizesAt L) {j : ℕ} (hj : j ∈ SizeData₂.lifts D) (z : Bool × HH D) :
     0 ≤ wPl D j z ∧ wPl D j z ≤ 9 * L.sc.b ∧ (z.1 = false → wPl D j z ≤ 3 * (L.sc.b' + L.etaSz)) := by
