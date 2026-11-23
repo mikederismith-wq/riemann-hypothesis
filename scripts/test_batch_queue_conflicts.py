@@ -250,6 +250,19 @@ class DeletedImports(unittest.TestCase):
         result = self.check(self.branch("many-files", self.write("New.lean", "import Sub₂.Gone\n")), limit=0)
         self.assertEqual((result.stale, result.unread), ([], True))
 
+    def test_raw_diff_preserves_literal_paths_and_counts_gitlinks_without_reading_them(self):
+        self.repo.git("checkout", "--quiet", "-b", "odd-import-paths", self.fork)
+        name = "src/Sub₂/[odd]\nfile.lean"
+        (self.repo.root / name).write_text("import Kept\n")
+        self.repo.git("add", "--", name)
+        self.repo.git("update-index", "--add", "--cacheinfo", f"160000,{self.fork},src/link.lean")
+        self.repo.git("commit", "--quiet", "--message", "file and gitlink")
+        head = self.repo.git("rev-parse", "HEAD")
+        blob = self.repo.git("rev-parse", f"{head}:{name}").encode()
+        self.assertEqual(conflicts.import_blobs(self.repo.root, self.fork, head, 2),
+                         ({}, {name.encode(): blob}))
+        self.assertIsNone(conflicts.import_blobs(self.repo.root, self.fork, head, 1))
+
     def test_nothing_is_read_when_neither_side_deletes_a_lean_file(self):
         first = self.branch("no-delete-1", self.write("New.lean", "import Sub₂.Gone\n"))
         second = self.branch("no-delete-2", self.write("Other.lean", "import Kept\n"))
@@ -280,6 +293,17 @@ class DeletedImports(unittest.TestCase):
         with patch.object(conflicts, "added_imports", side_effect=AssertionError("read again")):
             result = self.check(theirs, seen=seen)
         self.assertEqual(result.stale, [("ours", self.GONE, self.NEW)])
+
+    def test_prefetched_blobs_and_over_limit_results_are_reused(self):
+        theirs = self.branch("prefetch-once", self.write("New.lean", "import Sub₂.Gone\n"))
+        for limit in (0, 1):
+            with patch.object(conflicts, "fetch_ids"):
+                seen = conflicts.prefetch_imports(self.repo.root, (self.fork, self.ours),
+                                                  [(self.fork, theirs)], limit=limit)
+            with patch.object(conflicts, "import_blobs", side_effect=AssertionError("trees read again")):
+                result = self.check(theirs, limit=limit, seen=seen)
+            self.assertEqual(result.unread, limit == 0)
+            self.assertEqual(result.stale, [("ours", self.GONE, self.NEW)] if limit else [])
 
 
 class Reports(unittest.TestCase):

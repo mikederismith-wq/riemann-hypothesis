@@ -35,6 +35,7 @@ RENAME_LIMIT = 2000
 LISTED = 10
 # Lean modules live under this directory: the module `A.B` is the file `src/A/B.lean`.
 SOURCE, LEAN = b"src/", b".lean"
+LEAN_PATHSPEC = b":(top,glob)" + SOURCE + b"**/*" + LEAN
 # Most changed Lean files whose import lines are read for one pull request.
 IMPORT_LIMIT = 5000
 # One line of a Lean file's import header, as scripts/quick-check.py reads it.
@@ -145,10 +146,32 @@ def compare(repo, base, ours, theirs, *, ours_fork=None, theirs_fork=None,
 # without conflict, because they change different files, and the result does not build.
 
 
-def lean_files(repo, fork, head, status):
-    """Lean files under SOURCE that a pull request deletes ("D") or adds or edits ("AM")."""
-    _, out = git(repo, "diff", "--name-only", "--no-renames", f"--diff-filter={status}", "-z", fork, head)
-    return {path for path in out.split(b"\0") if path.startswith(SOURCE) and path.endswith(LEAN)}
+def deleted_lean_files(repo, fork, head, seen):
+    """Lean files under SOURCE that a pull request deletes."""
+    key = ("deleted", fork, head)
+    if key not in seen:
+        _, out = git(repo, "diff", "--name-only", "--no-renames", "--diff-filter=D", "-z",
+                     fork, head, "--", LEAN_PATHSPEC)
+        seen[key] = set(out.split(b"\0")[:-1])
+    return seen[key]
+
+
+def import_blobs(repo, fork, head, limit):
+    """The before and after blob IDs for changed Lean files, or None past the file limit."""
+    _, out = git(repo, "diff", "--raw", "--no-abbrev", "--no-renames", "--diff-filter=AM",
+                 "-z", fork, head, "--", LEAN_PATHSPEC)
+    # With renames disabled, each raw record is a metadata field and a literal path.
+    if out.count(b"\0") > 2 * limit:
+        return None
+    before, after = {}, {}
+    records = iter(out.split(b"\0"))
+    for meta, path in zip(records, records):
+        old_mode, new_mode, old_id, new_id, _ = meta[1:].split()
+        if old_mode not in (b"000000", b"160000"):  # absent or a gitlink
+            before[path] = old_id
+        if new_mode != b"160000":
+            after[path] = new_id
+    return before, after
 
 
 def imports(contents):
@@ -200,21 +223,26 @@ def read_blobs(repo, ids):
     return found
 
 
-def added_imports(repo, fork, head, *, limit=IMPORT_LIMIT):
+def added_imports(repo, fork, head, *, limit=IMPORT_LIMIT, seen=None):
     """What a pull request starts to import, as {file it adds or edits: files newly imported}.
 
     An import that the file already had where the pull request left main is not new. Returns
     None if the pull request adds or edits more than `limit` Lean files. In a clone without
     blobs, `prefetch_imports` fetches what this reads.
     """
-    paths = lean_files(repo, fork, head, "AM")
-    if len(paths) > limit:
+    key = ("blobs", fork, head, limit)
+    if seen is not None and key in seen:
+        # Prefetch already found these IDs. Only the resulting imports need to stay cached.
+        blobs = seen.pop(key)
+    else:
+        blobs = import_blobs(repo, fork, head, limit)
+    if blobs is None:
         return None
-    before, after = blob_ids(repo, fork, paths), blob_ids(repo, head, paths)
+    before, after = blobs
     contents = read_blobs(repo, [*before.values(), *after.values()])
     found = {}
-    for path in paths:
-        new = imports(contents.get(after.get(path), b"")) - imports(contents.get(before.get(path), b""))
+    for path, blob in after.items():
+        new = imports(contents.get(blob, b"")) - imports(contents.get(before.get(path), b""))
         if new:
             found[path] = new
     return found
@@ -230,18 +258,16 @@ def compare_imports(repo, result, ours_fork, ours, theirs_fork, theirs, *,
     """
     seen = {} if seen is None else seen
 
-    def once(kind, fork, head, read):
-        if (kind, fork, head) not in seen:
-            seen[kind, fork, head] = read()
-        return seen[kind, fork, head]
-
     sides = (("ours", (ours_fork, ours), (theirs_fork, theirs)),
              ("theirs", (theirs_fork, theirs), (ours_fork, ours)))
     for who, deleter, importer in sides:
-        gone = once("deleted", *deleter, lambda: lean_files(repo, *deleter, "D"))
+        gone = deleted_lean_files(repo, *deleter, seen)
         if not gone:
             continue
-        new = once("imports", *importer, lambda: added_imports(repo, *importer, limit=limit))
+        key = ("imports", *importer, limit)
+        if key not in seen:
+            seen[key] = added_imports(repo, *importer, limit=limit, seen=seen)
+        new = seen[key]
         if new is None:
             result.unread = True
             continue
@@ -255,16 +281,21 @@ def prefetch_imports(repo, ours, others, *, limit=IMPORT_LIMIT):
 
     `ours` and each of `others` are (fork, head) pairs. A pull request's files are read only if
     the other side of some comparison deletes a Lean file, which is known from the trees alone.
+    Return the tree results so that the comparisons can reuse them after the fetch.
     """
-    readers = list(others) if lean_files(repo, *ours, "D") else []
-    if any(lean_files(repo, *pair, "D") for pair in others):
+    seen = {}
+    readers = list(others) if deleted_lean_files(repo, *ours, seen) else []
+    if any(deleted_lean_files(repo, *pair, seen) for pair in others):
         readers.append(ours)
     wanted = set()
     for fork, head in readers:
-        paths = lean_files(repo, fork, head, "AM")
-        if len(paths) <= limit:
-            wanted.update(blob_ids(repo, fork, paths).values(), blob_ids(repo, head, paths).values())
+        blobs = import_blobs(repo, fork, head, limit)
+        seen["blobs", fork, head, limit] = blobs
+        if blobs is not None:
+            before, after = blobs
+            wanted.update(before.values(), after.values())
     fetch_ids(repo, wanted)
+    return seen
 
 
 # ---------------------------------------------------------------------------------------------
@@ -337,8 +368,8 @@ def survey(repo, number, work):
     forks = {other: merge_base(work, trunk, pulls[other][0]) for other in others}
     seen = {}
     if fork:
-        prefetch_imports(work, (fork, head),
-                         [(forks[other], pulls[other][0]) for other in others if forks[other]])
+        seen = prefetch_imports(work, (fork, head),
+                                [(forks[other], pulls[other][0]) for other in others if forks[other]])
     for other in others:
         theirs = pulls[other][0]
         base, theirs_fork = merge_base(work, head, theirs), forks[other]
