@@ -56,6 +56,22 @@ class PreparationTests(unittest.TestCase):
                         self.assertNotEqual(state, root)
                         self.assertFalse((state / "baseline/already-downloaded").exists())
 
+    def test_full_baseline_selection_uses_the_resolved_git_tree(self):
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory)
+            def git(*args):
+                return subprocess.check_output(["git", "-C", str(candidate), *args], text=True).strip()
+            git("init", "-q")
+            (candidate / "src/Dir").mkdir(parents=True)
+            for name in ("Dir/Data₂.lean", "Keep.lean", "A.B.lean"):
+                (candidate / "src" / name).write_text("")
+            git("add", "src")
+            git("-c", "user.name=Test", "-c", "user.email=test@example.org", "commit", "-qm", "candidate")
+            head = git("rev-parse", "HEAD")
+            (candidate / "src/Dir/Data₂.lean").unlink()
+            (candidate / "src/Deleted.lean").write_text("")
+            self.assertEqual(prep.candidate_modules(candidate, head), {"Dir.Data₂", "Keep"})
+
     def test_other_approved_toolchain_ancestor_is_skipped_without_fetching_its_artifacts(self):
         for active, historical in (("leanprover/lean4:v4.33.1", "leanprover/lean4:v4.36.0"),
                                    ("leanprover/lean4:v4.36.0", "leanprover/lean4:v4.33.1")):

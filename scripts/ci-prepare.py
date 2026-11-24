@@ -169,6 +169,16 @@ def select_module_entries(manifest, entries, names):
     return {row[1]: row[2] for row in rows.values() if row[0] in names}
 
 
+def candidate_modules(candidate, head):
+    """Return the module names whose canonical source paths exist in the resolved commit."""
+    if not HEX.fullmatch(head):
+        raise ValueError("Invalid candidate revision for baseline selection")
+    paths = subprocess.check_output(["git", "-C", str(candidate), "ls-tree", "-r", "-z",
+                                     "--name-only", head, "--", "src"])
+    return {os.fsdecode(path[4:-5]).replace("/", ".") for path in paths.split(b"\0")
+            if path.startswith(b"src/") and path.endswith(b".lean") and b"." not in path[4:-5]}
+
+
 def downloads(cache, entries, sha256s):
     artifacts = cache / "artifacts"
     if artifacts.is_symlink():
@@ -295,17 +305,18 @@ def prepare(args):
         entries = mapping(map_data)
         hashes = manifest_hashes(manifest, entries, map_data)
         quick_plan = getattr(args, "quick_plan", None)
+        request = json.loads(Path(args.request).read_text())
         if quick_plan:
             plan = json.loads(Path(quick_plan).read_text())
-            request = json.loads(Path(args.request).read_text())
             if plan.get("candidate_head") != request["expected"]["candidate_head"] or plan.get("status") != "ready":
                 raise ValueError("quick plan does not bind the resolved candidate")
             names = set(plan["closure"])
             if not names or len(names) > 2000:
                 raise ValueError("quick plan exceeds its dependency budget")
-            entries = select_module_entries(manifest, entries, names)
+        else:
+            names = candidate_modules(args.candidate, request["expected"]["candidate_head"])
+        entries = select_module_entries(manifest, entries, names)
         downloads(cache, entries, hashes)
-        request = json.loads(Path(args.request).read_text())
         selected = None if quick_plan else restore_previous_cache(args.candidate, request, cache)
         paths = {"packages": str(deps / ".lake/packages"), "baseline_cache": str(cache),
                  "baseline_manifest": str(cache / "modules.jsonl.gz"), "baseline_map": str(cache / "outputs.jsonl"),
