@@ -392,13 +392,14 @@ theorem omO_rat (h : Chart θ σ) (x y : WO S T) (q : D.host.F)
   rw [← Complex.re_sum, GlobalTheory.StdRat.sum_tauE_eq_trace]
   simp
 
-theorem exists_coords (ψ : AddChar (AF D.host.F) ℂ) (hψ : IsStdChar D ψ (-1)) (S T : HSp D)
+theorem _root_.GlobalTheory.CoefInteg.exists_coords_all (ψ : AddChar (AF D.host.F) ℂ) (hψ : IsStdChar D ψ (-1)) (S T : HSp D)
     (U : AddSubgroup (WO S T)) (hU : IsOpen (U : Set (WO S T))) :
-    ∃ (n : ℕ) (b : Fin n → ℝ →+ WO S T) (ℓ : Matrix (Fin T.rank) (Fin S.rank) D.host.E → Fin n → ℝ),
+    ∃ (n : ℕ) (b : Fin n → ℝ →+ WO S T) (ℓ : WO S T → Fin n → ℝ),
       (∀ i, Formalism.L2.Theta.IsRealDir T S (b i)) ∧
-      (∀ y i (t : ℝ), ψ (symplO S T (b i t) (ratW T S y)) = Complex.exp (t * (2 * Real.pi * Complex.I * (ℓ y i : ℝ)))) ∧
-      Function.Injective ℓ ∧
-      ∀ y, (∀ v ∈ U, v.map (infPart D) = 0 → ψ (symplO S T v (ratW T S y)) = 1) → ∀ i, ∃ k : ℤ, ℓ y i = k := by
+      (∀ w i (t : ℝ), ψ (symplO S T (b i t) w) = Complex.exp (t * (2 * Real.pi * Complex.I * (ℓ w i : ℝ)))) ∧
+      (∀ i, Continuous fun w => ℓ w i) ∧ (∀ w w' i, ℓ (w + w') i = ℓ w i + ℓ w' i) ∧
+      Function.Injective (fun y : Matrix (Fin T.rank) (Fin S.rank) D.host.E => ℓ (ratW T S y)) ∧
+      ∀ y, (∀ v ∈ U, v.map (infPart D) = 0 → ψ (symplO S T v (ratW T S y)) = 1) → ∀ i, ∃ k : ℤ, ℓ (ratW T S y) i = k := by
   classical
   obtain ⟨θ, hθ⟩ := hψ.2.1
   obtain ⟨σ, h⟩ := GlobalTheory.RealLineAt.exists_inverse_chart hθ
@@ -415,10 +416,15 @@ theorem exists_coords (ψ : AddChar (AF D.host.F) ℂ) (hψ : IsStdChar D ψ (-1
   let e := Module.finBasis ℚ (Matrix (Fin T.rank) (Fin S.rank) D.host.E)
   choose N hN hNU using fun i => GlobalTheory.SplitScalar.exists_nsmul_mem U hU (hfin (e i))
   let lam := fun i => N i • e i
-  have hchar : ∀ y i (t : ℝ), ψ (symplO S T (realLine σ S T (z (lam i)) t) (ratW T S y)) = _ :=
-    fun y i t => psi_realLine h hψ (ratW T S y) (z (lam i)) t
-  refine ⟨_, fun i => realLine σ S T (z (lam i)), fun y i => omO S T (piW θ T S (ratW T S y)) (z (lam i)),
-    fun i => isRealDir_realLine h _, hchar, ?_, ?_⟩
+  have hchar : ∀ w i (t : ℝ), ψ (symplO S T (realLine σ S T (z (lam i)) t) w) = _ :=
+    fun w i t => psi_realLine h hψ w (z (lam i)) t
+  refine ⟨_, fun i => realLine σ S T (z (lam i)), fun w i => omO S T (piW θ T S w) (z (lam i)),
+    fun i => isRealDir_realLine h _, hchar, fun i => ?_, fun w w' i => ?_, ?_, ?_⟩
+  · have hom : Continuous fun x : RW T S => omO S T x (z (lam i)) :=
+      LinearMap.continuous_of_finiteDimensional ((omO S T).flip (z (lam i)))
+    exact hom.comp (continuous_pi' hθ T S)
+  · show omO S T (piW θ T S (w + w')) (z (lam i)) = omO S T (piW θ T S w) (z (lam i)) + omO S T (piW θ T S w') (z (lam i))
+    rw [map_add (f := _), map_add (f := _), LinearMap.add_apply]
   · intro y y' hyy
     by_contra hne
     have hd : y - y' ≠ 0 := sub_ne_zero.2 hne
@@ -483,6 +489,16 @@ theorem exists_coords (ψ : AddChar (AF D.host.F) ℂ) (hψ : IsStdChar D ψ (-1
       push_cast at hk ⊢
       linear_combination hk
     exact_mod_cast this
+
+theorem exists_coords (ψ : AddChar (AF D.host.F) ℂ) (hψ : IsStdChar D ψ (-1)) (S T : HSp D)
+    (U : AddSubgroup (WO S T)) (hU : IsOpen (U : Set (WO S T))) :
+    ∃ (n : ℕ) (b : Fin n → ℝ →+ WO S T) (ℓ : Matrix (Fin T.rank) (Fin S.rank) D.host.E → Fin n → ℝ),
+      (∀ i, Formalism.L2.Theta.IsRealDir T S (b i)) ∧
+      (∀ y i (t : ℝ), ψ (symplO S T (b i t) (ratW T S y)) = Complex.exp (t * (2 * Real.pi * Complex.I * (ℓ y i : ℝ)))) ∧
+      Function.Injective ℓ ∧
+      ∀ y, (∀ v ∈ U, v.map (infPart D) = 0 → ψ (symplO S T v (ratW T S y)) = 1) → ∀ i, ∃ k : ℤ, ℓ y i = k := by
+  obtain ⟨n, b, ℓ, hdir, hchar, _, _, hinj, hint⟩ := GlobalTheory.CoefInteg.exists_coords_all ψ hψ S T U hU
+  exact ⟨n, b, fun y => ℓ (ratW T S y), hdir, fun y => hchar (ratW T S y), hinj, hint⟩
 
 end Coords
 
