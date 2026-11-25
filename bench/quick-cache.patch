@@ -1,0 +1,254 @@
+--- a/scripts/ci-prepare.py
++++ b/scripts/ci-prepare.py
+@@ -258,6 +258,41 @@
+     return None
+ 
+ 
++def quick_base(request, candidate):
++    """Read a successful receipt for the resolved main commit when its build configuration matches."""
++    base = request["base_head"]
++    expected = request["expected"]
++    head = expected["candidate_head"]
++    if request.get("base_ref") != "main" or not HEX.fullmatch(base) or not HEX.fullmatch(head):
++        raise ValueError("Invalid quick-check base or candidate")
++
++    def git(*args):
++        return subprocess.check_output(["git", "-C", str(candidate), *args], env=clean_env(), text=True).strip()
++
++    if git("diff", "--name-only", base, head, "--", "lakefile.toml", "lake-manifest.json", "lean-toolchain"):
++        return None
++    raw = get(f"{BASE}/ci/revisions/{base}.json", missing=True, maximum=2_000_000)
++    if raw is None:
++        return None
++    # Use the same receipt scope, nested build result and fingerprint checks as the public cache client.
++    spec = importlib.util.spec_from_file_location("quick_cache_client", Path(__file__).with_name("ci-cache-get.py"))
++    client = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(client)
++    base_tree, src_tree = git("rev-parse", base + "^{tree}", base + ":src").splitlines()
++    identity = dict(expected, source_tree=src_tree)
++    record = client.matching_record(raw, identity)
++    if record is None:
++        return None
++    if record["candidate_head"] != base or record["candidate_tree"] != base_tree:
++        raise ValueError("Quick-check cache does not identify its exact base")
++    data = get(BASE + "/" + record["map_key"])
++    manifest = get(BASE + "/" + record["module_manifest_key"])
++    if (digest(data) != record["map_sha256"] or digest(manifest) != record["module_manifest_sha256"]
++            or len(manifest) != record["module_manifest_bytes"]):
++        raise ValueError("Published quick-check cache integrity mismatch")
++    return data, manifest, record
++
++
+ def preparation_state(directory):
+     return Path(directory).expanduser().resolve() / settings.TOOLCHAIN_DIR
+ 
+@@ -304,29 +339,45 @@
+         subprocess.run(["lake", "exe", "mathlib/cache", "get"], cwd=deps, env=env, check=True)
+         cache = state / "baseline"
+         cache.mkdir(exist_ok=True)
+-        map_data = get(f"{BASE}/revisions/{REPO}/tc/{settings.TOOLCHAIN_DIR}/{REVISION}.jsonl")
+-        manifest = get(f"{BASE}/bootstrap/{REVISION}/modules.jsonl.gz")
+-        if digest(map_data) != MAP_SHA or digest(manifest) != MANIFEST_SHA:
+-            raise ValueError("Pinned baseline integrity mismatch")
+-        (cache / "outputs.jsonl").write_bytes(map_data)
+-        (cache / "modules.jsonl.gz").write_bytes(manifest)
++        request = json.loads(Path(args.request).read_text())
++        quick_plan = getattr(args, "quick_plan", None)
+         names = None
+-        quick_plan = getattr(args, "quick_plan", None)
++        seed = None
+         if quick_plan:
+             plan = json.loads(Path(quick_plan).read_text())
+-            request = json.loads(Path(args.request).read_text())
+-            if plan.get("candidate_head") != request["expected"]["candidate_head"] or plan.get("status") != "ready":
+-                raise ValueError("quick plan does not bind the resolved candidate")
+-            names = set(plan["closure"])
+-            if not names or len(names) > 2000:
+-                raise ValueError("quick plan exceeds its dependency budget")
+-        entries, hashes = manifest_artifacts(manifest, map_data, modules=names)
++            if (plan.get("candidate_head") != request["expected"]["candidate_head"]
++                    or plan.get("base_head") != request["base_head"] or plan.get("status") != "ready"):
++                raise ValueError("quick plan does not bind the resolved candidate and base")
++            closure = set(plan["closure"])
++            names = set(plan["unchanged_ancestors"])
++            if not closure or len(closure) > 2000 or not names <= closure - set(plan["targets"]):
++                raise ValueError("invalid quick-check dependency selection")
++            if names:
++                seed = quick_base(request, args.candidate)
++        if seed:
++            map_data, manifest, record = seed
++            # The quick caller owns this temporary directory until the selected archives are staged.
++            metadata_dir = Path(args.output).parent
++            map_path = metadata_dir / "base-map.jsonl"
++            manifest_path = metadata_dir / "base-modules.jsonl.gz"
++        else:
++            map_data = get(f"{BASE}/revisions/{REPO}/tc/{settings.TOOLCHAIN_DIR}/{REVISION}.jsonl")
++            manifest = get(f"{BASE}/bootstrap/{REVISION}/modules.jsonl.gz")
++            if digest(map_data) != MAP_SHA or digest(manifest) != MANIFEST_SHA:
++                raise ValueError("Pinned baseline integrity mismatch")
++            record = None
++            map_path = cache / "outputs.jsonl"
++            manifest_path = cache / "modules.jsonl.gz"
++        entries, hashes = manifest_artifacts(manifest, map_data, record, modules=names)
++        map_path.write_bytes(map_data)
++        manifest_path.write_bytes(manifest)
+         downloads(cache, entries, hashes)
+-        request = json.loads(Path(args.request).read_text())
+         selected = None if quick_plan else restore_previous_cache(args.candidate, request, cache)
+         paths = {"packages": str(deps / ".lake/packages"), "baseline_cache": str(cache),
+-                 "baseline_manifest": str(cache / "modules.jsonl.gz"), "baseline_map": str(cache / "outputs.jsonl"),
++                 "baseline_manifest": str(manifest_path), "baseline_map": str(map_path),
+                  "latest_map": str(selected) if selected else ""}
++        if seed:
++            paths["quick_manifest_sha256"] = record["module_manifest_sha256"]
+         Path(args.output).write_text(json.dumps(paths, indent=2) + "\n")
+ 
+ 
+--- a/scripts/quick-check.py
++++ b/scripts/quick-check.py
+@@ -50,7 +50,7 @@
+     if depth: raise ValueError('unterminated header comment')
+     return result
+ 
+-def dependency_closure(project, targets, maximum=MAX_CLOSURE):
++def dependency_closure(project, targets, maximum=MAX_CLOSURE, importers=None):
+     # Project files enter seen, but common package imports recur in many headers.
+     # Bound the lookup cache independently of how many package imports a PR adds.
+     @lru_cache(maxsize=MAX_CLOSURE)
+@@ -68,7 +68,12 @@
+         ci.safe_file(project, str(source.relative_to(project)))
+         seen.add(module)
+         if len(seen) > maximum: raise ValueError('project ancestor cone exceeds small-runner budget')
+-        pending.extend(imports(source))
++        dependencies = imports(source)
++        for dependency in dependencies:
++            if project_source(dependency) is not None:
++                pending.append(dependency)
++                if importers is not None:
++                    importers.setdefault(dependency, set()).add(module)
+     return sorted(seen)
+ 
+ def plan(candidate, request):
+@@ -89,9 +94,20 @@
+         target = name[4:-5].replace('/', '.')
+         if not ci.MODULE.fullmatch(target): raise ValueError('invalid target name')
+         targets.append(target)
++    importers = {}
++    closure = dependency_closure(candidate, targets, importers=importers)
++    # A changed root can itself be an ancestor of another changed root.
++    rebuild = set(targets)
++    pending = list(targets)
++    while pending:
++        for module in importers.get(pending.pop(), ()):
++            if module not in rebuild:
++                rebuild.add(module)
++                pending.append(module)
+     return {'schema':1, 'status':'ready' if targets else 'no_source_changes', 'scope':'changed-modules-only',
+             'full_build':False, 'candidate_head':expected['candidate_head'], 'pr_head':request['pr_head'],
+-            'base_head':base, 'targets':sorted(targets), 'closure':dependency_closure(candidate, targets)}
++            'base_head':base, 'targets':sorted(targets), 'closure':closure,
++            'unchanged_ancestors':sorted(set(closure) - rebuild)}
+ 
+ def resolve(args):
+     host = runner(args.runner)
+@@ -149,21 +165,23 @@
+         print(f'Runner preflight failed before compilation: {reason}', file=sys.stderr)
+         return 1
+     if doctor.returncode or not doctor_safe(report,host): raise ValueError('runner doctor failed; candidate was not executed')
+-    paths_file=output/'paths.json'
+-    prep.prepare(SimpleNamespace(trusted=HERE.parent,candidate=candidate,state=state,request=args.request,output=paths_file,quick_plan=output/'plan.json'))
+-    paths=json.loads(paths_file.read_text())
+-    tc=Path(subprocess.check_output(['elan','which','lean'],env={**prep.clean_env(),'ELAN_TOOLCHAIN':ci.TOOLCHAIN},text=True).strip()).parent.parent
+     parent=state/'quick-work';parent.mkdir(parents=True,exist_ok=True)
+     work=Path(tempfile.mkdtemp(prefix='quick-',dir=parent));project=work/'project';project.mkdir()
+     ci.snapshot(candidate,request['expected']['candidate_head'],project)
+     cache,result,control=[work/name for name in ['cache','result','control']]
+     for directory in [cache/'artifacts',result,control]:directory.mkdir(parents=True)
+-    packages=Path(paths['packages']);ci.validate_packages(project,packages)
+-    private=ci.private_package_builds(project,packages,work/'dependency-builds')
+-    overrides=ci.package_overrides(project,control)
+-    baseline_args=SimpleNamespace(baseline_manifest=Path(paths['baseline_manifest']),baseline_manifest_sha256=ci.BASE_MANIFEST,
+-                                  baseline_map=Path(paths['baseline_map']),baseline_cache=Path(paths['baseline_cache']))
+-    _,warm,_=ci.baseline(baseline_args,project,cache,modules=set(selected['closure']))
++    with tempfile.TemporaryDirectory(dir=work) as metadata:
++        paths_file=Path(metadata)/'paths.json'
++        prep.prepare(SimpleNamespace(trusted=HERE.parent,candidate=candidate,state=state,request=args.request,output=paths_file,quick_plan=output/'plan.json'))
++        paths=json.loads(paths_file.read_text())
++        write(output/'paths.json',paths)
++        packages=Path(paths['packages']);ci.validate_packages(project,packages)
++        private=ci.private_package_builds(project,packages,work/'dependency-builds')
++        overrides=ci.package_overrides(project,control)
++        baseline_args=SimpleNamespace(baseline_manifest=Path(paths['baseline_manifest']),baseline_manifest_sha256=paths.get('quick_manifest_sha256', ci.BASE_MANIFEST),
++                                      baseline_map=Path(paths['baseline_map']),baseline_cache=Path(paths['baseline_cache']))
++        _,warm,_=ci.baseline(baseline_args,project,cache,modules=set(selected['unchanged_ancestors']))
++    tc=Path(subprocess.check_output(['elan','which','lean'],env={**prep.clean_env(),'ELAN_TOOLCHAIN':ci.TOOLCHAIN},text=True).strip()).parent.parent
+     (project/'.lake/packages').mkdir(parents=True,exist_ok=True)
+     command=ci.sandbox(tc,project,packages,cache,result,control,host['jobs'],private)
+     if warm:subprocess.run(command+['/opt/lean/bin/leantar','--jobs',str(host['jobs']),'-f','-x','-j','-'],input=json.dumps(warm),text=True,env=ci.trusted_env(),check=True)
+--- a/scripts/tests/test_ci_prepare.py
++++ b/scripts/tests/test_ci_prepare.py
+@@ -151,6 +151,34 @@
+                 prep.BASE + "/" + published["map_key"]: data,
+                 prep.BASE + "/" + published["module_manifest_key"]: manifest}, data
+ 
++    def test_quick_base_requires_successful_exact_revision_and_source(self):
++        identity = sample_identity()
++        head = "8" * 40
++        base = identity["candidate_head"]
++        request = {"base_ref": "main", "base_head": base, "expected": dict(identity, candidate_head=head)}
++        responses, data = self.published_cache(base, "Ancestor", "1")
++        url = f"{prep.BASE}/ci/revisions/{base}.json"
++        published = json.loads(responses[url])
++        manifest = responses[prep.BASE + "/" + published["module_manifest_key"]]
++        published["module_manifest_bytes"] = len(manifest)
++
++        def check(receipt):
++            responses[url] = json.dumps(receipt).encode() if receipt is not None else None
++            with patch.object(prep, "get", side_effect=lambda url, **kwargs: responses.get(url)), \
++                    patch.object(prep.subprocess, "check_output",
++                                 side_effect=["", identity["candidate_tree"] + "\n" + identity["source_tree"]]):
++                return prep.quick_base(request, Path("."))
++
++        self.assertEqual(check(published), (data, manifest, published))
++        self.assertIsNone(check(None))
++        self.assertIsNone(check(dict(published, build_exit_code=1)))
++        self.assertIsNone(check(dict(published, source_tree="9" * 40)))
++        with self.assertRaisesRegex(ValueError, "exact base"):
++            check(dict(published, candidate_head=head))
++        responses[prep.BASE + "/" + published["map_key"]] += b"bad"
++        with self.assertRaisesRegex(ValueError, "integrity mismatch"):
++            check(published)
++
+     def test_pr_partial_cache_precedes_newer_main_and_missing_branch_falls_back(self):
+         for preferred in ("head", "ancestor", "main"):
+             with self.subTest(preferred=preferred), self.cache_history() as (root, request, commits):
+--- a/scripts/tests/test_quick_check.py
++++ b/scripts/tests/test_quick_check.py
+@@ -30,6 +30,27 @@
+   self.assertEqual(plan['status'], 'ready')
+   self.assertEqual(plan['targets'], ['DataParams₂'])
+   self.assertEqual(plan['closure'], ['DataParams₂'])
++ def test_changed_roots_and_intermediate_importers_rebuild(self):
++  def git(*args):
++   return q.ci.git(self.root, '-c', 'user.name=Test', '-c', 'user.email=test@example.org', *args)
++  git('init', '-q')
++  for name in ('lakefile.toml', 'lean-toolchain', 'lake-manifest.json'):
++   shutil.copyfile(ROOT.parent / name, self.root / name)
++  for name, imports in {'A': ['B', 'D'], 'B': ['C'], 'C': ['E'], 'D': [], 'E': []}.items():
++   self.source(name, ''.join(f'import {dep}\n' for dep in imports))
++  git('add', '.')
++  git('commit', '-qm', 'base')
++  base = git('rev-parse', 'HEAD')
++  for name in ('A', 'C'):
++   with (self.root / 'src' / (name + '.lean')).open('a') as out:
++    out.write('def changed := true\n')
++  git('commit', '-qam', 'change two roots')
++  head = git('rev-parse', 'HEAD')
++  plan = q.plan(self.root, {'base_ref': 'main', 'base_head': base, 'pr_head': head,
++                            'expected': {'candidate_head': head}})
++  self.assertEqual(plan['targets'], ['A', 'C'])
++  self.assertEqual(plan['closure'], ['A', 'B', 'C', 'D', 'E'])
++  self.assertEqual(plan['unchanged_ancestors'], ['D', 'E'])
+  def test_big_cone_deferred(self):
+   for i in range(4):self.source('A'+str(i),'import A'+str(i+1)+'\n')
+   with self.assertRaisesRegex(ValueError,'ancestor cone'):q.dependency_closure(self.root,['A0'],maximum=2)

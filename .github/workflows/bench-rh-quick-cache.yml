@@ -1,0 +1,35 @@
+name: Benchmark the two quick-check caches on PR 1331
+
+on:
+  push:
+    branches: [bench/quick-cache-1331]
+  workflow_dispatch:
+
+concurrency:
+  group: fork-only-quick-cache-1331
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/quick-cache-1331'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: bench
+      - name: Run the pinned comparison
+        timeout-minutes: 55
+        run: python3 bench/quick-cache.py
+      - name: Save timings, setup status and Lake logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: quick-cache-1331-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rh-benchmark-results
+          if-no-files-found: warn
+          retention-days: 7
