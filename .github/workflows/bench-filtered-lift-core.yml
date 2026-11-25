@@ -1,0 +1,31 @@
+name: Measure sharing the Harris–Taylor filtered square-zero lift
+on:
+  push:
+    branches: [bench/filtered-lift-core-cpu]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fork-only-filtered-lift-core
+  cancel-in-progress: false
+jobs:
+  compare:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/filtered-lift-core-cpu'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 160
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: lift-measure
+      - name: Check public interfaces and time the scalar and joint proofs with the shared provider
+        timeout-minutes: 150
+        run: python3 lift-measure/measure.py
+      - name: Preserve source checks, proof interfaces, and raw compiler observations
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: filtered-lift-core-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/lift-measure-results
+          if-no-files-found: error
+          retention-days: 7

@@ -1,0 +1,98 @@
+{
+  "official": "a18a350c3e5aad997766cff2670b292313e46574",
+  "basis_production_head": "14c585298be9468fb0c37d00fc5de2165f5daca0",
+  "base": "a18a350c3e5aad997766cff2670b292313e46574",
+  "base_description": "B14 main plus the identical scoped source changes from basis_production_head",
+  "base_tree": "40b317ce0cfc2f0bbafecbd15c0f9b65addfb060",
+  "candidate_tree": "f34777e84a1cd95f14c805dd80212b94b653fdd0",
+  "patch_sha256": "89f8a3dd5162af62fbd27c1e43643e0ae4df2c2980434e33895034c48769e18d",
+  "source_sha256": {
+    "old": {
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsSqZeroLiftRealisingKs": "de7abe69769ecfee57caae65b796df65e995819dbb51e92069a6eb5ad2fd24a1",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorRealiseKodairaSpencerDirectionStatement": "59f3cdd2d4670320a580a747c8c57d6ae414cfa772b2820c95f10b8b4004a0ea",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement": "c30d26d06cc87c7fb7b0b681d7e42d14c3c7873de2ff479bc40bee67027126a2"
+    },
+    "new": {
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsSqZeroLiftRealisingKs": "5c39961cbd6cfd65409e9c8296067ac85cd04be9dc7d8647898b1366581f1982",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorExistsSquareZeroLiftOfFiltration": "e0404e13829130882dd7b1f1450f72d806ec1a873ffe703bec3b702f28614b86",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorRealiseKodairaSpencerDirectionStatement": "3199e037e85b9871c81279b8936633399357f8939e6dee69d0c75cdb36251464",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement": "c30d26d06cc87c7fb7b0b681d7e42d14c3c7873de2ff479bc40bee67027126a2"
+    }
+  },
+  "expected": {
+    "direct": [
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement",
+      "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.RadicalStalks.OrdGen"
+    ],
+    "main_counts": {
+      "old": 59495,
+      "new": 59496
+    },
+    "main_changed": {
+      "old": [],
+      "new": [
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorExistsSquareZeroLiftOfFiltration"
+      ]
+    },
+    "restore": {
+      "old": 6144,
+      "new": 6144
+    },
+    "providers": {
+      "old": {
+        "targets": [
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsSqZeroLiftRealisingKs",
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorRealiseKodairaSpencerDirectionStatement"
+        ],
+        "cold": [
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsSqZeroLiftRealisingKs",
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorRealiseKodairaSpencerDirectionStatement"
+        ],
+        "inputs": 5108
+      },
+      "new": {
+        "targets": [
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsSqZeroLiftRealisingKs",
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorExistsSquareZeroLiftOfFiltration",
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorRealiseKodairaSpencerDirectionStatement"
+        ],
+        "cold": [
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsSqZeroLiftRealisingKs",
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorExistsSquareZeroLiftOfFiltration",
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorRealiseKodairaSpencerDirectionStatement"
+        ],
+        "inputs": 5109
+      }
+    },
+    "controls": {
+      "old": {
+        "targets": [
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement",
+          "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.RadicalStalks.OrdGen"
+        ],
+        "cold": [
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement",
+          "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.RadicalStalks.OrdGen"
+        ],
+        "inputs": 6149
+      },
+      "new": {
+        "targets": [
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement",
+          "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.RadicalStalks.OrdGen"
+        ],
+        "cold": [
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
+          "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement",
+          "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.RadicalStalks.OrdGen"
+        ],
+        "inputs": 6150
+      }
+    },
+    "plan_sha256": "1afb61fad6f3db5f58bc56c60b84fcd9810d5c584b6cc4e07642d6f51452833f"
+  }
+}
