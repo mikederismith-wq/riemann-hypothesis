@@ -82,7 +82,8 @@ def compare(sup, spec, main, graph, published, host, ci, prepare, toolchain, pac
                 if json.loads((base/(short+'.trace')).read_text())['depHash'] != dependency_hash:
                     raise ValueError(f'legacy trace differs for {n}')
                 compiled = dest/(n+'.olean')
-                shutil.copyfile(base/(short+'.olean'), compiled)
+                for suffix in ('', '.server', '.private'):
+                    shutil.copyfile(base/(short+'.olean'+suffix), dest/(n+'.olean'+suffix))
                 inputs[n] = {'archive_sha256':checksum, 'public_olean_sha256':digest(compiled)}
         sup.write(OUT/'official-inputs.json', inputs)
         shutil.copyfile(HERE/'Check.lean', result/'Check.lean')
@@ -99,7 +100,8 @@ def compare(sup, spec, main, graph, published, host, ci, prepare, toolchain, pac
             raise ValueError(f'Lean kernel check exited {proc.returncode}')
         evidence=json.loads(output.read_text())
         counts={name:len(values) for name,values in evidence.items()}
-        if counts != {'surviving_types':218,'replaced_types':75,'definition_values':13}:
+        if counts != {'surviving_types':218,'replaced_types':75,'definition_values':13,
+                      'proof_types':62,'failures':0,'facet_kinds':75}:
             raise ValueError(f'wrong kernel-checked counts {counts}')
         print('Kernel-checked declarations',counts,flush=True)
 
