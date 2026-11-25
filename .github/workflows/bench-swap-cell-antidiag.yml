@@ -1,0 +1,33 @@
+name: Compare the shared antidiagonal geometric-lemma proof
+on:
+  push:
+    branches: [bench/swap-cell-antidiag]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fork-only-swap-cell-antidiag
+  cancel-in-progress: false
+jobs:
+  measure:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/swap-cell-antidiag'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: bench-swap-cell
+      - name: Measure both producer CPU times and check the six direct importers
+        timeout-minutes: 95
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/rh-proof-results"
+          python3 bench-swap-cell/run.py 2>&1 | tee "$RUNNER_TEMP/rh-proof-results/run.log"
+      - name: Preserve compiler measurements and proof-checking logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: swap-cell-antidiag-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rh-proof-results
+          retention-days: 7
