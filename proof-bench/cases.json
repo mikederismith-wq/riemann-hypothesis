@@ -1,0 +1,80 @@
+{
+  "revision": "fcb6eac7534875d32d68030967e2deae6d686151",
+  "cache_client_test": false,
+  "cases": [
+    {
+      "name": "torus",
+      "targets": [
+        "Development.AbelianVarietyTheory.Proofs.SatakeParameters.ExistsTorusEigenformOfCompactTorusEigenvector",
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.AlgebraTools.IwJqEmbed",
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.CharOfScalar",
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.ExistsEig",
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.MemLevelOfLocalDepth"
+      ],
+      "direct_importers": [
+        "Development.AbelianVarietyTheory.Proofs.FoundationProofs.SubquotientPrinSeriesOfHasVec",
+        "Development.AbelianVarietyTheory.Proofs.SatakeParameters.TameParahoricRepSplitsAsProduct",
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.AlgebraTools.IwJqLine",
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.CuspidalDescent.SphericalTwists.JTwist",
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.CountE",
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.HeckeOperatorPreservesPart",
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.OrdCoreH",
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.OrdCoreOrd",
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.TCompOfEig",
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.TLocDataT",
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.UnitaryThreeInputsOfLiterature",
+        "Development.AutomorphicArithmetic.Foundations.Convolution.SphericalIdeles.QuadLift",
+        "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.PlainTorsionPairs.EndoscopyRank2Ordinary",
+        "Development.WeilBound.RepresentationTheoryGL.ArchimedeanBaseChange.ArchimedeanBaseChangeProof.SatakeExponents.SphericalEmbeddings.Imports"
+      ],
+      "expected_cone": 13342,
+      "expected_cold": 30,
+      "variants": {
+        "old": [
+          "torus-strong-baseline.patch"
+        ],
+        "new": [
+          "torus-strong-baseline.patch",
+          "torus-dedup.patch"
+        ]
+      },
+      "expected_producer_cone": 5818,
+      "expected_producer_cold": 10,
+      "clean_main_candidate": [
+        "torus-current-main.patch"
+      ],
+      "source_blobs": {
+        "Development.AbelianVarietyTheory.Proofs.SatakeParameters.ExistsTorusEigenformOfCompactTorusEigenvector": {
+          "main": "cddafc4c391e3ae9ab8e3659412da2389c43100e",
+          "old": "84a2642e5b3175f72a7f83ad49386d7e58038375",
+          "new": "fa299d0f6b9775ef6d38f50c378193961967ddee",
+          "production": "fa299d0f6b9775ef6d38f50c378193961967ddee"
+        },
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.AlgebraTools.IwJqEmbed": {
+          "main": "6b00d59562014868d19284aad6e1b416c340aed0",
+          "old": "6b00d59562014868d19284aad6e1b416c340aed0",
+          "new": "a874e26614842697273a6c77f7582b493361e0a2",
+          "production": "a874e26614842697273a6c77f7582b493361e0a2"
+        },
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.CharOfScalar": {
+          "main": "11c84d0301c8c1d2d91d59fa1be02bf9d48abec2",
+          "old": "375d34f367d5946f734ab88bec46424fdf059ab4",
+          "new": "22eb1d95553f7bbb30e01df32643f73720e1f189",
+          "production": "02d8fdcb874008eae87647870d2658914dd82616"
+        },
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.ExistsEig": {
+          "main": "6cde19d8d8cb9fb7301e0b72680fcd82e9f8664c",
+          "old": "0df32915e1cfe9a1798ee309e541ba15d2243a4b",
+          "new": "4beacb4e8662049eb86a481b03fcb8db96336007",
+          "production": "f5f1c24caa93c66fff3bf8c4f023613c2a8915fc"
+        },
+        "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.MemLevelOfLocalDepth": {
+          "main": "efd1d1ebd846b68c5edaad8e99f16bed7a50b570",
+          "old": "844d847451087110118b43086745ded6b56c9ce5",
+          "new": "e47f7afc6198941db834a460ba9bcd93432d09bb",
+          "production": "fcfe02714a0fa4ad0874f4a07e221f341ae8840b"
+        }
+      }
+    }
+  ]
+}

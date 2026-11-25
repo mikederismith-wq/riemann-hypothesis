@@ -1,0 +1,553 @@
+--- a/src/Development/AutomorphicArithmetic/AutomorphicVarieties/AlgebraTools/IwJqEmbed.lean
++++ b/src/Development/AutomorphicArithmetic/AutomorphicVarieties/AlgebraTools/IwJqEmbed.lean
+@@ -51,117 +51,6 @@
+ 
+ open ValuativeRel Matrix GlobalTheory.SmGL GlobalTheory.SplitWeil UpperTheory.V.Hi UpperTheory.V.AlgebraTools GlobalTheory.PRep
+ 
+-section General
+-
+-variable {G V : Type} [CommGroup G] [AddCommGroup V] [Module ℂ V]
+-
+-private theorem pow_comm_rep (ρ : Representation ℂ G V) (t g : G) (c : ℂ) (m : ℕ) (v : V) :
+-    ((ρ t - algebraMap ℂ (Module.End ℂ V) c) ^ m) (ρ g v) =
+-      ρ g (((ρ t - algebraMap ℂ (Module.End ℂ V) c) ^ m) v) := by
+-  have h : Commute (ρ t - algebraMap ℂ (Module.End ℂ V) c) (ρ g) :=
+-    Commute.sub_left ((Commute.all t g).map ρ) (Algebra.commutes c (ρ g))
+-  exact LinearMap.congr_fun (h.pow_left m).eq v
+-
+-private theorem pow_mem_sub (ρ : Representation ℂ G V) (N : Subrepresentation ρ) (t : G) (c : ℂ) (m : ℕ)
+-    (v : V) (hv : v ∈ N.toSubmodule) : ((ρ t - algebraMap ℂ (Module.End ℂ V) c) ^ m) v ∈ N.toSubmodule := by
+-  induction m with
+-  | zero => simpa using hv
+-  | succ m ih =>
+-    rw [pow_succ', Module.End.mul_apply, LinearMap.sub_apply, Module.algebraMap_end_apply]
+-    exact sub_mem (N.apply_mem_toSubmodule t ih) (N.toSubmodule.smul_mem c ih)
+-
+-private theorem exists_nil {ρ : Representation ℂ G V} (hl : HasFiniteLength ρ) {c : G → ℂ} {x : V} (hx : x ≠ 0)
+-    (hxc : ∀ t, ∃ m : ℕ, ((ρ t - algebraMap ℂ (Module.End ℂ V) (c t)) ^ m) x = 0) :
+-    ∃ N : Subrepresentation ρ, N ≠ ⊤ ∧
+-      ∀ t, ∃ m : ℕ, ∀ v, ((ρ t - algebraMap ℂ (Module.End ℂ V) (c t)) ^ m) v ∈ N.toSubmodule := by
+-  haveI := ((hasFiniteLength_iff_wellFounded ρ).1 hl).1
+-  obtain ⟨N, hN, hmax⟩ := (wellFounded_gt (α := Subrepresentation ρ)).has_min {N | x ∉ N.toSubmodule}
+-    ⟨⊥, fun h => hx ((Submodule.mem_bot ℂ).1 h)⟩
+-  refine ⟨N, fun h => hN (by rw [h]; trivial), fun t => ?_⟩
+-  set f := ρ t - algebraMap ℂ (Module.End ℂ V) (c t) with hf
+-  let K : ℕ →o Subrepresentation ρ :=
+-    ⟨fun m => ⟨N.toSubmodule.comap (f ^ m), fun g v hv => by
+-        show (f ^ m) (ρ g v) ∈ N.toSubmodule
+-        rw [hf, pow_comm_rep]
+-        exact N.apply_mem_toSubmodule g hv⟩,
+-      monotone_nat_of_le_succ fun m v hv => by
+-        show (f ^ (m + 1)) v ∈ N.toSubmodule
+-        rw [add_comm, pow_add, Module.End.mul_apply]
+-        exact pow_mem_sub ρ N t _ 1 _ hv⟩
+-  obtain ⟨a, ha⟩ := WellFoundedGT.monotone_chain_condition K
+-  obtain ⟨b, hb⟩ := hxc t
+-  let R : Subrepresentation ρ := ⟨N.toSubmodule ⊔ LinearMap.range (f ^ (a + b)), fun g v hv => by
+-    obtain ⟨y, hy, _, ⟨z, rfl⟩, rfl⟩ := Submodule.mem_sup.1 hv
+-    rw [map_add (f := _)]
+-    exact Submodule.add_mem_sup (N.apply_mem_toSubmodule g hy) ⟨ρ g z, by rw [hf, pow_comm_rep]⟩⟩
+-  have hR : x ∉ R.toSubmodule := fun hv => by
+-    obtain ⟨y, hy, _, ⟨z, rfl⟩, h⟩ := Submodule.mem_sup.1 hv
+-    have h1 : z ∈ (K (b + (a + b))).toSubmodule := by
+-      show (f ^ (b + (a + b))) z ∈ N.toSubmodule
+-      rw [pow_add, Module.End.mul_apply, eq_sub_of_add_eq' h, map_sub, hb, zero_sub]
+-      exact neg_mem (pow_mem_sub ρ N t _ b _ hy)
+-    rw [← ha _ (by omega), ha (a + b) (by omega)] at h1
+-    exact hN (h ▸ add_mem hy h1)
+-  have hNR : N ≤ R := fun v hv => Submodule.mem_sup_left (S := N.toSubmodule) hv
+-  have hE : N = R := by
+-    by_contra hne
+-    exact hmax R hR (lt_of_le_of_ne hNR hne)
+-  refine ⟨a + b, fun v => ?_⟩
+-  rw [hE]
+-  exact Submodule.mem_sup_right ⟨v, rfl⟩
+-
+-variable [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace.SeparableSpace G]
+-
+-private theorem exists_form {ρ : Representation ℂ G V} (hρ : IsSmooth ρ) (hl : HasFiniteLength ρ) {χ : G →* ℂˣ}
+-    {x : V} (hx : x ≠ 0)
+-    (hxc : ∀ t, ∃ m : ℕ, ((ρ t - algebraMap ℂ (Module.End ℂ V) (χ t : ℂ)) ^ m) x = 0) :
+-    IsSmoothChar χ ∧ ∃ l : V →ₗ[ℂ] ℂ, l ≠ 0 ∧ ∀ g v, l (ρ g v) = (χ g : ℂ) * l v := by
+-  obtain ⟨T, hT, hnil⟩ := exists_nil hl hx hxc
+-  haveI := ((hasFiniteLength_iff_wellFounded ρ).1 hl).1
+-  obtain ⟨M, hM, hTM⟩ := (eq_top_or_exists_le_coatom T).resolve_left hT
+-  have hi := isIrreducible_subQuot hM.covBy_top
+-  let p : (⊤ : Subrepresentation ρ).toRepresentation.IntertwiningMap (subQuot ⊤ M) :=
+-    ⟨Submodule.mkQ _, fun _ => rfl⟩
+-  have hs : IsSmooth (subQuot ⊤ M) :=
+-    IsSubquotient.isSmooth ⟨⊤, p, Submodule.Quotient.mk_surjective _⟩ hρ
+-  obtain ⟨μ, hμ⟩ := GlobalTheory.TorusEigenform.exists_char_of_isIrreducible hs hi
+-  have hμM : ∀ g v, ρ g v - (μ g : ℂ) • v ∈ M.toSubmodule := fun g v => by
+-    have := hμ g (Submodule.Quotient.mk ⟨v, trivial⟩)
+-    exact (Submodule.Quotient.eq (M.toSubmodule.comap (⊤ : Subrepresentation ρ).toSubmodule.subtype)
+-      (x := ⟨ρ g v, trivial⟩) (y := ⟨(μ g : ℂ) • v, trivial⟩)).1 this
+-  have hM' : M.toSubmodule < ⊤ := lt_top_iff_ne_top.2 fun h =>
+-    hM.1 (Subrepresentation.toSubmodule_injective h)
+-  obtain ⟨l, hl0, hlM⟩ := Submodule.exists_le_ker_of_lt_top _ hM'
+-  have hle : ∀ g v, l (ρ g v) = (μ g : ℂ) * l v := fun g v => by
+-    have := hlM (hμM g v)
+-    rwa [LinearMap.mem_ker, map_sub, map_smul, sub_eq_zero] at this
+-  obtain ⟨v, hv⟩ : ∃ v, l v ≠ 0 := by
+-    by_contra hn
+-    push Not at hn
+-    exact hl0 (LinearMap.ext hn)
+-  have hμχ : μ = χ := MonoidHom.ext fun t => by
+-    obtain ⟨m, hm⟩ := hnil t
+-    have h1 : ∀ m : ℕ, l (((ρ t - algebraMap ℂ (Module.End ℂ V) (χ t : ℂ)) ^ m) v) =
+-        ((μ t : ℂ) - χ t) ^ m * l v := fun m => by
+-      induction m with
+-      | zero => simp
+-      | succ m ih =>
+-        rw [pow_succ', Module.End.mul_apply, LinearMap.sub_apply, Module.algebraMap_end_apply, map_sub, hle,
+-          map_smul, ih, smul_eq_mul]
+-        ring
+-    have h2 := hlM (hTM (hm v))
+-    rw [LinearMap.mem_ker, h1] at h2
+-    exact Units.ext (sub_eq_zero.1 (pow_eq_zero_iff'.1 ((mul_eq_zero.1 h2).resolve_right hv)).1)
+-  subst hμχ
+-  refine ⟨?_, l, hl0, hle⟩
+-  refine Subgroup.isOpen_of_mem_nhds _ (g := 1) (Filter.mem_of_superset ((hρ v).mem_nhds (by simp)) ?_)
+-  intro g hg
+-  have hg' : ρ g v = v := hg
+-  have h := hle g v
+-  rw [hg'] at h
+-  exact Units.ext (mul_right_cancel₀ hv (h.symm.trans (one_mul _).symm))
+-
+-end General
+ 
+ theorem UpperTheory.V.AlgebraTools.jqEmbed :
+     GlobalTheory.Published.BernsteinZelevinskyFiniteness → ∀ (k : Type) [Field k] [ValuativeRel k] [TopologicalSpace k] [IsNonarchimedeanLocalField k] (n : ℕ) (C : Subgroup 𝓀[k]ˣ) (V : Type) [AddCommGroup V] [Module ℂ V] (π : Representation ℂ (GL (Fin n) k) V), IsSmooth π → π.IsIrreducible → ∀ θ : (Fin n → kˣ) →* (Module.End ℂ (fixd π (iwC k n C)))ˣ, (∀ t, Dom t → (θ t : Module.End ℂ (fixd π (iwC k n C))) = hk π (iwC k n C) (diagT k (Fin n) t)) → ∀ χ : (Fin n → kˣ) →* ℂˣ, (⨅ t, Module.End.maxGenEigenspace (θ t : Module.End ℂ (fixd π (iwC k n C))) (χ t : ℂ)) ≠ ⊥ → ∃ ψ : Fin n → kˣ →* ℂˣ, (∀ i, IsSmoothChar (ψ i)) ∧ (∀ i, ∀ x ∈ unitsC k C, ψ i x = 1) ∧ torusChar ψ = χ * ((deltaHalf k fun _ : Fin n => Unit).comp (leviTorus k (Fin n)).toMonoidHom) ∧ IsSubquotient π (prinSeries ψ) := by
+@@ -192,7 +81,7 @@
+           mul_comm (χ t : ℂ), mul_smul, ← smul_sub, smul_smul, pow_succ]
+     exact ⟨m, by rw [h1, hm, map_zero, smul_zero]⟩
+   haveI := GlobalTheory.TorusEigenform.secondCountableTopology_units k
+-  obtain ⟨hs, l, hl0, hle⟩ := exists_form (isSmooth_jacB hπ) hl hx hxc
++  obtain ⟨hs, l, hl0, hle⟩ := GlobalTheory.TorusEigenform.exists_eigenform_of_generalized_eigenvector (isSmooth_jacB hπ) hl hx hxc
+   have htc : torusChar (fun i => (χ * δ).comp (MonoidHom.mulSingle (fun _ => kˣ) i)) = χ * δ :=
+     MonoidHom.ext fun t => by
+       rw [torusChar_apply]
+--- a/src/Development/AutomorphicArithmetic/AutomorphicVarieties/ModularityArgument/ThresholdArguments/DenseThresholdCases/CharOfScalar.lean
++++ b/src/Development/AutomorphicArithmetic/AutomorphicVarieties/ModularityArgument/ThresholdArguments/DenseThresholdCases/CharOfScalar.lean
+@@ -86,51 +86,6 @@
+   have h : Commute (ρ t - c • (1 : Module.End ℂ V)) (ρ g) :=
+     Commute.sub_left ((Commute.all t g).map ρ) ((Commute.one_left _).smul_left c)
+   exact LinearMap.congr_fun (h.pow_left m).eq v
+-private theorem pow_mem (ρ : Representation ℂ G V) (N : Subrepresentation ρ) (t : G) (c : ℂ) (m : ℕ)
+-    (v : V) (hv : v ∈ N.toSubmodule) : ((ρ t - c • (1 : Module.End ℂ V)) ^ m) v ∈ N.toSubmodule := by
+-  induction m with
+-  | zero => simpa using hv
+-  | succ m ih =>
+-    rw [pow_succ', Module.End.mul_apply, LinearMap.sub_apply]
+-    exact sub_mem (N.apply_mem_toSubmodule t ih) (N.toSubmodule.smul_mem c ih)
+-private theorem exists_nil {ρ : Representation ℂ G V} (hl : HasFiniteLength ρ) {x : V} (hx : x ≠ 0) :
+-    ∃ N : Subrepresentation ρ, N ≠ ⊤ ∧ ∀ (t : G) (c : ℂ), ρ t x = c • x →
+-      ∃ m : ℕ, ∀ v, ((ρ t - c • (1 : Module.End ℂ V)) ^ m) v ∈ N.toSubmodule := by
+-  haveI := ((hasFiniteLength_iff_wellFounded ρ).1 hl).1
+-  obtain ⟨N, hN, hmax⟩ := (wellFounded_gt (α := Subrepresentation ρ)).has_min {N | x ∉ N.toSubmodule}
+-    ⟨⊥, fun h => hx ((Submodule.mem_bot ℂ).1 h)⟩
+-  refine ⟨N, fun h => hN (by rw [h]; trivial), fun t c hc => ?_⟩
+-  set f := ρ t - c • (1 : Module.End ℂ V) with hf
+-  have hb : f x = 0 := by simp [hf, hc]
+-  let K : ℕ →o Subrepresentation ρ :=
+-    ⟨fun m => ⟨N.toSubmodule.comap (f ^ m), fun g v hv => by
+-        show (f ^ m) (ρ g v) ∈ N.toSubmodule
+-        rw [hf, pow_comm]
+-        exact N.apply_mem_toSubmodule g hv⟩,
+-      monotone_nat_of_le_succ fun m v hv => by
+-        show (f ^ (m + 1)) v ∈ N.toSubmodule
+-        rw [add_comm, pow_add, Module.End.mul_apply]
+-        exact pow_mem ρ N t _ 1 _ hv⟩
+-  obtain ⟨a, ha⟩ := WellFoundedGT.monotone_chain_condition K
+-  let R : Subrepresentation ρ := ⟨N.toSubmodule ⊔ LinearMap.range (f ^ a), fun g v hv => by
+-    obtain ⟨y, hy, _, ⟨z, rfl⟩, rfl⟩ := Submodule.mem_sup.1 hv
+-    rw [map_add (f := _)]
+-    exact Submodule.add_mem_sup (N.apply_mem_toSubmodule g hy) ⟨ρ g z, by rw [hf, pow_comm]⟩⟩
+-  have hR : x ∉ R.toSubmodule := fun hv => by
+-    obtain ⟨y, hy, _, ⟨z, rfl⟩, h⟩ := Submodule.mem_sup.1 hv
+-    have h1 : z ∈ (K (1 + a)).toSubmodule := by
+-      show (f ^ (1 + a)) z ∈ N.toSubmodule
+-      rw [pow_add, Module.End.mul_apply, eq_sub_of_add_eq' h, map_sub, pow_one, hb, zero_sub, ← pow_one f]
+-      exact neg_mem (pow_mem ρ N t _ 1 _ hy)
+-    rw [← ha _ (by omega)] at h1
+-    exact hN (h ▸ add_mem hy h1)
+-  have hNR : N ≤ R := fun v hv => Submodule.mem_sup_left (S := N.toSubmodule) hv
+-  have hE : N = R := by
+-    by_contra hne
+-    exact hmax R hR (lt_of_le_of_ne hNR hne)
+-  refine ⟨a, fun v => ?_⟩
+-  rw [hE]
+-  exact Submodule.mem_sup_right ⟨v, rfl⟩
+ private theorem pow_eig {f : Module.End ℂ V} {v : V} {a : ℂ} (h : f v = a • v) (c : ℂ) (m : ℕ) :
+     ((f - c • (1 : Module.End ℂ V)) ^ m) v = (a - c) ^ m • v := by
+   induction m with
+@@ -195,47 +150,9 @@
+ private theorem exists_form {ρ : Representation ℂ G V} (hρ : IsSmooth ρ) (hl : HasFiniteLength ρ)
+     {x : V} (hx : x ≠ 0) : ∃ μ : G →* ℂˣ, IsSmoothChar μ ∧ (∀ (t : G) (c : ℂ), ρ t x = c • x → (μ t : ℂ) = c) ∧
+       ∃ l : V →ₗ[ℂ] ℂ, l ≠ 0 ∧ ∀ g v, l (ρ g v) = (μ g : ℂ) * l v := by
+-  obtain ⟨T, hT, hnil⟩ := exists_nil hl hx
+-  haveI := ((hasFiniteLength_iff_wellFounded ρ).1 hl).1
+-  obtain ⟨M, hM, hTM⟩ := (eq_top_or_exists_le_coatom T).resolve_left hT
+-  have hi := isIrreducible_subQuot hM.covBy_top
+-  let p : (⊤ : Subrepresentation ρ).toRepresentation.IntertwiningMap (subQuot ⊤ M) :=
+-    ⟨Submodule.mkQ _, fun _ => rfl⟩
+-  have hs : IsSmooth (subQuot ⊤ M) :=
+-    IsSubquotient.isSmooth ⟨⊤, p, Submodule.Quotient.mk_surjective _⟩ hρ
+-  obtain ⟨μ, hμ⟩ := GlobalTheory.TorusEigenform.exists_char_of_isIrreducible hs hi
+-  have hμM : ∀ g v, ρ g v - (μ g : ℂ) • v ∈ M.toSubmodule := fun g v => by
+-    have := hμ g (Submodule.Quotient.mk ⟨v, trivial⟩)
+-    exact (Submodule.Quotient.eq (M.toSubmodule.comap (⊤ : Subrepresentation ρ).toSubmodule.subtype)
+-      (x := ⟨ρ g v, trivial⟩) (y := ⟨(μ g : ℂ) • v, trivial⟩)).1 this
+-  have hM' : M.toSubmodule < ⊤ := lt_top_iff_ne_top.2 fun h =>
+-    hM.1 (Subrepresentation.toSubmodule_injective h)
+-  obtain ⟨l, hl0, hlM⟩ := Submodule.exists_le_ker_of_lt_top _ hM'
+-  have hle : ∀ g v, l (ρ g v) = (μ g : ℂ) * l v := fun g v => by
+-    have := hlM (hμM g v)
+-    rwa [LinearMap.mem_ker, map_sub, map_smul, sub_eq_zero] at this
+-  obtain ⟨v, hv⟩ : ∃ v, l v ≠ 0 := by
+-    by_contra hn
+-    push Not at hn
+-    exact hl0 (LinearMap.ext hn)
+-  refine ⟨μ, ?_, fun t c hc => ?_, l, hl0, hle⟩
+-  · refine Subgroup.isOpen_of_mem_nhds _ (g := 1) (Filter.mem_of_superset ((hρ v).mem_nhds (by simp)) ?_)
+-    intro g hg
+-    have hg' : ρ g v = v := hg
+-    have h := hle g v
+-    rw [hg'] at h
+-    exact Units.ext (mul_right_cancel₀ hv (h.symm.trans (one_mul _).symm))
+-  · obtain ⟨m, hm⟩ := hnil t c hc
+-    have h1 : ∀ m : ℕ, l (((ρ t - c • (1 : Module.End ℂ V)) ^ m) v) = ((μ t : ℂ) - c) ^ m * l v := fun m => by
+-      induction m with
+-      | zero => simp
+-      | succ m ih =>
+-        rw [pow_succ', Module.End.mul_apply, LinearMap.sub_apply, map_sub, hle, LinearMap.smul_apply,
+-          Module.End.one_apply, map_smul, ih, smul_eq_mul]
+-        ring
+-    have h2 := hlM (hTM (hm v))
+-    rw [LinearMap.mem_ker, h1] at h2
+-    exact sub_eq_zero.1 (pow_eq_zero_iff'.1 ((mul_eq_zero.1 h2).resolve_right hv)).1
++  obtain ⟨μ, l, hs, hl0, hle, hμ⟩ := GlobalTheory.TorusEigenform.exists_eigenform_with_generalized_eigenvalues hρ hl hx
++  refine ⟨μ, hs, fun t c hc => hμ t c ⟨1, ?_⟩, l, hl0, hle⟩
++  rw [pow_one, LinearMap.sub_apply, Module.algebraMap_end_apply, hc, sub_self]
+ end General
+ section Abs
+ variable {G M : Type} [Group G] (I : Iwa G) [AddCommGroup M] [Module ℂ M] (π : Representation ℂ G M) (c : ℕ)
+--- a/src/Development/AutomorphicArithmetic/AutomorphicVarieties/ModularityArgument/ThresholdArguments/DenseThresholdCases/ExistsEig.lean
++++ b/src/Development/AutomorphicArithmetic/AutomorphicVarieties/ModularityArgument/ThresholdArguments/DenseThresholdCases/ExistsEig.lean
+@@ -150,37 +150,8 @@
+ private theorem exists_form {ρ : Representation ℂ G V} (hρ : IsSmooth ρ) (hl : HasFiniteLength ρ)
+     {x : V} (hx : x ≠ 0) : ∃ μ : G →* ℂˣ, IsSmoothChar μ ∧
+       ∃ l : V →ₗ[ℂ] ℂ, l ≠ 0 ∧ ∀ g v, l (ρ g v) = (μ g : ℂ) * l v := by
+-  have hT : (⊥ : Subrepresentation ρ) ≠ ⊤ := fun h =>
+-    hx ((Submodule.mem_bot ℂ).1 (show x ∈ (⊥ : Subrepresentation ρ).toSubmodule by rw [h]; trivial))
+-  haveI := ((hasFiniteLength_iff_wellFounded ρ).1 hl).1
+-  obtain ⟨M, hM, -⟩ := (eq_top_or_exists_le_coatom ⊥).resolve_left hT
+-  have hi := isIrreducible_subQuot hM.covBy_top
+-  let p : (⊤ : Subrepresentation ρ).toRepresentation.IntertwiningMap (subQuot ⊤ M) :=
+-    ⟨Submodule.mkQ _, fun _ => rfl⟩
+-  have hs : IsSmooth (subQuot ⊤ M) :=
+-    IsSubquotient.isSmooth ⟨⊤, p, Submodule.Quotient.mk_surjective _⟩ hρ
+-  obtain ⟨μ, hμ⟩ := GlobalTheory.TorusEigenform.exists_char_of_isIrreducible hs hi
+-  have hμM : ∀ g v, ρ g v - (μ g : ℂ) • v ∈ M.toSubmodule := fun g v => by
+-    have := hμ g (Submodule.Quotient.mk ⟨v, trivial⟩)
+-    exact (Submodule.Quotient.eq (M.toSubmodule.comap (⊤ : Subrepresentation ρ).toSubmodule.subtype)
+-      (x := ⟨ρ g v, trivial⟩) (y := ⟨(μ g : ℂ) • v, trivial⟩)).1 this
+-  have hM' : M.toSubmodule < ⊤ := lt_top_iff_ne_top.2 fun h =>
+-    hM.1 (Subrepresentation.toSubmodule_injective h)
+-  obtain ⟨l, hl0, hlM⟩ := Submodule.exists_le_ker_of_lt_top _ hM'
+-  have hle : ∀ g v, l (ρ g v) = (μ g : ℂ) * l v := fun g v => by
+-    have := hlM (hμM g v)
+-    rwa [LinearMap.mem_ker, map_sub, map_smul, sub_eq_zero] at this
+-  obtain ⟨v, hv⟩ : ∃ v, l v ≠ 0 := by
+-    by_contra hn
+-    push Not at hn
+-    exact hl0 (LinearMap.ext hn)
+-  refine ⟨μ, ?_, l, hl0, hle⟩
+-  · refine Subgroup.isOpen_of_mem_nhds _ (g := 1) (Filter.mem_of_superset ((hρ v).mem_nhds (by simp)) ?_)
+-    intro g hg
+-    have hg' : ρ g v = v := hg
+-    have h := hle g v
+-    rw [hg'] at h
+-    exact Units.ext (mul_right_cancel₀ hv (h.symm.trans (one_mul _).symm))
++  obtain ⟨μ, l, hs, hl0, hle, _⟩ := GlobalTheory.TorusEigenform.exists_eigenform_with_generalized_eigenvalues hρ hl hx
++  exact ⟨μ, hs, l, hl0, hle⟩
+ end General
+ private theorem inj {G M J : Type} [Group G] (I : Iwa G) [AddCommGroup M] [Module ℂ M] (π : Representation ℂ G M)
+     (hs : I.Smooth π) (a : J → G) (ha : ∀ j, a j ∈ I.P) (μ : J → ℂ) (hμ : ∀ j, μ j ≠ 0) (l : List G)
+--- a/src/Development/AutomorphicArithmetic/AutomorphicVarieties/ModularityArgument/ThresholdArguments/DenseThresholdCases/MemLevelOfLocalDepth.lean
++++ b/src/Development/AutomorphicArithmetic/AutomorphicVarieties/ModularityArgument/ThresholdArguments/DenseThresholdCases/MemLevelOfLocalDepth.lean
+@@ -872,110 +872,6 @@
+ section
+ open NumberField IsDedekindDomain ValuativeRel Matrix GlobalTheory.CuspRep GlobalTheory.PRep GlobalTheory.UnitaryBC GlobalTheory.SmGL GlobalTheory.SplitWeil GlobalTheory.LocGL Formalism.BasicNotions
+ open UpperTheory.V.Hi UpperTheory.V.AlgebraTools UpperTheory.V.Z.Sym UpperTheory.V.Z.Sym.Dict
+-section General
+-variable {G V : Type} [CommGroup G] [AddCommGroup V] [Module ℂ V]
+-private theorem pow_comm_rep (ρ : Representation ℂ G V) (t g : G) (c : ℂ) (m : ℕ) (v : V) :
+-    ((ρ t - algebraMap ℂ (Module.End ℂ V) c) ^ m) (ρ g v) =
+-      ρ g (((ρ t - algebraMap ℂ (Module.End ℂ V) c) ^ m) v) := by
+-  have h : Commute (ρ t - algebraMap ℂ (Module.End ℂ V) c) (ρ g) :=
+-    Commute.sub_left ((Commute.all t g).map ρ) (Algebra.commutes c (ρ g))
+-  exact LinearMap.congr_fun (h.pow_left m).eq v
+-private theorem pow_mem_sub (ρ : Representation ℂ G V) (N : Subrepresentation ρ) (t : G) (c : ℂ) (m : ℕ)
+-    (v : V) (hv : v ∈ N.toSubmodule) : ((ρ t - algebraMap ℂ (Module.End ℂ V) c) ^ m) v ∈ N.toSubmodule := by
+-  induction m with
+-  | zero => simpa using hv
+-  | succ m ih =>
+-    rw [pow_succ', Module.End.mul_apply, LinearMap.sub_apply, Module.algebraMap_end_apply]
+-    exact sub_mem (N.apply_mem_toSubmodule t ih) (N.toSubmodule.smul_mem c ih)
+-private theorem exists_nil {ρ : Representation ℂ G V} (hl : HasFiniteLength ρ) {c : G → ℂ} {x : V} (hx : x ≠ 0)
+-    (hxc : ∀ t, ∃ m : ℕ, ((ρ t - algebraMap ℂ (Module.End ℂ V) (c t)) ^ m) x = 0) :
+-    ∃ N : Subrepresentation ρ, N ≠ ⊤ ∧
+-      ∀ t, ∃ m : ℕ, ∀ v, ((ρ t - algebraMap ℂ (Module.End ℂ V) (c t)) ^ m) v ∈ N.toSubmodule := by
+-  haveI := ((hasFiniteLength_iff_wellFounded ρ).1 hl).1
+-  obtain ⟨N, hN, hmax⟩ := (wellFounded_gt (α := Subrepresentation ρ)).has_min {N | x ∉ N.toSubmodule}
+-    ⟨⊥, fun h => hx ((Submodule.mem_bot ℂ).1 h)⟩
+-  refine ⟨N, fun h => hN (by rw [h]; trivial), fun t => ?_⟩
+-  set f := ρ t - algebraMap ℂ (Module.End ℂ V) (c t) with hf
+-  let K : ℕ →o Subrepresentation ρ :=
+-    ⟨fun m => ⟨N.toSubmodule.comap (f ^ m), fun g v hv => by
+-        show (f ^ m) (ρ g v) ∈ N.toSubmodule
+-        rw [hf, pow_comm_rep]
+-        exact N.apply_mem_toSubmodule g hv⟩,
+-      monotone_nat_of_le_succ fun m v hv => by
+-        show (f ^ (m + 1)) v ∈ N.toSubmodule
+-        rw [add_comm, pow_add, Module.End.mul_apply]
+-        exact pow_mem_sub ρ N t _ 1 _ hv⟩
+-  obtain ⟨a, ha⟩ := WellFoundedGT.monotone_chain_condition K
+-  obtain ⟨b, hb⟩ := hxc t
+-  let R : Subrepresentation ρ := ⟨N.toSubmodule ⊔ LinearMap.range (f ^ (a + b)), fun g v hv => by
+-    obtain ⟨y, hy, _, ⟨z, rfl⟩, rfl⟩ := Submodule.mem_sup.1 hv
+-    rw [map_add (f := _)]
+-    exact Submodule.add_mem_sup (N.apply_mem_toSubmodule g hy) ⟨ρ g z, by rw [hf, pow_comm_rep]⟩⟩
+-  have hR : x ∉ R.toSubmodule := fun hv => by
+-    obtain ⟨y, hy, _, ⟨z, rfl⟩, h⟩ := Submodule.mem_sup.1 hv
+-    have h1 : z ∈ (K (b + (a + b))).toSubmodule := by
+-      show (f ^ (b + (a + b))) z ∈ N.toSubmodule
+-      rw [pow_add, Module.End.mul_apply, eq_sub_of_add_eq' h, map_sub, hb, zero_sub]
+-      exact neg_mem (pow_mem_sub ρ N t _ b _ hy)
+-    rw [← ha _ (by omega), ha (a + b) (by omega)] at h1
+-    exact hN (h ▸ add_mem hy h1)
+-  have hNR : N ≤ R := fun v hv => Submodule.mem_sup_left (S := N.toSubmodule) hv
+-  have hE : N = R := by
+-    by_contra hne
+-    exact hmax R hR (lt_of_le_of_ne hNR hne)
+-  refine ⟨a + b, fun v => ?_⟩
+-  rw [hE]
+-  exact Submodule.mem_sup_right ⟨v, rfl⟩
+-variable [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace.SeparableSpace G]
+-private theorem exists_form {ρ : Representation ℂ G V} (hρ : IsSmooth ρ) (hl : HasFiniteLength ρ) {χ : G →* ℂˣ}
+-    {x : V} (hx : x ≠ 0)
+-    (hxc : ∀ t, ∃ m : ℕ, ((ρ t - algebraMap ℂ (Module.End ℂ V) (χ t : ℂ)) ^ m) x = 0) :
+-    IsSmoothChar χ ∧ ∃ l : V →ₗ[ℂ] ℂ, l ≠ 0 ∧ ∀ g v, l (ρ g v) = (χ g : ℂ) * l v := by
+-  obtain ⟨T, hT, hnil⟩ := exists_nil hl hx hxc
+-  haveI := ((hasFiniteLength_iff_wellFounded ρ).1 hl).1
+-  obtain ⟨M, hM, hTM⟩ := (eq_top_or_exists_le_coatom T).resolve_left hT
+-  have hi := isIrreducible_subQuot hM.covBy_top
+-  let p : (⊤ : Subrepresentation ρ).toRepresentation.IntertwiningMap (subQuot ⊤ M) :=
+-    ⟨Submodule.mkQ _, fun _ => rfl⟩
+-  have hs : IsSmooth (subQuot ⊤ M) :=
+-    IsSubquotient.isSmooth ⟨⊤, p, Submodule.Quotient.mk_surjective _⟩ hρ
+-  obtain ⟨μ, hμ⟩ := GlobalTheory.TorusEigenform.exists_char_of_isIrreducible hs hi
+-  have hμM : ∀ g v, ρ g v - (μ g : ℂ) • v ∈ M.toSubmodule := fun g v => by
+-    have := hμ g (Submodule.Quotient.mk ⟨v, trivial⟩)
+-    exact (Submodule.Quotient.eq (M.toSubmodule.comap (⊤ : Subrepresentation ρ).toSubmodule.subtype)
+-      (x := ⟨ρ g v, trivial⟩) (y := ⟨(μ g : ℂ) • v, trivial⟩)).1 this
+-  have hM' : M.toSubmodule < ⊤ := lt_top_iff_ne_top.2 fun h =>
+-    hM.1 (Subrepresentation.toSubmodule_injective h)
+-  obtain ⟨l, hl0, hlM⟩ := Submodule.exists_le_ker_of_lt_top _ hM'
+-  have hle : ∀ g v, l (ρ g v) = (μ g : ℂ) * l v := fun g v => by
+-    have := hlM (hμM g v)
+-    rwa [LinearMap.mem_ker, map_sub, map_smul, sub_eq_zero] at this
+-  obtain ⟨v, hv⟩ : ∃ v, l v ≠ 0 := by
+-    by_contra hn
+-    push Not at hn
+-    exact hl0 (LinearMap.ext hn)
+-  have hμχ : μ = χ := MonoidHom.ext fun t => by
+-    obtain ⟨m, hm⟩ := hnil t
+-    have h1 : ∀ m : ℕ, l (((ρ t - algebraMap ℂ (Module.End ℂ V) (χ t : ℂ)) ^ m) v) =
+-        ((μ t : ℂ) - χ t) ^ m * l v := fun m => by
+-      induction m with
+-      | zero => simp
+-      | succ m ih =>
+-        rw [pow_succ', Module.End.mul_apply, LinearMap.sub_apply, Module.algebraMap_end_apply, map_sub, hle,
+-          map_smul, ih, smul_eq_mul]
+-        ring
+-    have h2 := hlM (hTM (hm v))
+-    rw [LinearMap.mem_ker, h1] at h2
+-    exact Units.ext (sub_eq_zero.1 (pow_eq_zero_iff'.1 ((mul_eq_zero.1 h2).resolve_right hv)).1)
+-  subst hμχ
+-  refine ⟨?_, l, hl0, hle⟩
+-  refine Subgroup.isOpen_of_mem_nhds _ (g := 1) (Filter.mem_of_superset ((hρ v).mem_nhds (by simp)) ?_)
+-  intro g hg
+-  have hg' : ρ g v = v := hg
+-  have h := hle g v
+-  rw [hg'] at h
+-  exact Units.ext (mul_right_cancel₀ hv (h.symm.trans (one_mul _).symm))
+-end General
+ private theorem smul_cancel {M : Type} [AddCommGroup M] [Module ℂ M] {c : ℂ} (hc : c ≠ 0) {a b : M}
+     (h : c • a = c • b) : a = b :=
+   smul_right_injective M hc h
+@@ -1263,7 +1159,7 @@
+     (hasFiniteLength_comp_iff _ _ (leviTorus k (Fin n)).surjective).2
+       ((H.loc.bz k).2.1 _ _ _ (points (Fin n)) _ τ hs (hasFiniteLength_of_isIrreducible hi))
+   haveI := GlobalTheory.TorusEigenform.secondCountableTopology_units k
+-  obtain ⟨-, l, hl0, hle⟩ := exists_form (χ := torusChar ψ) (isSmooth_jacB hs) hl hx fun t =>
++  obtain ⟨-, l, hl0, hle⟩ := GlobalTheory.TorusEigenform.exists_eigenform_of_generalized_eigenvector (χ := torusChar ψ) (isSmooth_jacB hs) hl hx fun t =>
+     ⟨1, by rw [pow_one, LinearMap.sub_apply, Module.algebraMap_end_apply, ht t, sub_self]⟩
+   exact GlobalTheory.SatakeExists.isSubquotient_of_eigenform hs hi (torusChar ψ) l hl0 hle
+ end
+--- a/src/Development/AbelianVarietyTheory/Proofs/SatakeParameters/ExistsTorusEigenformOfCompactTorusEigenvector.lean
++++ b/src/Development/AbelianVarietyTheory/Proofs/SatakeParameters/ExistsTorusEigenformOfCompactTorusEigenvector.lean
+@@ -78,23 +78,70 @@
+         rw [← hc, map_mul, Module.End.mul_apply, hc b, hc a, smul_smul]) }
+   exact ⟨m.toHomUnits, fun g w => hc g w⟩
+ 
+-theorem exists_eigenform {ρ : Representation ℂ G V} (hρ : IsSmooth ρ) (hl : HasFiniteLength ρ) {H : Subgroup G}
+-    (hH : IsCompact (H : Set G)) {χ : G →* ℂˣ} (hχ : IsSmoothChar χ) {x : V} (hx : x ≠ 0)
+-    (hxH : ∀ t ∈ H, ρ t x = (χ t : ℂ) • x) :
+-    ∃ (μ : G →* ℂˣ) (l : V →ₗ[ℂ] ℂ), l ≠ 0 ∧ (∀ g v, l (ρ g v) = (μ g : ℂ) * l v) ∧ ∀ h ∈ H, μ h = χ h := by
+-  let ρ' := twist ρ χ⁻¹
+-  have hρ' : ∀ g v, ρ' g v = ((χ g)⁻¹ : ℂˣ) • ρ g v := fun _ _ => rfl
+-  have hc := LocGL.isCompl_fixed_twKer (isSmooth_twist hρ hχ.inv) hH
+-  let T : Subrepresentation ρ := ⟨twKer ρ' H 1, fun g v hv => by
+-    have h1 : ρ' g v ∈ twKer ρ' H 1 :=
+-      twKer_le_comap ρ' H g (by rw [Subgroup.normalizer_eq_top]; trivial) hv
+-    have h2 := (twKer ρ' H 1).smul_mem (χ g : ℂ) h1
+-    rwa [hρ', ← Units.smul_def, smul_inv_smul] at h2⟩
+-  have hT : T ≠ ⊤ := fun h => by
+-    have h1 : x ∈ T.toSubmodule := by rw [h]; trivial
+-    have h2 : x ∈ fixed ρ' H := fun t => by
+-      rw [hρ', hxH t t.2, ← Units.smul_def, inv_smul_smul]; simp
+-    exact hx ((Submodule.disjoint_def.1 hc.disjoint) x h2 h1)
++private theorem pow_comm_rep (ρ : Representation ℂ G V) (t g : G) (c : ℂ) (m : ℕ) (v : V) :
++    ((ρ t - algebraMap ℂ (Module.End ℂ V) c) ^ m) (ρ g v) =
++      ρ g (((ρ t - algebraMap ℂ (Module.End ℂ V) c) ^ m) v) := by
++  have h : Commute (ρ t - algebraMap ℂ (Module.End ℂ V) c) (ρ g) :=
++    Commute.sub_left ((Commute.all t g).map ρ) (Algebra.commutes c (ρ g))
++  exact LinearMap.congr_fun (h.pow_left m).eq v
++
++private theorem pow_mem_sub (ρ : Representation ℂ G V) (N : Subrepresentation ρ) (t : G) (c : ℂ) (m : ℕ)
++    (v : V) (hv : v ∈ N.toSubmodule) : ((ρ t - algebraMap ℂ (Module.End ℂ V) c) ^ m) v ∈ N.toSubmodule := by
++  induction m with
++  | zero => simpa using hv
++  | succ m ih =>
++    rw [pow_succ', Module.End.mul_apply, LinearMap.sub_apply, Module.algebraMap_end_apply]
++    exact sub_mem (N.apply_mem_toSubmodule t ih) (N.toSubmodule.smul_mem c ih)
++
++private theorem exists_subrepresentation_of_generalized_eigenvalues {ρ : Representation ℂ G V}
++    (hl : HasFiniteLength ρ) {x : V} (hx : x ≠ 0) :
++    ∃ N : Subrepresentation ρ, N ≠ ⊤ ∧ ∀ (t : G) (c : ℂ),
++      (∃ b : ℕ, ((ρ t - algebraMap ℂ (Module.End ℂ V) c) ^ b) x = 0) →
++      ∃ m : ℕ, ∀ v, ((ρ t - algebraMap ℂ (Module.End ℂ V) c) ^ m) v ∈ N.toSubmodule := by
++  haveI := ((hasFiniteLength_iff_wellFounded ρ).1 hl).1
++  obtain ⟨N, hN, hmax⟩ := (wellFounded_gt (α := Subrepresentation ρ)).has_min {N | x ∉ N.toSubmodule}
++    ⟨⊥, fun h => hx ((Submodule.mem_bot ℂ).1 h)⟩
++  refine ⟨N, fun h => hN (by rw [h]; trivial), fun t c hxc => ?_⟩
++  set f := ρ t - algebraMap ℂ (Module.End ℂ V) c with hf
++  let K : ℕ →o Subrepresentation ρ :=
++    ⟨fun m => ⟨N.toSubmodule.comap (f ^ m), fun g v hv => by
++        show (f ^ m) (ρ g v) ∈ N.toSubmodule
++        rw [hf, pow_comm_rep]
++        exact N.apply_mem_toSubmodule g hv⟩,
++      monotone_nat_of_le_succ fun m v hv => by
++        show (f ^ (m + 1)) v ∈ N.toSubmodule
++        rw [add_comm, pow_add, Module.End.mul_apply]
++        exact pow_mem_sub ρ N t _ 1 _ hv⟩
++  obtain ⟨a, ha⟩ := WellFoundedGT.monotone_chain_condition K
++  obtain ⟨b, hb⟩ := hxc
++  let R : Subrepresentation ρ := ⟨N.toSubmodule ⊔ LinearMap.range (f ^ (a + b)), fun g v hv => by
++    obtain ⟨y, hy, _, ⟨z, rfl⟩, rfl⟩ := Submodule.mem_sup.1 hv
++    rw [map_add (f := _)]
++    exact Submodule.add_mem_sup (N.apply_mem_toSubmodule g hy) ⟨ρ g z, by rw [hf, pow_comm_rep]⟩⟩
++  have hR : x ∉ R.toSubmodule := fun hv => by
++    obtain ⟨y, hy, _, ⟨z, rfl⟩, h⟩ := Submodule.mem_sup.1 hv
++    have h1 : z ∈ (K (b + (a + b))).toSubmodule := by
++      show (f ^ (b + (a + b))) z ∈ N.toSubmodule
++      rw [pow_add, Module.End.mul_apply, eq_sub_of_add_eq' h, map_sub, hb, zero_sub]
++      exact neg_mem (pow_mem_sub ρ N t _ b _ hy)
++    rw [← ha _ (by omega), ha (a + b) (by omega)] at h1
++    exact hN (h ▸ add_mem hy h1)
++  have hNR : N ≤ R := fun v hv => Submodule.mem_sup_left (S := N.toSubmodule) hv
++  have hE : N = R := by
++    by_contra hne
++    exact hmax R hR (lt_of_le_of_ne hNR hne)
++  refine ⟨a + b, fun v => ?_⟩
++  rw [hE]
++  exact Submodule.mem_sup_right ⟨v, rfl⟩
++
++/-- A finite-length smooth representation of an abelian group has a character quotient whose
++character agrees with every generalized eigenvalue of a given nonzero vector. -/
++theorem exists_eigenform_with_generalized_eigenvalues {ρ : Representation ℂ G V}
++    (hρ : IsSmooth ρ) (hl : HasFiniteLength ρ) {x : V} (hx : x ≠ 0) :
++    ∃ (μ : G →* ℂˣ) (l : V →ₗ[ℂ] ℂ), IsSmoothChar μ ∧ l ≠ 0 ∧
++      (∀ g v, l (ρ g v) = (μ g : ℂ) * l v) ∧ ∀ (t : G) (c : ℂ),
++      (∃ m : ℕ, ((ρ t - algebraMap ℂ (Module.End ℂ V) c) ^ m) x = 0) → (μ t : ℂ) = c := by
++  obtain ⟨T, hT, hnil⟩ := exists_subrepresentation_of_generalized_eigenvalues hl hx
+   haveI := ((hasFiniteLength_iff_wellFounded ρ).1 hl).1
+   obtain ⟨M, hM, hTM⟩ := (eq_top_or_exists_le_coatom T).resolve_left hT
+   have hi := isIrreducible_subQuot hM.covBy_top
+@@ -102,7 +149,7 @@
+     ⟨Submodule.mkQ _, fun _ => rfl⟩
+   have hs : IsSmooth (subQuot ⊤ M) :=
+     IsSubquotient.isSmooth ⟨⊤, p, Submodule.Quotient.mk_surjective _⟩ hρ
+-  obtain ⟨μ, hμ⟩ := exists_char_of_isIrreducible hs hi
++  obtain ⟨μ, hμ⟩ := GlobalTheory.TorusEigenform.exists_char_of_isIrreducible hs hi
+   have hμM : ∀ g v, ρ g v - (μ g : ℂ) • v ∈ M.toSubmodule := fun g v => by
+     have := hμ g (Submodule.Quotient.mk ⟨v, trivial⟩)
+     exact (Submodule.Quotient.eq (M.toSubmodule.comap (⊤ : Subrepresentation ρ).toSubmodule.subtype)
+@@ -113,18 +160,46 @@
+   have hle : ∀ g v, l (ρ g v) = (μ g : ℂ) * l v := fun g v => by
+     have := hlM (hμM g v)
+     rwa [LinearMap.mem_ker, map_sub, map_smul, sub_eq_zero] at this
+-  refine ⟨μ, l, hl0, hle, fun h hh => ?_⟩
+   obtain ⟨v, hv⟩ : ∃ v, l v ≠ 0 := by
+     by_contra hn
+-    push_neg at hn
++    push Not at hn
+     exact hl0 (LinearMap.ext hn)
+-  have h1 : ρ' h v - v ∈ T.toSubmodule := Submodule.subset_span ⟨⟨h, hh⟩, v, by simp⟩
+-  have h2 := hlM (hTM h1)
+-  rw [LinearMap.mem_ker, map_sub, hρ', Units.smul_def, map_smul, hle, sub_eq_zero, smul_eq_mul,
+-    ← mul_assoc] at h2
+-  have h3 := mul_right_cancel₀ hv (h2.trans (one_mul _).symm)
+-  rw [← Units.val_mul, Units.val_eq_one, inv_mul_eq_one] at h3
+-  exact h3.symm
++  refine ⟨μ, l, ?_, hl0, hle, fun t c hxc => ?_⟩
++  · refine Subgroup.isOpen_of_mem_nhds _ (g := 1) (Filter.mem_of_superset ((hρ v).mem_nhds (by simp)) ?_)
++    intro g hg
++    have hg' : ρ g v = v := hg
++    have h := hle g v
++    rw [hg'] at h
++    exact Units.ext (mul_right_cancel₀ hv (h.symm.trans (one_mul _).symm))
++  · obtain ⟨m, hm⟩ := hnil t c hxc
++    have h1 : ∀ m : ℕ, l (((ρ t - algebraMap ℂ (Module.End ℂ V) c) ^ m) v) =
++        ((μ t : ℂ) - c) ^ m * l v := fun m => by
++      induction m with
++      | zero => simp
++      | succ m ih =>
++        rw [pow_succ', Module.End.mul_apply, LinearMap.sub_apply, Module.algebraMap_end_apply, map_sub, hle,
++          map_smul, ih, smul_eq_mul]
++        ring
++    have h2 := hlM (hTM (hm v))
++    rw [LinearMap.mem_ker, h1] at h2
++    exact sub_eq_zero.1 (pow_eq_zero_iff'.1 ((mul_eq_zero.1 h2).resolve_right hv)).1
++
++theorem exists_eigenform_of_generalized_eigenvector {ρ : Representation ℂ G V} (hρ : IsSmooth ρ) (hl : HasFiniteLength ρ) {χ : G →* ℂˣ}
++    {x : V} (hx : x ≠ 0)
++    (hxc : ∀ t, ∃ m : ℕ, ((ρ t - algebraMap ℂ (Module.End ℂ V) (χ t : ℂ)) ^ m) x = 0) :
++    IsSmoothChar χ ∧ ∃ l : V →ₗ[ℂ] ℂ, l ≠ 0 ∧ ∀ g v, l (ρ g v) = (χ g : ℂ) * l v := by
++  obtain ⟨μ, l, hμ, hl0, hle, hχ⟩ := exists_eigenform_with_generalized_eigenvalues hρ hl hx
++  have heq : μ = χ := MonoidHom.ext fun t => Units.ext (hχ t _ (hxc t))
++  subst χ
++  exact ⟨hμ, l, hl0, hle⟩
++
++theorem exists_eigenform {ρ : Representation ℂ G V} (hρ : IsSmooth ρ) (hl : HasFiniteLength ρ) {H : Subgroup G}
++    (hH : IsCompact (H : Set G)) {χ : G →* ℂˣ} (hχ : IsSmoothChar χ) {x : V} (hx : x ≠ 0)
++    (hxH : ∀ t ∈ H, ρ t x = (χ t : ℂ) • x) :
++    ∃ (μ : G →* ℂˣ) (l : V →ₗ[ℂ] ℂ), l ≠ 0 ∧ (∀ g v, l (ρ g v) = (μ g : ℂ) * l v) ∧ ∀ h ∈ H, μ h = χ h := by
++  obtain ⟨μ, l, _, hl0, hle, hμ⟩ := exists_eigenform_with_generalized_eigenvalues hρ hl hx
++  refine ⟨μ, l, hl0, hle, fun t ht => Units.ext (hμ t _ ⟨1, ?_⟩)⟩
++  rw [pow_one, LinearMap.sub_apply, Module.algebraMap_end_apply, hxH t ht, sub_self]
+ 
+ end General
+ 
