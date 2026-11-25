@@ -1,12 +1,12 @@
-"""Check the two legacy reflexivity proofs using only the published provider and its exact dependencies."""
+"""Check the exact TieOps candidate and its two direct importers on post-batch-13 main."""
+from collections import Counter
 from types import SimpleNamespace
-import gzip
+import statistics
 import hashlib
 import importlib.util
 import json
 import os
 from pathlib import Path
-import shutil
 import subprocess
 import tempfile
 import traceback
@@ -16,10 +16,11 @@ TEMP = Path(os.environ['RUNNER_TEMP']).resolve()
 MODULES = TEMP / 'slice-check-engine'
 OUT = TEMP / 'rh-proof-results'
 BENCH = '9ca6441e25fabb007d07f008ede2cd34848801a2'
-HEAD = 'fcb6eac7534875d32d68030967e2deae6d686151'
+HEAD = '27b55787485ac2a5b5b3ed2dffc697e0ae6a2f59'
 FORK = 'https://raw.githubusercontent.com/mikederismith-wq/riemann-hypothesis'
 ASSETS = {'proof.py': '04e9bef2749db09b3ad9474f3f076dea5268daa98ca9ea119fc7a836ff697be4',
  'cases.json': 'c0ab9aba07701ba00dccbe52a1fcda498afe67268cf88c33e5d46c4d6f7cc6a9',
+ 'tie-slices.patch': '39630cab07b761b70e824b81dd3679e9e00c3b1c94198edd50496b0bb92eb439',
  'lean-timer.py': '4e6ee472c842640d3611b55ec2f90c0f5f92de992cd0e188d40644d20e4a62c4'}
 
 
@@ -42,95 +43,105 @@ def engine():
     return sup
 
 
-PROVIDER = 'Formalism.PolynomialDimension.MultinomialDepth.MonoCount'
-PROVIDER_BLOB = 'f77a67a5621957785bd48afa197b93936cb6f110'
-LEGACY = 'Formalism.PolynomialDimension.MultinomialDepth.TieOps'
-LEGACY_OLEAN = 'c80ba9efe1d4e843a3c284961bcb5a7c6801375bb4b8a97e3294bde6ab2c43b1'
-WANTED = ['Formalism.CountingSumsFrames.TO.ext.eq_1', 'Formalism.CountingSumsFrames.TO.slc.eq_1']
+SYM = 'Formalism.SharpRestriction.GrowthBounds.MonomialFactorials.SymmetryFinitenessWindowLevelDimOnAdmissible'
+TARGET = 'Formalism.PolynomialDimension.MultinomialDepth.TieOps'
+LATTICE = 'Formalism.ThetaLogCoordinates.PartnerMeanCoordinates.LatticeTheoremEps28Valid'
+PRIOR_CANDIDATE_PUBLIC = {
+    TARGET: '41a5d7bada4772be50aaac989e6d4c42030bb0de8fb313481bd929909a24b0c9',
+    SYM: 'b9e9a25b37be10852f65eec7146be8199fd96e7d5e4b55bfeef796651f9622ba',
+    LATTICE: '5e84bff56527a71e4938aeb59af3b12254b9beff83f642d0ace5756427829e0c',
+}
+CANDIDATE_PRIVATE = {
+    TARGET: '22958a260c47b56d60c1c8976ccdc0695477f6a4cc6e6304048a2faad541ce84',
+    SYM: '70a9071eedec8d9055ae5eb71708cc5430256955f9f2d9186fc93164332ab862',
+    LATTICE: 'cb12deb24c1925b016e1a2b78a03d7572a607b1720f81d78ad5fed0a77cbb381',
+}
+
+
+def source_graph(sup, src):
+    parser = sup.load('current_slices_quick', src.parent / 'scripts/quick-check.py')
+    graph = {'.'.join(p.relative_to(src).with_suffix('').parts): parser.imports(p) for p in src.rglob('*.lean')}
+    if len(graph) != 59582:
+        raise ValueError('unexpected number of current-main source files')
+    return graph
+
+
+def warm_unedited(sup, main, graph, published, host, ci, prepare, toolchain, packages, work):
+    mp, mf, receipt = published
+    deps = sup.cone(graph, [SYM])
+    if len(deps) != 326:
+        raise ValueError('wrong Symmetry control dependency closure')
+    entries, hashes = prepare.manifest_artifacts(mf, mp, receipt, modules=deps)
+    if len(entries) != len(deps):
+        raise ValueError('missing stock Symmetry artifact')
+    shared = sup.ROOT / 'compressed'
+    prepare.downloads(shared, entries, hashes)
+    for path in ('cache/artifacts', 'result', 'control'):
+        (work / path).mkdir(parents=True)
+    (main / '.lake/packages').mkdir(parents=True, exist_ok=True)
+    overrides = ci.package_overrides(main, work / 'control')
+    args = SimpleNamespace(baseline_manifest=sup.ROOT / 'modules.gz', baseline_map=sup.ROOT / 'outputs.jsonl',
+                           baseline_manifest_sha256=receipt['module_manifest_sha256'], baseline_cache=shared)
+    _, jobs, _ = ci.baseline(args, main, work / 'cache', modules=deps)
+    if len(jobs) != len(deps):
+        raise ValueError('incorrect number of input archives')
+    cmd = host.sandbox(toolchain, main, packages, work / 'cache', work / 'result', work / 'control')
+    sup.run(*cmd, '/opt/lean/bin/leantar', '--jobs', '4', '-f', '-x', '-j', '-', input=json.dumps(jobs), text=True)
+    return main, cmd, work / 'result', overrides, []
 
 
 def compare(sup, spec, main, graph, published, host, ci, prepare, toolchain, packages):
-    mp, mf, receipt = published
-    if spec['name'] != 'tie-slices' or spec['targets'] != [LEGACY]:
-        raise ValueError('unexpected measured case')
-    if receipt['candidate_head'] != HEAD or receipt['build_exit_code'] != 0:
-        raise ValueError('expected successful exact-main publication')
-    source = 'src/' + PROVIDER.replace('.', '/') + '.lean'
-    if ci.git(main, 'rev-parse', 'HEAD:' + source) != PROVIDER_BLOB or PROVIDER in spec['source_blobs']:
-        raise ValueError('shared provider changed from the proof-checked refactor')
-    deps = sup.cone(graph, [PROVIDER])
-    if len(deps) != 11 or LEGACY in deps:
-        raise ValueError(f'unexpected shared-provider import closure: {sorted(deps)}')
-    entries, hashes = prepare.manifest_artifacts(mf, mp, receipt, modules=deps | {LEGACY})
-    if len(entries) != len(deps) + 1:
-        raise ValueError('missing published proof artifact')
-    shared = sup.ROOT / 'compressed'
-    prepare.downloads(shared, entries, hashes)
-    rows = {r[0]: r for line in gzip.decompress(mf).splitlines()[1:] if (r := json.loads(line))}
+    roots = spec['targets'] + spec['direct_importers']
+    if spec['name'] != 'tie-slices' or set(roots) != {TARGET, SYM, LATTICE}:
+        raise ValueError('unexpected case')
+    if published[2]['candidate_head'] != HEAD or published[2]['build_exit_code'] != 0:
+        raise ValueError('incorrect published main receipt')
+    provider = ci.git(main, 'rev-parse', 'HEAD:src/Formalism/PolynomialDimension/MultinomialDepth/MonoCount.lean')
+    if provider != 'f77a67a5621957785bd48afa197b93936cb6f110':
+        raise ValueError('wrong provider')
+    with tempfile.TemporaryDirectory(prefix='slices-27b-', dir=sup.ROOT) as d:
+        work = Path(d)
+        candidate = sup.initialize_arm(work, 'candidate', spec['variants']['candidate'], spec, main, graph,
+                                       published, host, ci, prepare, toolchain, packages)
+        sup.build(candidate, roots, OUT, 'current-candidate')
+        built = json.loads((OUT / 'current-candidate.json').read_text())
+        compiled = Counter(row['module'] for row in built['actual_compilers'] if row['project'] and row['exit_code'] == 0)
+        if compiled != Counter(candidate[-1]) or len(compiled) != 33:
+            raise ValueError(f'incorrect project compilation set: {list(compiled)}')
+        outputs = built['outputs']
+        fingerprints = {n: {'public_identical': outputs[n]['.olean']['sha256'] == PRIOR_CANDIDATE_PUBLIC[n],
+                             'private_identical': outputs[n]['.olean.private']['sha256'] == CANDIDATE_PRIVATE[n]}
+                        for n in roots}
+        sup.write(OUT / 'candidate-comparison.json', fingerprints)
+        if not all(row['public_identical'] for row in fingerprints.values()):
+            raise ValueError(f'current candidate exported API differs from the kernel-checked candidate: {fingerprints}')
 
-    with tempfile.TemporaryDirectory(prefix='published-slices-', dir=sup.ROOT) as tmp:
-        work = Path(tmp)
-        for path in ('cache/artifacts', 'result/legacy', 'control', 'extract'):
-            (work / path).mkdir(parents=True)
-        result = work / 'result'
-        (main / '.lake/packages').mkdir(parents=True, exist_ok=True)
-        overrides = ci.package_overrides(main, work / 'control')
-        args = SimpleNamespace(baseline_manifest=sup.ROOT / 'modules.gz',
-                               baseline_map=sup.ROOT / 'outputs.jsonl',
-                               baseline_manifest_sha256=receipt['module_manifest_sha256'], baseline_cache=shared)
-        _, jobs, _ = ci.baseline(args, main, work / 'cache', modules=deps)
-        if len(jobs) != len(deps):
-            raise ValueError('verified provider archive selection changed')
-        cmd = host.sandbox(toolchain, main, packages, work / 'cache', result, work / 'control')
-        sup.run(*cmd, '/opt/lean/bin/leantar', '--jobs', '4', '-f', '-x', '-j', '-',
-                input=json.dumps(jobs), text=True)
-
-        _, dependency_hash, archive, archive_sha = rows[LEGACY]
-        artifact = shared / 'artifacts' / archive
-        if entries[dependency_hash] != archive or digest(artifact) != archive_sha:
-            raise ValueError('legacy archive differs from the exact-main receipt')
-        extract = work / 'extract'
-        job = dict(file=str(artifact), base=[str(extract), str(extract)], hash=dependency_hash)
-        sup.run(toolchain / 'bin/leantar', '--jobs', '1', '-f', '-x', '-j', '-', input=json.dumps([job]), text=True)
-        if json.loads((extract / 'TieOps.trace').read_text())['depHash'] != dependency_hash:
-            raise ValueError('legacy trace differs')
-        old = result / 'legacy/TieOps.olean'
-        shutil.copyfile(extract / old.name, old)
-        if digest(old) != LEGACY_OLEAN:
-            raise ValueError('legacy public module differs from the measured old build')
-        sup.write(OUT / 'official-inputs.json', dict(provider=PROVIDER, provider_blob=PROVIDER_BLOB,
-                  restored_archives={name: rows[name][3] for name in sorted(deps)},
-                  legacy_module=LEGACY, legacy_public_olean_sha256=LEGACY_OLEAN))
-
-        shutil.copyfile(HERE / 'Check.lean', result / 'Check.lean')
-        log = OUT / 'kernel.log'
-        with log.open('w') as stream:
-            proc = subprocess.run([*cmd, '/usr/bin/env', 'RH_LEAN_TIMES=/work/result/compiler.jsonl',
-                                   'LEAN_NUM_THREADS=2', '/usr/bin/timeout', '10m', '/opt/lean/bin/lake',
-                                   '--packages', overrides, 'env', '/opt/lean/bin/lean', '-R', '/work/result',
-                                   '-o', '/work/result/Check.olean', '/work/result/Check.lean'],
-                                  stdout=stream, stderr=subprocess.STDOUT)
-        for filename in ('compiler.jsonl', 'legacy-equations.json'):
-            if (result / filename).is_file():
-                shutil.copyfile(result / filename, OUT / filename)
-        if proc.returncode:
-            print(log.read_text(errors='replace')[-14000:], flush=True)
-            raise ValueError(f'Lean kernel check exited {proc.returncode}')
-        rows = [json.loads(line) for line in (OUT / 'compiler.jsonl').read_text().splitlines()]
-        if len(rows) != 1 or rows[0]['project'] or rows[0]['exit_code'] != 0 or rows[0]['module'] != '/work/result/Check.lean':
-            raise ValueError(f'unexpected compiler invocations: {rows}')
-        verified = json.loads((result / 'legacy-equations.json').read_text())
-        if verified != {'equations': WANTED, 'failures': []}:
-            raise ValueError(f'wrong kernel-checked equations {verified}')
-        print('Kernel proved both exact legacy equations using the published provider.', flush=True)
+        control = warm_unedited(sup, main, graph, published, host, ci, prepare, toolchain, packages, work / 'control-arm')
+        sup.build(control, [SYM], OUT, 'current-symmetry-control-warmup', check_extra=True)
+        sup.build(candidate, [SYM], OUT, 'current-symmetry-candidate-warmup', check_extra=True)
+        arms = {'main': control, 'candidate': candidate}
+        times = {side: [] for side in arms}
+        for i, side in enumerate(['main', 'candidate', 'candidate', 'main'] * 2):
+            label = f'current-symmetry-{i}-{side}'
+            times[side].append(sup.build(arms[side], [SYM], OUT, label, check_extra=True)[SYM])
+        summary = {side: {'samples_cpu_s': t, 'median_cpu_s': statistics.median(t)} for side, t in times.items()}
+        sup.write(OUT / 'symmetry-paired-comparison.json', summary)
+        print('Fresh current-main build and direct-importer check', fingerprints, summary, flush=True)
 
 
 if __name__ == '__main__':
     OUT.mkdir(exist_ok=True)
     try:
         sup = engine()
+        config = MODULES / 'cases.json'
+        case = json.loads(config.read_text())
+        if case['revision'] != 'fcb6eac7534875d32d68030967e2deae6d686151':
+            raise ValueError('unexpected prior benchmark revision')
+        case['revision'] = HEAD
+        sup.write(config, case)
+        sup.source_graph = lambda src: source_graph(sup, src)
         sup.benchmark_case = lambda *args: compare(sup, *args)
         sup.main()
     except Exception as exc:
-        (OUT / 'kernel-error.json').write_text(json.dumps({'error': str(exc), 'traceback': traceback.format_exc()}, indent=2) + '\n')
+        (OUT / 'current-error.json').write_text(json.dumps({'error': str(exc), 'traceback': traceback.format_exc()}, indent=2) + '\n')
         raise
