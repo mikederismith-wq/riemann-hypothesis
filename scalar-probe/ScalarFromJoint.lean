@@ -17,8 +17,7 @@ example : ∀ (p : ℕ) [Fact p.Prime] (D : GlobalTheory.UPel.HT.Datum p) (R : T
   let τ := spMap σ
   let s := spMap (algebraMap k (TrivSqZeroExt k (Fin 1 → k))) ≫ t
   have hbase' : σ.comp (algebraMap k (TrivSqZeroExt k (Fin 1 → k))) = algebraMap k (DualNumber k) := by
-    ext a
-    simp [σ, TrivSqZeroExt.algebraMap_eq_inl]
+    exact RingHom.ext (fun a => (TrivSqZeroExt.map c).commutes a)
   have hbase : τ ≫ s = spMap (algebraMap k (DualNumber k)) ≫ t := by
     dsimp only [τ, s]
     rw [← Category.assoc, ← GlobalTheory.Cris.spMap_comp, hbase']
