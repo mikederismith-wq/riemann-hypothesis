@@ -1,0 +1,31 @@
+name: Benchmark the Harris–Taylor joint basis
+on:
+  push:
+    branches: [bench/harris-taylor-joint-basis]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fork-harris-taylor-joint-basis
+  cancel-in-progress: false
+jobs:
+  measure:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/harris-taylor-joint-basis'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: ks-bench
+      - name: Build and time both proof paths
+        timeout-minutes: 115
+        run: python3 ks-bench/measure.py
+      - name: Preserve individual compiler timings, signatures and logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: harris-taylor-cpu-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rh-proof-results
+          if-no-files-found: warn
+          retention-days: 7
