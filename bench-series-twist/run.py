@@ -138,7 +138,7 @@ def compare(bench,case,main,graph,published,host,ci,prep,toolchain,packages):
         stage(bench,prep,ci,arm,cache,shared,control,published,small)
         cold=plan.OWNERS|{plan.EXTRA}
         pairs=[]
-        for index,order in enumerate([('old','new'),('new','old')],start=1):
+        for index,order in enumerate([('new','old'),('old','new')],start=1):
             row={}
             for side in order:
                 set_arm(project,variants[side])

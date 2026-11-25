@@ -24,9 +24,9 @@
   },
   "patched_blobs": {
     "Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Lb2OfThetaTwistStatement": "e64b67989d1cb397ec115002d835536a97981be6",
-    "Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.ClassSumEq": "57f08052186be4215efe94951d8058c1efd4269c"
+    "Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.ClassSumEq": "d5f4c9fef2745b34015d087a2d930f8cacd10b1a"
   },
-  "patch_sha256": "7ba609966a14b19da1d3d212befa760300005cdc552120fe2bb8742137f33049",
+  "patch_sha256": "9561b3a1c97bea1713b3ecfc3c396a3ca073a65f71b2de73f8555d1baacc042c",
   "cases": [
     {
       "name": "series-twist"
