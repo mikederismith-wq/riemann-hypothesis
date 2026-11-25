@@ -1,0 +1,33 @@
+name: Compare the unused legacy row construction
+on:
+  push:
+    branches: [bench/legacy-row-construction]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fork-only-legacy-row-construction
+  cancel-in-progress: false
+jobs:
+  compare:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/legacy-row-construction'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: bench-row-orphan
+      - name: Check the public types and compare the producer and its sole importer
+        timeout-minutes: 105
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/rh-proof-results"
+          python3 bench-row-orphan/run.py 2>&1 | tee "$RUNNER_TEMP/rh-proof-results/run.log"
+      - name: Preserve timings, compiler logs, and the public declaration inventory
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: legacy-row-construction-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rh-proof-results
+          retention-days: 7
