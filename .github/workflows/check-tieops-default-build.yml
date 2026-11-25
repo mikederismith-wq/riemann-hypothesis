@@ -1,0 +1,31 @@
+name: Check the full RH build after sharing monomial slices
+on:
+  push:
+    branches: [bench/tieops-full-build]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fork-only-tieops-default-build
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/tieops-full-build'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: tieops-default
+      - name: Run the warm stock default build on current main
+        timeout-minutes: 348
+        run: python3 tieops-default/check.py
+      - name: Save build, compiler and resource evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: tieops-default-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rh-proof-results
+          if-no-files-found: warn
+          retention-days: 7
