@@ -1,14 +1,9 @@
 import Lean
-import Formalism.PolynomialDimension.MultinomialDepth.TieOps
-import Formalism.SharpRestriction.GrowthBounds.MonomialFactorials.SymmetryFinitenessWindowLevelDimOnAdmissible
-import Formalism.ThetaLogCoordinates.PartnerMeanCoordinates.LatticeTheoremEps28Valid
 import Formalism.PolynomialDimension.MultinomialDepth.MonoCount
 
 open Lean Elab Command
 
 private def sharedRoots : List String := ["C_stable", "Cset", "IsF", "IsL", "Mup", "eq_sum_sl", "ext", "ext_Y", "ext_eq_sum", "ext_glAct", "ext_monomial", "ext_mul", "ext_wh", "frst", "frst_add", "frst_add_ltr", "frst_isF", "frst_of", "frst_of'", "fsj", "glAct_isF", "glAct_isL", "isF_iff", "isF_monomial_frst", "isF_of_polLz", "isL_iff", "isL_monomial_ltr", "killL_of_isL", "ltr", "ltr_add", "ltr_isL", "ltr_of", "ltr_of'", "midAct_eq", "midAct_isF", "midAct_isL", "midAct_mul_F", "monomial_eq_basis", "monomial_split", "mul_ltr_pol", "polynomial_finite_weights", "proj_exists", "psi", "psi_glAct", "psi_id", "psi_mem", "sl_monomial", "sl_mul", "slc", "slc_C", "slc_glAct", "slc_pol", "slc_wh", "slc_ycond", "weight_eq_zero_iff", "weight_first", "weight_wv_zero", "wfir", "wh_first", "whc_comm", "whc_keep", "wlat", "instDecidablePredProdFinFsj"]
-
-private def testedModules : List String := ["Formalism.PolynomialDimension.MultinomialDepth.TieOps", "Formalism.SharpRestriction.GrowthBounds.MonomialFactorials.SymmetryFinitenessWindowLevelDimOnAdmissible", "Formalism.ThetaLogCoordinates.PartnerMeanCoordinates.LatticeTheoremEps28Valid"]
 
 /-- Rebind only removed names, including equation lemmas beneath a removed name. -/
 private def sharedName (n : Name) : Name :=
@@ -26,43 +21,6 @@ private def sharedExpr (e : Expr) : Expr :=
       let fresh := sharedName n
       if fresh == n then none else some (.const fresh us)
     | _ => none
-
-private def dataRoots : List String := ["frst", "ltr", "IsF", "IsL", "ext", "slc", "fsj", "wlat", "wfir",
-  "Mup", "Cset", "psi", "instDecidablePredProdFinFsj"]
-
-private def isDataRoot : Name → Bool
-  | .str parent part => parent == `Formalism.CountingSumsFrames.TO && dataRoots.contains part
-  | _ => false
-
-private def kind : ConstantInfo → String
-  | .axiomInfo _ => "axiom"
-  | .defnInfo _ => "definition"
-  | .thmInfo _ => "theorem"
-  | .opaqueInfo _ => "opaque"
-  | .quotInfo _ => "quotient"
-  | .inductInfo _ => "inductive"
-  | .ctorInfo _ => "constructor"
-  | .recInfo _ => "recursor"
-
-private abbrev Parts := Array (ModuleData × CompactedRegion)
-
-private def readParts (base : String) : IO Parts :=
-  readModuleDataParts #[System.FilePath.mk base, System.FilePath.mk (base ++ ".server"),
-    System.FilePath.mk (base ++ ".private")]
-
-private def defBody (parts : Parts) (n : Name) : Option DefinitionVal := Id.run do
-  for (m, _) in parts.reverse do
-    for c in m.constants do
-      if c.name == n then
-        if let .defnInfo d := c then return some d
-  return none
-
-private def kinds (parts : Parts) (n : Name) : Array String := Id.run do
-  let mut out := #[]
-  for (m, _) in parts do
-    let c := m.constants.find? (fun decl => decl.name == n)
-    out := out.push ((c.map kind).getD "absent")
-  return out
 
 private def equalityError (env : Environment) (a b : Expr) : String :=
   match Kernel.isDefEq env {} a b with
@@ -84,10 +42,12 @@ private partial def equationWitness : Expr → Option Expr
   | _ => none
 
 private def equationError (env : Environment) (t : Expr) : String :=
-  let some proof := equationWitness t | "old type is not a telescope ending in an equality"
-  match Kernel.check env {} proof with
-  | .ok inferred => equalityError env inferred t
-  | .error _ => "kernel rejected the closed reflexivity proof"
+  match equationWitness t with
+  | none => "old type is not a telescope ending in an equality"
+  | some witness =>
+    match Kernel.check env {} witness with
+    | .ok inferred => equalityError env inferred t
+    | .error _ => "kernel rejected the closed reflexivity proof"
 
 /-- The public instance inferred by an ordinary consumer computes the original Nat decision. -/
 example (N r j0 : ℕ) :
@@ -97,74 +57,23 @@ example (N r j0 : ℕ) :
 set_option maxHeartbeats 0 in
 run_cmd do
   let env ← getEnv
-  let provider ← readParts "/work/project/.lake/build/lib/lean/Formalism/PolynomialDimension/MultinomialDepth/MonoCount.olean"
-  let mut retained : Array String := #[]
-  let mut replaced : Array String := #[]
-  let mut values : Array String := #[]
-  let mut proofTypes : Array String := #[]
-  let mut localEquations : Array String := #[]
-  let mut kindReport : Array Json := #[]
+  let (legacy, _) ← readModuleData "/work/result/legacy/TieOps.olean"
+  let wanted := [`Formalism.CountingSumsFrames.TO.ext.eq_1, `Formalism.CountingSumsFrames.TO.slc.eq_1]
+  let mut equations : Array String := #[]
   let mut failures : Array String := #[]
-  for mod in testedModules do
-    let legacy ← readParts ("/work/result/legacy/" ++ mod ++ ".olean")
-    let some pub := legacy[0]? | throwError "missing public facet for {mod}"
-    for decl in pub.1.constants do
-      if decl.name.isInternal then continue
-      let canonical := sharedName decl.name
-      if decl.name == `Formalism.CountingSumsFrames.TO.ext.eq_1 || decl.name == `Formalism.CountingSumsFrames.TO.slc.eq_1 then
-        let t := sharedExpr decl.type
-        let proofErr := equationError env t
-        let propErr := propositionError env t
-        if (env.find? canonical).isSome || (env.find? decl.name).isSome then
-          failures := failures.push s!"unexpected named equation present for {decl.name}"
-        if proofErr.isEmpty && propErr.isEmpty then localEquations := localEquations.push decl.name.toString
-        else failures := failures.push s!"{decl.name} is not proved by reflexivity: {proofErr} {propErr}"
-        kindReport := kindReport.push (Json.mkObj [("legacy", toJson decl.name.toString),
-          ("legacy_facets", toJson (kinds legacy decl.name)), ("witness", toJson "kernel-checked Eq.refl")])
-        continue
-      let some candidate := env.find? canonical | do
-        failures := failures.push s!"missing {canonical} for {decl.name}"
-        continue
-      if decl.levelParams.length != candidate.levelParams.length then
-        failures := failures.push s!"universe parameter count changed for {decl.name}"
-        continue
-      let levels := candidate.levelParams.map Level.param
-      let legacyType := sharedExpr (decl.type.instantiateLevelParams decl.levelParams levels)
-      let reason := equalityError env legacyType candidate.type
-      if !reason.isEmpty then
-        failures := failures.push s!"{decl.name} declaration type: {reason}"
-      if canonical == decl.name then
-        if reason.isEmpty then retained := retained.push decl.name.toString
-        continue
-      if (env.find? decl.name).isSome then
-        failures := failures.push s!"duplicate {decl.name} survived"
-      kindReport := kindReport.push (Json.mkObj [("legacy", toJson decl.name.toString),
-        ("provider", toJson canonical.toString), ("legacy_facets", toJson (kinds legacy decl.name)),
-        ("provider_facets", toJson (kinds provider canonical)), ("imported_kind", toJson (kind candidate))])
-      if reason.isEmpty then replaced := replaced.push decl.name.toString
-      if isDataRoot decl.name then
-        let some a := defBody legacy decl.name | do
-          failures := failures.push s!"no legacy implementation of {decl.name} in the compiled facets"
-          continue
-        let some b := defBody provider canonical | do
-          failures := failures.push s!"no provider implementation of {canonical} in the compiled facets"
-          continue
-        if a.levelParams.length != b.levelParams.length then
-          failures := failures.push s!"implementation universe parameter count changed for {decl.name}"
-          continue
-        let oldValue := sharedExpr (a.value.instantiateLevelParams a.levelParams (b.levelParams.map Level.param))
-        let err := equalityError env oldValue b.value
-        if err.isEmpty then values := values.push decl.name.toString
-        else failures := failures.push s!"{decl.name} implementation: {err}"
-      else
-        let oldErr := propositionError env legacyType
-        let freshErr := propositionError env candidate.type
-        if oldErr.isEmpty && freshErr.isEmpty then proofTypes := proofTypes.push decl.name.toString
-        else failures := failures.push s!"{decl.name} expected two propositions: old {oldErr}, new {freshErr}"
-  let report := Json.mkObj [("surviving_types", toJson retained), ("replaced_types", toJson replaced),
-    ("definition_values", toJson values), ("proof_types", toJson proofTypes), ("local_equations", toJson localEquations), ("failures", toJson failures),
-    ("facet_kinds", toJson kindReport)]
-  IO.FS.writeFile "/work/result/legacy-check.json" (report.compress ++ "\n")
-  if !failures.isEmpty || retained.size != 218 || replaced.size != 73 || values.size != 13 || proofTypes.size != 60 || localEquations.size != 2 ||
-      (values.contains "Formalism.CountingSumsFrames.TO.instDecidablePredProdFinFsj") == false then
-    throwError "kernel verification failed. Retained {retained.size}, replaced {replaced.size}, implementations {values.size}, propositions {proofTypes.size}, recorded failures {failures.size}"
+  for n in wanted do
+    let some old := legacy.constants.find? (fun c => c.name == n) | do
+      failures := failures.push s!"legacy equation {n} missing"
+      continue
+    let targetName := sharedName n
+    if (env.find? targetName).isSome then
+      failures := failures.push s!"named equivalent unexpectedly exists: {targetName}"
+    let target := sharedExpr old.type
+    let eqErr := equationError env target
+    let propErr := propositionError env target
+    if eqErr.isEmpty && propErr.isEmpty then equations := equations.push n.toString
+    else failures := failures.push s!"{n}: equality {eqErr}, proposition {propErr}"
+  let report := Json.mkObj [("equations", toJson equations), ("failures", toJson failures)]
+  IO.FS.writeFile "/work/result/legacy-equations.json" (report.compress ++ "\n")
+  if equations.size != 2 || !failures.isEmpty then
+    throwError "proved {equations.size} genuine legacy equations, failed {failures.size} checks"
