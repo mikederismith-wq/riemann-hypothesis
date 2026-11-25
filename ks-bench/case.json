@@ -1,0 +1,63 @@
+{
+  "revision": "fcb6eac7534875d32d68030967e2deae6d686151",
+  "patch_sha256": "700e3df74ffee57fd1ccaceb5310578bbf98b48cd58c5d009aebe4c0044d2163",
+  "candidate_sha256": {
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorHodgeFiltrationNaturalityStatement": "009657e9ec904dc60341a897a94e569b1b3cdb40b1097d469d70afe739da3cec",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement": "23d3205a9dfd37e2ab769d36a09d0fdfa290f85677b785857c2863c0303a9b34"
+  },
+  "removed": [
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.RedPullConstMorVPull",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorExistsGluedFirstOrderDeformation"
+  ],
+  "survivor": "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
+  "direct": [
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement"
+  ],
+  "descendants": [
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorIntegralModelNonempty",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorIntegralModelNonemptyStatement",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.PeriodsSpanPureDecomposition",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement",
+    "Development.AbelianVarietyTheory.Proofs.SatakeParameters.SPowSmooth",
+    "Development.AutomorphicArithmetic.CharacterBoxes.MainConclusion",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.FiniteEtaleModels.KsGoodHolds",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.IntegralStructures.GeometricFlagBases.CovLink",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.IntegralStructures.GeometricFlagBases.GeometricRealizationOfWeightOne",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.IsogenyEtaleTranslation.TrFEtHolds",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.LefschetzSigmaSums.HodgeTraceOfLefschetzAndGroupSide",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.PAdicWittLattices.ExistsDeeperNormalLevel",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.PAdicWittLattices.FibrePowerTowerAdmissibleLevel",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.SphericalCoordinates.FixedPointsIntBaseHolds",
+    "Main"
+  ],
+  "sides": {
+    "old": {
+      "roots": [
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.RedPullConstMorVPull",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorExistsGluedFirstOrderDeformation",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorHodgeFiltrationNaturalityStatement",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement"
+      ],
+      "closure": 5978
+    },
+    "new": {
+      "roots": [
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorHodgeFiltrationNaturalityStatement",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement"
+      ],
+      "closure": 5976
+    }
+  },
+  "pending_revision": "6ee5a766fe2cbcc3b5542f84081903f454dffe2e",
+  "base_survivor_sha256": "8b763615169864243229bda67033fda34203dd1b7da00ec163da94593274f9b1",
+  "split_modules": [
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorHodgeFiltrationNaturalityStatement",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement"
+  ],
+  "split_sha256": {
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorHodgeFiltrationNaturalityStatement": "196fa35645505617d2d710c2b2fb40c4d1786a8ff121e284e1ea399e6d3af54e",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement": "20097fbb3cfed99e6e1698dd6673bba242b51d83cf3c34003aa2174a2cbd1acd"
+  }
+}
