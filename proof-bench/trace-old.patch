@@ -1,0 +1,87 @@
+--- a/src/Development/AbelianVarietyTheory/Proofs/IwasawaDecomposition/FormallyUnramifiedEtaleCompletion.lean
++++ b/src/Development/AbelianVarietyTheory/Proofs/IwasawaDecomposition/FormallyUnramifiedEtaleCompletion.lean
+@@ -74,6 +74,64 @@
+ open ReciprocityTheory.ChartRestriction.G.Chart (prodPts)
+ open scoped CategoryTheory.Obj
+ 
++theorem trace_of_unif_loc {R : Type} [CommRing R] [IsDomain R] [IsLocalRing R] [IsNoetherianRing R]
++    {D : DegData R (maximalIdeal R)} {P : PolAV (Sp (FractionRing R))} {G : Over (Sp R)} [GrpObj G] [IsCommMonObj G]
++    (U : UnifPre (maximalIdeal R) D P G) {O : Type} [CommRing O] [StarRing O] [Module O D.toPre.X] {oD : D.OAct O}
++    {oP : P.OAct O} {aG : OAct O G} (hl : U.OLinear O oD oP aG.toRingAct) [IsCommMonObj D.toPre.P.A]
++    [Smooth D.toPre.P.A.hom] {g h r : ℕ} {v : Fin g → (epsR R ⟶ G)} (hv : IsLieBasis v)
++    {ρ : O →+* Module.End R (Fin g → R)} (hρ : ∀ a c, prodPts (ρ a c) v = prodPts c v ≫ aG.act a)
++    {w : Fin h → (epsR R ⟶ D.toPre.P.A)} (hw : IsLieBasis w)
++    {ρB : O →+* Module.End R (Fin h → R)}
++    (hρB : ∀ a c, prodPts (ρB a c) w = prodPts c w ≫ (ofRingAct oD.onB.toRingAct).act a)
++    (b : Module.Basis (Fin r) ℤ D.toPre.X) (a : O) :
++    LinearMap.trace R _ (ρ a) = LinearMap.trace R _ (ρB a) + (latTrace b a : R) := by
++  have key : ∀ e : ℕ, LinearMap.trace R _ (ρ a) - (LinearMap.trace R _ (ρB a) + (latTrace b a : R)) ∈
++      maximalIdeal R ^ (e + 1) := fun e => by
++    let f := Ideal.Quotient.mk (maximalIdeal R ^ (e + 1))
++    have : IsLocalRing (R ⧸ maximalIdeal R ^ (e + 1)) := by
++      have : Nontrivial (R ⧸ maximalIdeal R ^ (e + 1)) := Ideal.Quotient.nontrivial_iff.2 fun h =>
++        (maximalIdeal.isMaximal R).ne_top (top_le_iff.1 (h.symm.le.trans (Ideal.pow_le_self (Nat.succ_ne_zero e))))
++      exact IsLocalRing.of_surjective' f Ideal.Quotient.mk_surjective
++    have := U.smooth
++    obtain ⟨v', ρ', hv', hρ', hM⟩ := ToricRank.exists_action_pullback hv hρ f
++    obtain ⟨w', ρB', hw', hρB', hMB⟩ := ToricRank.exists_action_pullback hw hρB f
++    let gc := U.gt e
++    have := gc.q_hom
++    have := gc.i_hom
++    have := gc.q_flat
++    have := gc.q_surj
++    have := gc.q_affine
++    have := (H1.torus_dim (Sp (R ⧸ maximalIdeal R ^ (e + 1))) D.toPre.X).smooth
++    have : Smooth gc.q.left := by
++      refine MorphismProperty.of_isPullback_of_descendsAlong (P := @Smooth)
++        (Q := @Surjective ⊓ @Flat ⊓ @QuasiCompact)
++        ((H1.torsor_pullback gc.i gc.q gc.isKernel).map (Over.forget _)).flip
++        ⟨⟨‹_›, ‹_›⟩, inferInstanceAs (QuasiCompact gc.q.left)⟩ ?_
++      exact smooth_isStableUnderBaseChange.of_isPullback (IsPullback.of_hasPullback _ _) this
++    let aK := @Diag.diagAct (Sp (R ⧸ maximalIdeal R ^ (e + 1))) O _ D.toPre.X _ (Module.compHom _ (starRingEnd O))
++    let MK : O → Matrix (Fin r) (Fin r) (R ⧸ maximalIdeal R ^ (e + 1)) := fun x =>
++      (LinearMap.toMatrix b b (DistribSMul.toAddMonoidHom D.toPre.X (star x)).toIntLinearMap).map (Int.castRingHom _)
++    have hvK := Diag.isLieBasis_dualBasis (R := R ⧸ maximalIdeal R ^ (e + 1)) b
++    have hMK : ∀ x i, IsLieComb (MK x i) (fun i => Diag.lieVec (Diag.dualBasis _ b i))
++        (Diag.lieVec (Diag.dualBasis _ b i) ≫ aK.act x) := fun x i =>
++      Diag.isLieComb_comp_diagMap b b (DistribSMul.toAddMonoidHom D.toPre.X (star x)) i
++    have hi : IsLinearHom aK (aG.pullback (thick R _ e) G) gc.i := ⟨inferInstance, fun x => by
++      obtain ⟨t, ht, hi⟩ := hl.i_lin e x
++      obtain rfl := ConstBasis.eq_diagMap (DistribSMul.toAddMonoidHom D.toPre.X (star x)) ht
++      exact hi.symm⟩
++    have h := trace_level (K := splitTorus (Sp (R ⧸ maximalIdeal R ^ (e + 1))) D.toPre.X) (aK := aK)
++      (aG := aG.pullback (thick R _ e) G) (aB := (ofRingAct oD.onB.toRingAct).pullback (thick R _ e) _)
++      (i := gc.i) (q := gc.q) hi ⟨inferInstance, hl.q_lin e⟩ gc.isKernel hvK hv' hw' a
++      (MK a) ((LinearMap.toMatrix' (ρ a))ᵀ.map f) ((LinearMap.toMatrix' (ρB a))ᵀ.map f)
++      (fun c => (ConstBasis.prodPts_act hvK hMK a c).symm) (fun c => by rw [← hM, hρ']) (fun c => by rw [← hMB, hρB'])
++    rw [← Ideal.Quotient.eq, map_add (f := _), map_intCast, trace_map_eq, trace_map_eq, h]
++    refine (add_comm _ _).trans (congrArg _ ?_)
++    simp [MK, latTrace, Matrix.trace]
++  rw [← sub_eq_zero, ← Ideal.mem_bot, ← Ideal.iInf_pow_eq_bot_of_isLocalRing _ (maximalIdeal.isMaximal R).ne_top,
++    Ideal.mem_iInf]
++  intro n
++  exact Ideal.pow_le_pow_right (Nat.le_succ n) (key n)
++
+ theorem lieMult_unif_loc {E : Type} [Field E] [NumberField E] [IsCMField E] (H : Host E) (R : Type) [CommRing R]
+     [IsDomain R] [IsLocalRing R] [IsNoetherianRing R] [CharZero R] (t : SAB H (Sp R))
+     (P : PELUnif (maximalIdeal R) t) (F : Type) [Field F] [IsAlgClosed F] (f : R →+* F) (hf : Function.Injective f)
+@@ -90,7 +148,7 @@
+   obtain ⟨h, w, hw⟩ := Chart.exists_isLieBasis P.D.toPre.P.A this
+   obtain ⟨ρB, hρB⟩ := LieEigen.exists_action hw (ofRingAct P.oD.onB.toRingAct)
+   let b := Module.finBasis ℤ P.D.toPre.X
+-  have htr := trace_of_unif P.U.toUnifPre P.lin hv hρ hw hρB b
++  have htr := trace_of_unif_loc P.U.toUnifPre P.lin hv hρ hw hρB b
+   obtain ⟨v', ρ', hv', hρ', hM⟩ := ToricRank.exists_action_pullback hv hρ f
+   obtain ⟨w', ρB', hw', hρB', hMB⟩ := ToricRank.exists_action_pullback hw hρB f
+   let aG := t.act.pullback (spMap f) t.G
+--- a/src/Development/AbelianVarietyTheory/Proofs/InertiaEigenvalues/GenericLieMultiplicitiesUniformisedGroup.lean
++++ b/src/Development/AbelianVarietyTheory/Proofs/InertiaEigenvalues/GenericLieMultiplicitiesUniformisedGroup.lean
+@@ -260,7 +260,7 @@
+ 
+ 
+ open IsLocalRing ReciprocityTheory.ChartRestriction.G.Out in
+-theorem trace_of_unif {R : Type} [CommRing R] [IsDomain R] [IsLocalRing R] [IsNoetherianRing R]
++theorem trace_of_unif {R : Type} [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
+     {D : DegData R (maximalIdeal R)} {P : PolAV (Sp (FractionRing R))} {G : Over (Sp R)} [GrpObj G] [IsCommMonObj G]
+     (U : UnifPre (maximalIdeal R) D P G) {O : Type} [CommRing O] [StarRing O] [Module O D.toPre.X] {oD : D.OAct O}
+     {oP : P.OAct O} {aG : OAct O G} (hl : U.OLinear O oD oP aG.toRingAct) [IsCommMonObj D.toPre.P.A]

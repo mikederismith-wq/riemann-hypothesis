@@ -1,0 +1,49 @@
+{
+  "revision": "fcb6eac7534875d32d68030967e2deae6d686151",
+  "cache_client_test": true,
+  "cases": [
+    {
+      "name": "trace",
+      "targets": [
+        "Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.GenericLieMultiplicitiesUniformisedGroup",
+        "Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.FormallyUnramifiedEtaleCompletion"
+      ],
+      "direct_importers": [
+        "Development.AbelianVarietyTheory.Definitions.Divisors.ExistsMonoFamNontrivial",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.CharacterGroupFinrankLeMinSignatureUnitaryTrait",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.CmHostUnitAddConjEqOne",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsIsotropicSaturatedWeightFiltrationStatement",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsLowerObjectAbelianPartTateIsometryStatement",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsOppositeTransversalIsotropic",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsTripleChartUnitaryBoundaryPointRigidStatement",
+        "Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.ExistsArcDataOfBadReductionFiniteExtension"
+      ],
+      "expected_cone": 5855,
+      "expected_cold": 65,
+      "variants": {
+        "old": [
+          "trace-old.patch"
+        ],
+        "new": []
+      }
+    },
+    {
+      "name": "cov",
+      "targets": [
+        "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.IntegralStructures.GeometricFlagBases.CovMain"
+      ],
+      "direct_importers": [
+        "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.FiniteEtaleModels.KsGoodHolds",
+        "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.IntegralStructures.GeometricFlagBases.CovLink"
+      ],
+      "expected_cone": 6886,
+      "expected_cold": 3,
+      "variants": {
+        "old": [],
+        "new": [
+          "cov-new.patch"
+        ]
+      }
+    }
+  ]
+}

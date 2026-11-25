@@ -1,0 +1,64 @@
+--- a/src/Development/AutomorphicArithmetic/Foundations/GaloisRepresentations/IntegralStructures/GeometricFlagBases/CovMain.lean
++++ b/src/Development/AutomorphicArithmetic/Foundations/GaloisRepresentations/IntegralStructures/GeometricFlagBases/CovMain.lean
+@@ -110,33 +110,12 @@
+ 
+ variable {p : ℕ} [Fact p.Prime] {D : Datum p} {G : HTGroup p} (L : Link D G)
+ 
+-private theorem actOn_comm_mulF (x : 𝓞 D.F) (y : AfP p ⊗[ℚ] G.C) :
+-    actOn L.rep (AfP p) y * mulF D x = mulF D x * actOn L.rep (AfP p) y := by
+-  induction y using TensorProduct.inductionOn with
+-  | add a b ha hb => rw [map_add (f := _), add_mul, mul_add, ha, hb]
+-  | tmul a c =>
+-    have hc : L.rep c * actQ D (algebraMap (𝓞 D.F) D.O x) = actQ D (algebraMap (𝓞 D.F) D.O x) * L.rep c :=
+-      (L.rep_range (L.rep c)).1 ⟨c, rfl⟩ _
+-    have hb : (Module.End.baseChangeHom ℚ (AfP p) (VQ D) (L.rep c)) * mulF D x =
+-        mulF D x * (Module.End.baseChangeHom ℚ (AfP p) (VQ D) (L.rep c)) := by
+-      have := congrArg (Module.End.baseChangeHom ℚ (AfP p) (VQ D)) hc
+-      rw [map_mul, map_mul] at this
+-      exact this
+-    have ht : actOn L.rep (AfP p) (a ⊗ₜ[ℚ] c) = algebraMap (AfP p) (Module.End (AfP p) (AfP p ⊗[ℚ] VQ D)) a *
+-        Module.End.baseChangeHom ℚ (AfP p) (VQ D) (L.rep c) :=
+-      Algebra.TensorProduct.lift_tmul _ _ _ a c
+-    rw [ht, mul_assoc, hb, ← mul_assoc, ← mul_assoc, Algebra.commutes]
+-
+-private theorem actG_mulF (g : G.GAf) (x : 𝓞 D.F) (v : AfP p ⊗[ℚ] VQ D) :
+-    L.actG g (mulF D x v) = mulF D x (L.actG g v) :=
+-  congrArg (fun f : Module.End (AfP p) (AfP p ⊗[ℚ] VQ D) => f v) (actOn_comm_mulF L x _)
+-
+ private theorem actG_idHat {g : G.GAf} (hg : Integ L g) (𝔟 : Ideal (𝓞 D.F)) {z : AfP p ⊗[ℚ] VQ D}
+     (hz : z ∈ idHat D 𝔟) : L.actG g z ∈ idHat D 𝔟 := by
+   induction hz using AddSubgroup.closure_induction with
+   | mem z hz =>
+     obtain ⟨x, hx, v, hv, rfl⟩ := hz
+-    rw [actG_mulF]
++    rw [UpperTheory.TorsionCardinalitySetup.actG_mulF]
+     exact AddSubgroup.subset_closure ⟨x, hx, _, hg v hv, rfl⟩
+   | zero => simp
+   | add a b _ _ ha hb => rw [map_add]; exact add_mem ha hb
+@@ -442,26 +421,6 @@
+     rw [← mulF_mul]
+     exact mem_idHat (Ideal.mul_mem_mul hc hx) hw
+   exact this hv
+-
+-private theorem actOn_comm (L : Link D G) (y : AfP p ⊗[ℚ] G.C) (b : D.O) :
+-    actOn L.rep (AfP p) y * (actQ D b).baseChange (AfP p) = (actQ D b).baseChange (AfP p) * actOn L.rep (AfP p) y := by
+-  induction y using TensorProduct.induction_on with
+-  | zero => simp
+-  | add x y hx hy => rw [map_add (f := _), add_mul, mul_add, hx, hy]
+-  | tmul r c =>
+-    have e : actOn L.rep (AfP p) (r ⊗ₜ c) = r • (L.rep c).baseChange (AfP p) := by
+-      have e0 : actOn L.rep (AfP p) (r ⊗ₜ c) =
+-          (Algebra.ofId (AfP p) (Module.End (AfP p) (AfP p ⊗[ℚ] VQ D)) r) * (Module.End.baseChangeHom ℚ (AfP p) (VQ D)) (L.rep c) :=
+-        Algebra.TensorProduct.lift_tmul _ _ _ _ _
+-      rw [e0, Algebra.ofId_apply, Algebra.algebraMap_eq_smul_one, smul_mul_assoc, _root_.one_mul]
+-      rfl
+-    have h := (L.rep_range (L.rep c)).1 ⟨c, rfl⟩ b
+-    have h2 : (L.rep c).baseChange (AfP p) * (actQ D b).baseChange (AfP p) =
+-        (actQ D b).baseChange (AfP p) * (L.rep c).baseChange (AfP p) := by
+-      have := congrArg (Module.End.baseChangeHom ℚ (AfP p) (VQ D)) h
+-      rw [map_mul, map_mul] at this
+-      exact this
+-    rw [e, smul_mul_assoc, mul_smul_comm, h2]
+ 
+ 
+ private theorem wSub_inAf {𝔞 : Ideal (𝓞 D.F)} {y : D.La} (hy : y ∈ wSub D 𝔞 1) : inAf D y ∈ idHat D 𝔞 := by
