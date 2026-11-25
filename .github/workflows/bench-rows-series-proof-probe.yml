@@ -1,0 +1,33 @@
+name: Screen the four generator-set transport declarations
+on:
+  push:
+    branches: [bench/rows-series-proof-probe]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fork-only-rows-series-proof-probe
+  cancel-in-progress: false
+jobs:
+  compare:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/rows-series-proof-probe'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: bench-rows-series-probe
+      - name: Compare unchanged source context, four private proofs, and one theorem reuse
+        timeout-minutes: 50
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/rh-proof-results"
+          python3 bench-rows-series-probe/run.py 2>&1 | tee "$RUNNER_TEMP/rh-proof-results/run.log"
+      - name: Preserve timings, compiler logs, and the public declaration inventory
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: rows-series-proof-probe-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rh-proof-results
+          retention-days: 7

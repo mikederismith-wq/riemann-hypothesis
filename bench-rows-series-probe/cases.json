@@ -1,0 +1,32 @@
+{
+  "revision": "27b55787485ac2a5b5b3ed2dffc697e0ae6a2f59",
+  "receipt": {
+    "candidate_tree": "7a78580d283e03a0bcdbff1e72e709d2157e389a",
+    "source_tree": "a31c35b83301bc718b77810110f0289778d51b41",
+    "input_fingerprint": "40a14d37cdf6329093aa70779aa1622f1f3f080ee712e4b58082d7d5cc720469",
+    "toolchain": "leanprover/lean4:v4.37.0-rc1",
+    "lakefile_sha256": "b96a1a0b45e250d91bbf78d3490b79a317678bf13b823227b731cb87e3fd5ce5",
+    "manifest_sha256": "6b5ad855ab2f8544071569928d1b84e8e6be14636e7b2809e7ccabb3937934ee",
+    "module_manifest_sha256": "db39a50d765652f9d55f1eefc711a31b9552ad17704c332c6f099d2f36196ad6",
+    "map_sha256": "dfbad839a5423dcffc9b36826d34e54cf26b5b7177b3d9bf7ae4880bb6023c11"
+  },
+  "fixture_hashes": {
+    "control": "548d47a7686c7be9baa4c1b8c2a27c80bedf3a7899177ec0f8335ff3708ce143",
+    "old": "1af6a4c4a125a9a7761db8d14ff9ffefbf10a5665c06eb1a05b56ad9bd1bbe46",
+    "new": "ae696a107c29dddb1658edd12e695f9d81662d70392ace00d58b9c2fc3f5a31e"
+  },
+  "cases": [
+    {
+      "name": "rows-series-proof",
+      "targets": [
+        "Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.RowsAtStart"
+      ],
+      "direct_importers": [],
+      "expected_cone": 5888,
+      "expected_cold": 1,
+      "variants": {
+        "sliced": []
+      }
+    }
+  ]
+}
