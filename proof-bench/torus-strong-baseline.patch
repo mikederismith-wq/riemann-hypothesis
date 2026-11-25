@@ -9,16 +9,6 @@
      exact hl0 (LinearMap.ext hn)
    have h1 : ρ' h v - v ∈ T.toSubmodule := Submodule.subset_span ⟨⟨h, hh⟩, v, by simp⟩
    have h2 := hlM (hTM h1)
---- a/src/Development/AutomorphicArithmetic/AutomorphicVarieties/ModularityArgument/ThresholdArguments/DenseThresholdCases/CharOfScalar.lean
-+++ b/src/Development/AutomorphicArithmetic/AutomorphicVarieties/ModularityArgument/ThresholdArguments/DenseThresholdCases/CharOfScalar.lean
-@@ -627,6 +627,7 @@
- open NumberField IsDedekindDomain Formalism.ConjugateSelfDual ValuativeRel IsLocalRing GlobalTheory.CuspRep GlobalTheory.SmGL UpperTheory.V UpperTheory.V.Hi
- open UpperTheory.V.HV (Coef)
- attribute [local instance] GlobalTheory.LocalData.complRel GlobalTheory.LocalData.isLocalField
-+attribute [local instance high] UpperTheory.V.W.coefLocal
- private theorem Uc_anti (k : Type) [Field k] [ValuativeRel k] [TopologicalSpace k] [IsNonarchimedeanLocalField k]
-     {a b : ℕ} (h : a ≤ b) : Uc k b ≤ Uc k a := by
-   refine Subgroup.map_mono fun u hu => ?_
 --- a/src/Development/AutomorphicArithmetic/AutomorphicVarieties/ModularityArgument/ThresholdArguments/DenseThresholdCases/ExistsEig.lean
 +++ b/src/Development/AutomorphicArithmetic/AutomorphicVarieties/ModularityArgument/ThresholdArguments/DenseThresholdCases/ExistsEig.lean
 @@ -1,5 +1,6 @@
@@ -158,16 +148,7 @@
        exact continuous_finsetProd _ fun v _ => (hdet v).zpow e
      simp only [repD_apply, LinearMap.smul_apply, map_smul, smul_eq_mul]
      exact (Units.continuous_val.comp hd).mul
-@@ -272,6 +267,8 @@
-   intro L _ _ _ V _ _ φ w W ψ h t ht
-   have hd : Sig.SDom ![t, t⁻¹] := by
-     intro i j hij
-+    haveI : Nontrivial (ValueGroupWithZero (Kw w)) :=
-+      (inferInstance : LinearOrderedCommGroupWithZero (ValueGroupWithZero (Kw w))).toNontrivial
-     have h0 : valuation (Kw w) (t : Kw w) ≠ 0 := (Valuation.ne_zero_iff _).2 t.ne_zero
-     fin_cases i <;> fin_cases j <;> simp at hij ⊢
-     exact ht.trans ((one_lt_inv₀ (zero_lt_iff.2 h0)).2 ht)
-@@ -325,8 +322,7 @@
+@@ -325,8 +320,7 @@
  private theorem sdom_mul_unit {d u : Fin n → kˣ} (h : Sig.SDom d) (hu : ∀ i, u i ∈ UpperTheory.V.Hi.Uo k) : Sig.SDom (d * u) := by
    intro i j hij
    have h1 : ∀ i, valuation k (u i : k) = 1 := hu
@@ -177,7 +158,7 @@
  
  private theorem exists_div (t : Fin n → kˣ) : ∃ a b : Fin n → kˣ, Sig.SDom a ∧ Sig.SDom b ∧ t = a * b⁻¹ := by
    let B : ℤ := ∑ i, |ord k (t i)|
-@@ -467,8 +463,7 @@
+@@ -467,8 +461,7 @@
    rw [Subgroup.mem_comap]
    by_cases e : w' = w
    · subst e
@@ -187,7 +168,7 @@
    · have hne : w.under (𝓞 (Lp L)) ≠ w'.under (𝓞 (Lp L)) := fun h =>
        e (hP.inj (Finset.mem_coe.2 hw') (Finset.mem_coe.2 hw) h.symm)
      rw [away_one ((factor L n w').2.2.1 w hne (h1 j))]
-@@ -486,7 +481,7 @@
+@@ -486,7 +479,7 @@
  private theorem fix_of_AF {R : Representation ℂ (InfinitePlace L → GL (Fin n) ℂ) V} {U : Subgroup (UA L n)}
      {S : Finset (Plc L)} (hP : Places (S : Set (Plc L))) (hS : ∀ w ∈ S, locU n w ⊓ Kall L n ≤ U)
      {w : Plc L} (hw : w ∈ S) {φ : UA L n → V} (hφ : IsAF R (lev U S iw) φ) :
@@ -196,7 +177,7 @@
    funext fun g => hφ.level _ (sec_mem_lev hP hS hw hj) g
  
  private theorem hk_val {w : Plc L} (x : GL (Fin n) (Kw w))
-@@ -521,8 +516,7 @@
+@@ -521,8 +514,7 @@
      ⟨by simpa using mul_mem (inv_mem hxA) ha, hy⟩
    rw [← mul_assoc, hB.level y hyA]
    have h := congrFun (hfix _ hxJ) g
@@ -206,7 +187,7 @@
  
  private theorem op_comm {w w' : Plc L} (hw : IsSplitAt w) (hw' : IsSplitAt w')
      (hne : w'.under (𝓞 (Lp L)) ≠ w.under (𝓞 (Lp L))) (d : Fin n → (Kw w)ˣ) (d' : Fin n → (Kw w')ˣ) :
-@@ -580,7 +574,7 @@
+@@ -580,7 +572,7 @@
    have hu : ∀ w, w ∈ S → ∀ d (φ : AF R (lev U S iw)),
        ((u w d φ : AF R (lev U S iw)) : UA L n → V) = op w (iw w) d φ := by
      intro w hw d φ
@@ -215,7 +196,7 @@
      rfl
    refine ⟨u, fun w hw d _ φ => hu w hw d φ, fun w hw d d' hd hd' => ?_, fun w hw d hd => ?_,
      fun w hw w' hw' hne d d' _ _ => ?_⟩
-@@ -609,8 +603,8 @@
+@@ -609,8 +601,8 @@
  @[expose] public section
  
  theorem UpperTheory.Reformulated.B.ComplexCommonEigenvectorOfFinrankEq.common_eig :
@@ -226,16 +207,7 @@
      (∀ (i j : ι), Commute (f i) (f j)) →
        ∀ (n : ℕ) (W : Submodule ℂ M),
          Module.finrank ℂ ↥W = n →
-@@ -665,6 +659,8 @@
- private theorem sdom_pair {k : Type} [Field k] [ValuativeRel k] [TopologicalSpace k] [IsNonarchimedeanLocalField k]
-     (t : kˣ) (ht : valuation k (t : k) < 1) : Sig.SDom ![t, t⁻¹] := by
-   intro i j hij
-+  haveI : Nontrivial (ValueGroupWithZero k) :=
-+    (inferInstance : LinearOrderedCommGroupWithZero (ValueGroupWithZero k)).toNontrivial
-   have h0 : valuation k (t : k) ≠ 0 := (Valuation.ne_zero_iff _).2 t.ne_zero
-   have h1 : valuation k (t : k) < (valuation k (t : k))⁻¹ :=
-     ht.trans (one_lt_inv₀ (zero_lt_iff.2 h0) |>.2 ht)
-@@ -680,8 +676,7 @@
+@@ -680,8 +672,7 @@
  private theorem dom_mul {k : Type} [Field k] [ValuativeRel k] [TopologicalSpace k] [IsNonarchimedeanLocalField k]
      {n : ℕ} (d d' : Fin n → kˣ) (h : AlgebraTools.Dom d) (h' : AlgebraTools.Dom d') : AlgebraTools.Dom (d * d') := by
    intro i j hij
@@ -245,16 +217,7 @@
  
  private theorem loc_char {k M : Type} [Field k] [ValuativeRel k] [TopologicalSpace k] [IsNonarchimedeanLocalField k]
      [AddCommGroup M] [Module ℂ M] (u : (Fin 2 → kˣ) → Module.End ℂ M) (b : kˣ →* ℂˣ) (v : M) (hv : v ≠ 0)
-@@ -693,6 +688,8 @@
-     ∃ ψ : Fin 2 → kˣ →* ℂˣ, (∀ i, ∀ x ∈ Hi.Uo k, ψ i x = 1) ∧ ψ 0 / ψ 1 = b ∧
-       ∀ d, Sig.SDom d → u d v = expo ψ d • v := by
-   classical
-+  haveI : Nontrivial (ValueGroupWithZero k) :=
-+    (inferInstance : LinearOrderedCommGroupWithZero (ValueGroupWithZero k)).toNontrivial
-   choose! χ hχ using heig
-   have uniq : ∀ c c' : ℂ, c • v = c' • v → c = c' := fun c c' h => smul_left_injective ℂ hv h
-   have hmulχ : ∀ d d', AlgebraTools.Dom d → AlgebraTools.Dom d' → χ (d * d') = χ d * χ d' := by
-@@ -759,8 +756,7 @@
+@@ -759,8 +750,7 @@
    haveI : FiniteDimensional ℂ (AF R (lev U S iw)) :=
      afFin L 2 V R (lev U S iw) ((cof L 2).2.2.1 U hU S iw)
    have hdomU : ∀ (w : Plc L) (d : Fin 2 → (Kw w)ˣ), (∀ i, d i ∈ Hi.Uo (Kw w)) → AlgebraTools.Dom d := by
@@ -264,7 +227,7 @@
    have hpair : ∀ (w : Plc L) (t : (Kw w)ˣ), valuation (Kw w) (t : Kw w) < 1 → AlgebraTools.Dom ![t, t⁻¹] :=
      fun w t ht => dom_of_sdom _ (sdom_pair t ht)
  
-@@ -815,8 +811,7 @@
+@@ -815,8 +805,7 @@
    obtain ⟨h1, h2, h3⟩ := hψ w hw
    refine ⟨h1, h2, fun d hd => ?_⟩
    have := congrArg Subtype.val (h3 d hd)
@@ -274,7 +237,7 @@
  end -- clump:auto
  end -- clump:auto
  -- ===== end clump member: Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.SymmetricPowerTransfer.GeneralizedEigenspaces.SmoothDepth.OpenLevelSubgroups.Refine =====
-@@ -855,8 +850,7 @@
+@@ -855,8 +844,7 @@
        _ < γ := hc₀
    have hmem : (u : k) ∈ U := hγ ⟨(u : k) - 1, hlt, by ring⟩
    have h : u ∈ Units.val ⁻¹' U := hmem
@@ -284,7 +247,7 @@
  end -- clump:auto
  end -- clump:auto
  -- ===== end clump member: Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.SymmetricPowerTransfer.GeneralizedEigenspaces.SmoothDepth.OpenLevelSubgroups.SmoothDepth =====
-@@ -1434,8 +1428,8 @@
+@@ -1434,8 +1422,8 @@
        have hsub : ((S₀ : Set (Plc L)) ∪ S₁) ⊆ (S₀ : Set (Plc L)) ∪ P := Set.union_subset_union_right _ fun w hw => (h1 w hw).1
        have hp1 : Places (S₁ : Set (Plc L)) := mono fun w hw => Or.inr (h1 w hw).1
        let W : ∀ w : Plc L, Sig.Lev (Kw w) := fun w => if w ∈ S₀ then deep c w else iw w

@@ -26,7 +26,6 @@ CFG = ("lakefile.toml","lake-manifest.json","lean-toolchain")
 HOST_COMMIT = "c5b7dc99d50b61f102c619ba5634dde9465bf9d6"
 HOST_DIGEST = "dea75b622f5fe5198f9c9141515d93654f2e267329769eb42e020c4ca37b15e6"
 FORK = "https://github.com/mikederismith-wq/riemann-hypothesis.git"
-IMPORT = re.compile(rb"(?m)^\s*(?:(?:public|private|meta)\s+)*import\s+(?:all\s+)?([\w.\x80-\xff]+)")
 
 def write(path, obj):
     path.write_text(json.dumps(obj,indent=2)+"\n")
@@ -110,8 +109,8 @@ def inputs(project,ci,prep,revision):
     write(OUT/"receipt.json",rec)
     return mp,mf,rec
 
-def source_graph(src):
-    return {".".join(p.relative_to(src).with_suffix("").parts):[b.decode() for b in IMPORT.findall(p.read_bytes())]
+def source_graph(src, headers):
+    return {".".join(p.relative_to(src).with_suffix("").parts):headers(p)
             for p in src.rglob("*.lean")}
 
 def cone(graph,names):
@@ -143,9 +142,10 @@ def initialize_arm(d,arm,patches,spec,main,base_graph,published,h,ci,prep,tc,pkg
             data=(source/"src"/relative).read_bytes()
             blob=hashlib.sha1(b"blob "+str(len(data)).encode()+b"\0"+data).hexdigest()
             if blob!=expected[side]:raise ValueError(f"{side} source blob differs for {n}: {blob}")
+    headers=ci._proof_imports
     graph=base_graph.copy()
     for n in changed:
-        graph[n]=[b.decode() for b in IMPORT.findall((project/"src"/Path(*n.split(".")).with_suffix(".lean")).read_bytes())]
+        graph[n]=headers(project/"src"/Path(*n.split(".")).with_suffix(".lean"))
     targets=set(spec["targets"]);users=set(spec["direct_importers"])
     direct={n for n,ds in graph.items() if targets.intersection(ds)}-targets
     if direct!=users:raise ValueError(f"direct-importer list differs: {direct^users}")
@@ -243,7 +243,9 @@ def benchmark_case(spec,main,graph,published,h,ci,prep,tc,pkgs):
             if all(len(rows)==4 for rows in data.values()):
                 medians={k:{n:statistics.median(r[n] for r in rs) for n in targets} for k,rs in data.items()}
                 write(dest/"module-cpu-medians.json",medians);print("producer CPU",json.dumps(medians),flush=True)
-    # A full arm uses 13,342 RH artifacts. Process one at a time after the paired producer trials.
+                totals={k:[sum(row.values()) for row in rs] for k,rs in data.items()}
+                print("paired producer CPU seconds",json.dumps(totals),flush=True)
+    # A full arm uses 13,343 RH modules. Process one at a time after the paired producer trials.
     # Rebuild all 30 of this variant's affected or changed modules from source, including intervening modules.
     for side in [*sides,"production"]:
         patches=spec["clean_main_candidate"] if side=="production" else spec["variants"][side]
@@ -256,12 +258,13 @@ def benchmark_case(spec,main,graph,published,h,ci,prep,tc,pkgs):
                 records=json.loads((dest/(label+".json")).read_text())["actual_compilers"]
                 actual=Counter(r["module"] for r in records if r["project"] and r["exit_code"]==0)
                 if set(actual)!=set(arm[-1]) or any(count!=1 for count in actual.values()):
-                    raise ValueError(f"{label} compiler set differs from 30 required proof modules: {set(actual)^set(arm[-1])}")
+                    raise ValueError(f"{label} compiler set differs from {len(arm[-1])} required proof modules: {set(actual)^set(arm[-1])}")
                 if side!="production":
                     current=[]
                     for i in range(3):current.append(build(arm,consumers,dest,f"consumer-{i}-{side}",check_extra=True))
                     medians={n:statistics.median(row[n] for row in current) for n in consumers}
                     write(dest/("consumer-cpu-medians-"+side+".json"),medians)
+                    print(side,"consumer medians",json.dumps(medians),flush=True)
         except Exception as e:error("consumers-"+side,e)
     if errors:raise RuntimeError(f"incomplete stages {list(errors)}; successful independent stages retained")
 
@@ -284,7 +287,9 @@ def main():
     disk("verified full Mathlib and RH inputs",22)
     pkgs=packages(h,project,ci,tc)
     published=inputs(project,ci,prep,spec["revision"])
-    graph=source_graph(project/"src")
+    headers=h.load("proof_header_reader",project/"scripts/quick-check.py").imports
+    ci._proof_imports=headers
+    graph=source_graph(project/"src",headers)
     (ROOT/"compressed").mkdir()
     empty=io.BytesIO()
     with tarfile.open(fileobj=empty,mode="w"):pass

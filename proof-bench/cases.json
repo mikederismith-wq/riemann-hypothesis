@@ -27,7 +27,7 @@
         "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.PlainTorsionPairs.EndoscopyRank2Ordinary",
         "Development.WeilBound.RepresentationTheoryGL.ArchimedeanBaseChange.ArchimedeanBaseChangeProof.SatakeExponents.SphericalEmbeddings.Imports"
       ],
-      "expected_cone": 13342,
+      "expected_cone": 13343,
       "expected_cold": 30,
       "variants": {
         "old": [
@@ -58,8 +58,8 @@
         },
         "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.CharOfScalar": {
           "main": "11c84d0301c8c1d2d91d59fa1be02bf9d48abec2",
-          "old": "375d34f367d5946f734ab88bec46424fdf059ab4",
-          "new": "22eb1d95553f7bbb30e01df32643f73720e1f189",
+          "old": "11c84d0301c8c1d2d91d59fa1be02bf9d48abec2",
+          "new": "02d8fdcb874008eae87647870d2658914dd82616",
           "production": "02d8fdcb874008eae87647870d2658914dd82616"
         },
         "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.ExistsEig": {
@@ -70,8 +70,8 @@
         },
         "Development.AutomorphicArithmetic.AutomorphicVarieties.ModularityArgument.ThresholdArguments.DenseThresholdCases.MemLevelOfLocalDepth": {
           "main": "efd1d1ebd846b68c5edaad8e99f16bed7a50b570",
-          "old": "844d847451087110118b43086745ded6b56c9ce5",
-          "new": "e47f7afc6198941db834a460ba9bcd93432d09bb",
+          "old": "b8bd1bd2042c0a75a7ce26a33280d4b2ed609f50",
+          "new": "cd92f0fbb98c8ac0893016d8d95227760c7570d7",
           "production": "fcfe02714a0fa4ad0874f4a07e221f341ae8840b"
         }
       }
