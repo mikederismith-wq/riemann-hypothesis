@@ -1,0 +1,423 @@
+{
+  "run": 45555922728,
+  "artifact": 14996495616,
+  "artifact_sha256": "29188bb13aca9576b169f39df940eaa5b4bf4fed04149d411600c542f00e8ba8",
+  "revision": "a18a350c3e5aad997766cff2670b292313e46574",
+  "pending_head": "88f0a96b2ce5e86d02773fe8b72c59260bb20614",
+  "cpu": {
+    "cpu_sum_medians": {
+      "old": 35.9228935,
+      "new": 30.6490855
+    },
+    "paired_savings": [
+      5.2344560000000016,
+      5.313159999999996,
+      5.299409999999995,
+      5.337076999999997
+    ],
+    "samples": [
+      {
+        "side": "old",
+        "target_cpu_s": 35.947147,
+        "all_cpu_s": 35.947147,
+        "extra": []
+      },
+      {
+        "side": "new",
+        "target_cpu_s": 30.712691,
+        "all_cpu_s": 30.712691,
+        "extra": []
+      },
+      {
+        "side": "new",
+        "target_cpu_s": 30.585480000000004,
+        "all_cpu_s": 30.585480000000004,
+        "extra": []
+      },
+      {
+        "side": "old",
+        "target_cpu_s": 35.89864,
+        "all_cpu_s": 35.89864,
+        "extra": []
+      },
+      {
+        "side": "old",
+        "target_cpu_s": 35.819306999999995,
+        "all_cpu_s": 35.819306999999995,
+        "extra": []
+      },
+      {
+        "side": "new",
+        "target_cpu_s": 30.519897,
+        "all_cpu_s": 30.519897,
+        "extra": []
+      },
+      {
+        "side": "new",
+        "target_cpu_s": 30.907078000000002,
+        "all_cpu_s": 30.907078000000002,
+        "extra": []
+      },
+      {
+        "side": "old",
+        "target_cpu_s": 36.244155,
+        "all_cpu_s": 36.244155,
+        "extra": []
+      }
+    ]
+  },
+  "expected": {
+    "old": {
+      "producer_outputs": {
+        "Development.AbelianVarietyTheory.Proofs.SatakeParameters.GeometricLemmaCellOneBlockSwapEquiv": {
+          ".olean": {
+            "bytes": 166216,
+            "sha256": "481d7ba0c97f071e59349c830e3c84f49928fed5b2f12963debdf7834a477142"
+          },
+          ".olean.private": {
+            "bytes": 1988120,
+            "sha256": "1417352e43f809ffe18e96819f53ca2aba21b784abf6de1f94ad94376dcf86cb"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "60226c3664a519cced481cdc62b4a25b441becf9faa8ce0490815871e64735a1"
+          }
+        },
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.LanglandsDistinctCuspidalPairEmbedding": {
+          ".olean": {
+            "bytes": 443368,
+            "sha256": "fa0e8ad1673d08cc3b94a053bc56e66d8aa9b5aa19a8bcb4ab5a7ed9a7c7aef4"
+          },
+          ".olean.private": {
+            "bytes": 6377560,
+            "sha256": "0ae5987724625323b0e409e2c82c00d7c87bdeb245d44e4a9b7cee92cfb81c3d"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "b1eae13d9e3370342aff39a02fb730f2827f647dfd47d3a342bd4129b811729d"
+          }
+        }
+      },
+      "importer_outputs": {
+        "Development.AbelianVarietyTheory.Proofs.SatakeParameters.CuspidalPairIrreducibleProduct": {
+          ".olean": {
+            "bytes": 682624,
+            "sha256": "9618a8cd5c92f2f5b0c957ee2fa10ecabea08c21d5d64f53e5b36855441f1446"
+          },
+          ".olean.private": {
+            "bytes": 5822304,
+            "sha256": "ccf4b3b401cf0896b1e2fc77c9df79aad02b90bad2264609a087b9a09cd9b278"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "33a792ed31adc6ce4067c459d4a046ace523e4db342c5c47d841cc6ae35cb399"
+          }
+        },
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetMultiplicityCuspidalProductStatement": {
+          ".olean": {
+            "bytes": 542832,
+            "sha256": "8687f1c32266e1624f8f6bbee671d663f28d8b6087c2b0552164919c5d23b191"
+          },
+          ".olean.private": {
+            "bytes": 3495832,
+            "sha256": "e341a74da88a0fa37837032649e9373d187bdd6d1e1e0d90e7e13eab9e8f7968"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "1d20d7b5624803caa54e5cfb2b573ff4db000f1f084d03c1197cd6cfabcd68b3"
+          }
+        },
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.MultiProductSingleFactorEquiv": {
+          ".olean": {
+            "bytes": 150008,
+            "sha256": "d9bac559843d910670a6bef96b8167d64243e16a3c17c7a182d886878e4c15ce"
+          },
+          ".olean.private": {
+            "bytes": 1341032,
+            "sha256": "5c16d2298ab027074452c4abe855ca654b834499fd91d8a5ee518fb1e7b8332e"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "78259a6155c1edec0ec12ef37e81a1f479f54ccfc4917465b001cbd90c1594c8"
+          }
+        },
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IsSubquotientCompMulSingle": {
+          ".olean": {
+            "bytes": 347552,
+            "sha256": "c2e74fbe60a0c1ecf572e071d46b2868636322bc06823f0c175849135690637d"
+          },
+          ".olean.private": {
+            "bytes": 3104384,
+            "sha256": "4e2651c63e13162baf5d00a0d389a990658463e2678a6ae5c6c6d031399fc017"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "2b63eab2a6b3e3d4972a0949b4f488394b797e560cba41c06cae8a19070ec74a"
+          }
+        },
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.TotallyDisjointProductIrreducibleOfPolynomialRin": {
+          ".olean": {
+            "bytes": 159888,
+            "sha256": "85f7b9607466bcc73782a6a5abf755e2ccfc9a0d71f0376f030693e184319b6c"
+          },
+          ".olean.private": {
+            "bytes": 2406008,
+            "sha256": "006483a88e0e880ba03cf948505b7b3df3107f20e6b258df53fa3dd7b90af9ce"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "aeb6cb16b9d279c541523028f8a2e143fbc526a96c58b154c36915c0f5a82916"
+          }
+        },
+        "Development.WeilBound.RepresentationTheoryGL.GenericUnitaryGL.ComplementarySeries.SegmentJacquetSubquotients.SegRepOf": {
+          ".olean": {
+            "bytes": 863560,
+            "sha256": "da46154d77b2f9993cc20d36bc90bb0ca63a64b6cced8f2db60f453d432f8fc4"
+          },
+          ".olean.private": {
+            "bytes": 3733968,
+            "sha256": "7b183df93d20329b599bcaed729074f38c11098ff9ded17ddbeacf2832fc4e39"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "59ccc7da4155533127b3624f746b01e417561afb470d3ae79930cac9ae487340"
+          }
+        }
+      },
+      "extra": [
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.CuspidalMultiplicityProductZero",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.CuspidalPairSubGeneric",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.IsSmoothIterPhi",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetMultiplicityPosOfSocle",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetOfInducedFiltration",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetOfInducedFiltrationStatement",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetQuotientEigenvector",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetSubLeftOfAdmissible",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.SocleOfMultiplicityOne",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.BernsteinZelevinskyFiniteness",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.GeometricLemma",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.InducedCellSemisimplification",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IrreducibleSmoothAdmissibleGL",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IrreducibleSmoothAdmissibleGLStatement",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IsIrreducibleOfClsGLEqSingle",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IsIrreducibleOfJhMultEqOne",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.JacquetModuleFiniteLength",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.LanglandsClassificationCuspidalSupport",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.ParabolicInductionContragredient",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.ParabolicInductionFiniteLength",
+        "Development.WeilBound.CoreStatements.PublishedTheorems.SegmentRepresentations.IsIrreduciblePiTensorSegTerm",
+        "Development.WeilBound.RepresentationTheoryGL.GenericUnitaryGL.ComplementarySeries.SegmentJacquetSubquotients.SrMult"
+      ],
+      "cold": [
+        "Development.AbelianVarietyTheory.Proofs.SatakeParameters.CuspidalPairIrreducibleProduct",
+        "Development.AbelianVarietyTheory.Proofs.SatakeParameters.GeometricLemmaCellOneBlockSwapEquiv",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.CuspidalMultiplicityProductZero",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.CuspidalPairSubGeneric",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.IsSmoothIterPhi",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetMultiplicityCuspidalProductStatement",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetMultiplicityPosOfSocle",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetOfInducedFiltration",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetOfInducedFiltrationStatement",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetQuotientEigenvector",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetSubLeftOfAdmissible",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.MultiProductSingleFactorEquiv",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.SocleOfMultiplicityOne",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.BernsteinZelevinskyFiniteness",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.EqOfSubsingletonStep",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.GeometricLemma",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.HasSupportOfIsSubquotientProdIrr",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.InducedCellSemisimplification",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IrreducibleSmoothAdmissibleGL",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IrreducibleSmoothAdmissibleGLStatement",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IsIrreducibleOfClsGLEqSingle",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IsIrreducibleOfJhMultEqOne",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IsSubquotientCompMulSingle",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.JacquetModuleFiniteLength",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.LanglandsClassificationCuspidalSupport",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.LanglandsDistinctCuspidalPairEmbedding",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.ParabolicInductionContragredient",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.ParabolicInductionFiniteLength",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.TotallyDisjointProductIrreducibleOfPolynomialRin",
+        "Development.WeilBound.CoreStatements.PublishedTheorems.SegmentRepresentations.IsIrreduciblePiTensorSegTerm",
+        "Development.WeilBound.RepresentationTheoryGL.GenericUnitaryGL.ComplementarySeries.SegmentJacquetSubquotients.SegRepOf",
+        "Development.WeilBound.RepresentationTheoryGL.GenericUnitaryGL.ComplementarySeries.SegmentJacquetSubquotients.SrMult"
+      ]
+    },
+    "new": {
+      "producer_outputs": {
+        "Development.AbelianVarietyTheory.Proofs.SatakeParameters.GeometricLemmaCellOneBlockSwapEquiv": {
+          ".olean": {
+            "bytes": 200632,
+            "sha256": "852b683cdcde349efd7ef3313b7dc417964e01cf9d561e87bb352d80b1eca3fc"
+          },
+          ".olean.private": {
+            "bytes": 1951896,
+            "sha256": "d3b19aadccbb250efeebc7ed3a2fdaa4374303f42d34ca2dfa0fce2ca8ab0c66"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "60226c3664a519cced481cdc62b4a25b441becf9faa8ce0490815871e64735a1"
+          }
+        },
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.LanglandsDistinctCuspidalPairEmbedding": {
+          ".olean": {
+            "bytes": 443368,
+            "sha256": "fa0e8ad1673d08cc3b94a053bc56e66d8aa9b5aa19a8bcb4ab5a7ed9a7c7aef4"
+          },
+          ".olean.private": {
+            "bytes": 4895136,
+            "sha256": "24810e7f2cda029c30045b1573266900c04eee14384ea94e09b20b9a00d070e0"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "b1eae13d9e3370342aff39a02fb730f2827f647dfd47d3a342bd4129b811729d"
+          }
+        }
+      },
+      "importer_outputs": {
+        "Development.AbelianVarietyTheory.Proofs.SatakeParameters.CuspidalPairIrreducibleProduct": {
+          ".olean": {
+            "bytes": 682624,
+            "sha256": "9618a8cd5c92f2f5b0c957ee2fa10ecabea08c21d5d64f53e5b36855441f1446"
+          },
+          ".olean.private": {
+            "bytes": 5822304,
+            "sha256": "ccf4b3b401cf0896b1e2fc77c9df79aad02b90bad2264609a087b9a09cd9b278"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "33a792ed31adc6ce4067c459d4a046ace523e4db342c5c47d841cc6ae35cb399"
+          }
+        },
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetMultiplicityCuspidalProductStatement": {
+          ".olean": {
+            "bytes": 542832,
+            "sha256": "8687f1c32266e1624f8f6bbee671d663f28d8b6087c2b0552164919c5d23b191"
+          },
+          ".olean.private": {
+            "bytes": 3495832,
+            "sha256": "e341a74da88a0fa37837032649e9373d187bdd6d1e1e0d90e7e13eab9e8f7968"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "1d20d7b5624803caa54e5cfb2b573ff4db000f1f084d03c1197cd6cfabcd68b3"
+          }
+        },
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.MultiProductSingleFactorEquiv": {
+          ".olean": {
+            "bytes": 150008,
+            "sha256": "d9bac559843d910670a6bef96b8167d64243e16a3c17c7a182d886878e4c15ce"
+          },
+          ".olean.private": {
+            "bytes": 1341032,
+            "sha256": "5c16d2298ab027074452c4abe855ca654b834499fd91d8a5ee518fb1e7b8332e"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "78259a6155c1edec0ec12ef37e81a1f479f54ccfc4917465b001cbd90c1594c8"
+          }
+        },
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IsSubquotientCompMulSingle": {
+          ".olean": {
+            "bytes": 347552,
+            "sha256": "c2e74fbe60a0c1ecf572e071d46b2868636322bc06823f0c175849135690637d"
+          },
+          ".olean.private": {
+            "bytes": 3104384,
+            "sha256": "4e2651c63e13162baf5d00a0d389a990658463e2678a6ae5c6c6d031399fc017"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "2b63eab2a6b3e3d4972a0949b4f488394b797e560cba41c06cae8a19070ec74a"
+          }
+        },
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.TotallyDisjointProductIrreducibleOfPolynomialRin": {
+          ".olean": {
+            "bytes": 159888,
+            "sha256": "85f7b9607466bcc73782a6a5abf755e2ccfc9a0d71f0376f030693e184319b6c"
+          },
+          ".olean.private": {
+            "bytes": 2406008,
+            "sha256": "006483a88e0e880ba03cf948505b7b3df3107f20e6b258df53fa3dd7b90af9ce"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "aeb6cb16b9d279c541523028f8a2e143fbc526a96c58b154c36915c0f5a82916"
+          }
+        },
+        "Development.WeilBound.RepresentationTheoryGL.GenericUnitaryGL.ComplementarySeries.SegmentJacquetSubquotients.SegRepOf": {
+          ".olean": {
+            "bytes": 863560,
+            "sha256": "da46154d77b2f9993cc20d36bc90bb0ca63a64b6cced8f2db60f453d432f8fc4"
+          },
+          ".olean.private": {
+            "bytes": 3733968,
+            "sha256": "7b183df93d20329b599bcaed729074f38c11098ff9ded17ddbeacf2832fc4e39"
+          },
+          ".ir.sig": {
+            "bytes": 248,
+            "sha256": "59ccc7da4155533127b3624f746b01e417561afb470d3ae79930cac9ae487340"
+          }
+        }
+      },
+      "extra": [
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.CuspidalMultiplicityProductZero",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.CuspidalPairSubGeneric",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.IsSmoothIterPhi",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetMultiplicityPosOfSocle",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetOfInducedFiltration",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetOfInducedFiltrationStatement",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetQuotientEigenvector",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetSubLeftOfAdmissible",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.SocleOfMultiplicityOne",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.BernsteinZelevinskyFiniteness",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.GeometricLemma",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.InducedCellSemisimplification",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IrreducibleSmoothAdmissibleGL",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IrreducibleSmoothAdmissibleGLStatement",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IsIrreducibleOfClsGLEqSingle",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IsIrreducibleOfJhMultEqOne",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.JacquetModuleFiniteLength",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.LanglandsClassificationCuspidalSupport",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.ParabolicInductionContragredient",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.ParabolicInductionFiniteLength",
+        "Development.WeilBound.CoreStatements.PublishedTheorems.SegmentRepresentations.IsIrreduciblePiTensorSegTerm",
+        "Development.WeilBound.RepresentationTheoryGL.GenericUnitaryGL.ComplementarySeries.SegmentJacquetSubquotients.SrMult"
+      ],
+      "cold": [
+        "Development.AbelianVarietyTheory.Proofs.SatakeParameters.CuspidalPairIrreducibleProduct",
+        "Development.AbelianVarietyTheory.Proofs.SatakeParameters.GeometricLemmaCellOneBlockSwapEquiv",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.CuspidalMultiplicityProductZero",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.CuspidalPairSubGeneric",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.IsSmoothIterPhi",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetMultiplicityCuspidalProductStatement",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetMultiplicityPosOfSocle",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetOfInducedFiltration",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetOfInducedFiltrationStatement",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetQuotientEigenvector",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.JacquetSubLeftOfAdmissible",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.MultiProductSingleFactorEquiv",
+        "Development.AutomorphicSpectrum.Proofs.BlockDecomposition.SocleOfMultiplicityOne",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.BernsteinZelevinskyFiniteness",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.EqOfSubsingletonStep",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.GeometricLemma",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.HasSupportOfIsSubquotientProdIrr",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.InducedCellSemisimplification",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IrreducibleSmoothAdmissibleGL",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IrreducibleSmoothAdmissibleGLStatement",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IsIrreducibleOfClsGLEqSingle",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IsIrreducibleOfJhMultEqOne",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.IsSubquotientCompMulSingle",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.JacquetModuleFiniteLength",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.LanglandsClassificationCuspidalSupport",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.LanglandsDistinctCuspidalPairEmbedding",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.ParabolicInductionContragredient",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.ParabolicInductionFiniteLength",
+        "Development.AutomorphicSpectrum.Proofs.GlobalProofs.TotallyDisjointProductIrreducibleOfPolynomialRin",
+        "Development.WeilBound.CoreStatements.PublishedTheorems.SegmentRepresentations.IsIrreduciblePiTensorSegTerm",
+        "Development.WeilBound.RepresentationTheoryGL.GenericUnitaryGL.ComplementarySeries.SegmentJacquetSubquotients.SegRepOf",
+        "Development.WeilBound.RepresentationTheoryGL.GenericUnitaryGL.ComplementarySeries.SegmentJacquetSubquotients.SrMult"
+      ]
+    }
+  }
+}

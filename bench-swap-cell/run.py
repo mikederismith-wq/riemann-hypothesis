@@ -117,6 +117,8 @@ def run():
             raise ValueError('unexpected producer compilation')
         return cpu
     h.inputs,h.source_graph,h.apply_variant,h.build = inputs,graph,apply_variant,build
+    follow = h.load('swap_consumers', HERE / 'consumers.py')
+    h.benchmark_case = follow.install(h, original_build, HERE)
     h.main()
 
 if __name__=='__main__':

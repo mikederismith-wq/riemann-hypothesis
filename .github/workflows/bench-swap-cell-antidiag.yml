@@ -1,4 +1,4 @@
-name: Compare the shared antidiagonal geometric-lemma proof
+name: Measure consumers of the shared antidiagonal proof
 on:
   push:
     branches: [bench/swap-cell-antidiag]
@@ -18,7 +18,7 @@ jobs:
         with:
           persist-credentials: false
           sparse-checkout: bench-swap-cell
-      - name: Measure both producer CPU times and check the six direct importers
+      - name: Compare six direct importers after validating the producer receipt
         timeout-minutes: 95
         run: |
           set -euo pipefail
