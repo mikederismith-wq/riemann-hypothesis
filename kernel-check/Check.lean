@@ -75,10 +75,24 @@ private def propositionError (env : Environment) (t : Expr) : String :=
   | .ok s => equalityError env s (.sort .zero)
   | .error _ => "kernel could not type-check the proposition"
 
+/-- Rebuild the implicit binders and `Eq.refl` of an old compiler-generated equation. -/
+private partial def equationWitness : Expr → Option Expr
+  | .forallE n ty body bi => (equationWitness body).map fun witness => .lam n ty witness bi
+  | .mdata _ t => equationWitness t
+  | .app (.app (.app (.const n levels) ty) lhs) _ =>
+    if n == ``Eq then some (mkApp2 (.const ``Eq.refl levels) ty lhs) else none
+  | _ => none
+
+private def equationError (env : Environment) (t : Expr) : String :=
+  let some proof := equationWitness t | "old type is not a telescope ending in an equality"
+  match Kernel.check env {} proof with
+  | .ok inferred => equalityError env inferred t
+  | .error _ => "kernel rejected the closed reflexivity proof"
+
 /-- The public instance inferred by an ordinary consumer computes the original Nat decision. -/
 example (N r j0 : ℕ) :
     (inferInstance : DecidablePred (Formalism.CountingSumsFrames.fsj N r j0)) =
-      fun v => Nat.decLt (v.1 : ℕ) j0 := rfl
+      (fun (v : Fin N × Fin r) => Nat.decLt (v.1 : ℕ) j0) := rfl
 
 set_option maxHeartbeats 0 in
 run_cmd do
@@ -88,6 +102,7 @@ run_cmd do
   let mut replaced : Array String := #[]
   let mut values : Array String := #[]
   let mut proofTypes : Array String := #[]
+  let mut localEquations : Array String := #[]
   let mut kindReport : Array Json := #[]
   let mut failures : Array String := #[]
   for mod in testedModules do
@@ -96,6 +111,17 @@ run_cmd do
     for decl in pub.1.constants do
       if decl.name.isInternal then continue
       let canonical := sharedName decl.name
+      if decl.name == `Formalism.CountingSumsFrames.TO.ext.eq_1 || decl.name == `Formalism.CountingSumsFrames.TO.slc.eq_1 then
+        let t := sharedExpr decl.type
+        let proofErr := equationError env t
+        let propErr := propositionError env t
+        if (env.find? canonical).isSome || (env.find? decl.name).isSome then
+          failures := failures.push s!"unexpected named equation present for {decl.name}"
+        if proofErr.isEmpty && propErr.isEmpty then localEquations := localEquations.push decl.name.toString
+        else failures := failures.push s!"{decl.name} is not proved by reflexivity: {proofErr} {propErr}"
+        kindReport := kindReport.push (Json.mkObj [("legacy", toJson decl.name.toString),
+          ("legacy_facets", toJson (kinds legacy decl.name)), ("witness", toJson "kernel-checked Eq.refl")])
+        continue
       let some candidate := env.find? canonical | do
         failures := failures.push s!"missing {canonical} for {decl.name}"
         continue
@@ -136,9 +162,9 @@ run_cmd do
         if oldErr.isEmpty && freshErr.isEmpty then proofTypes := proofTypes.push decl.name.toString
         else failures := failures.push s!"{decl.name} expected two propositions: old {oldErr}, new {freshErr}"
   let report := Json.mkObj [("surviving_types", toJson retained), ("replaced_types", toJson replaced),
-    ("definition_values", toJson values), ("proof_types", toJson proofTypes), ("failures", toJson failures),
+    ("definition_values", toJson values), ("proof_types", toJson proofTypes), ("local_equations", toJson localEquations), ("failures", toJson failures),
     ("facet_kinds", toJson kindReport)]
   IO.FS.writeFile "/work/result/legacy-check.json" (report.compress ++ "\n")
-  if !failures.isEmpty || retained.size != 218 || replaced.size != 75 || values.size != 13 || proofTypes.size != 62 ||
+  if !failures.isEmpty || retained.size != 218 || replaced.size != 73 || values.size != 13 || proofTypes.size != 60 || localEquations.size != 2 ||
       (values.contains "Formalism.CountingSumsFrames.TO.instDecidablePredProdFinFsj") == false then
     throwError "kernel verification failed. Retained {retained.size}, replaced {replaced.size}, implementations {values.size}, propositions {proofTypes.size}, recorded failures {failures.size}"

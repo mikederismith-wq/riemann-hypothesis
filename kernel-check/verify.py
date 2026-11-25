@@ -100,8 +100,8 @@ def compare(sup, spec, main, graph, published, host, ci, prepare, toolchain, pac
             raise ValueError(f'Lean kernel check exited {proc.returncode}')
         evidence=json.loads(output.read_text())
         counts={name:len(values) for name,values in evidence.items()}
-        if counts != {'surviving_types':218,'replaced_types':75,'definition_values':13,
-                      'proof_types':62,'failures':0,'facet_kinds':75}:
+        if counts != {'surviving_types':218,'replaced_types':73,'definition_values':13,
+                      'proof_types':60,'local_equations':2,'failures':0,'facet_kinds':75}:
             raise ValueError(f'wrong kernel-checked counts {counts}')
         print('Kernel-checked declarations',counts,flush=True)
 
