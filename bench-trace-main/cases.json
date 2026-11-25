@@ -1,0 +1,79 @@
+{
+  "revision": "27b55787485ac2a5b5b3ed2dffc697e0ae6a2f59",
+  "cache_client_test": false,
+  "receipt": {
+    "candidate_tree": "7a78580d283e03a0bcdbff1e72e709d2157e389a",
+    "source_tree": "a31c35b83301bc718b77810110f0289778d51b41",
+    "input_fingerprint": "40a14d37cdf6329093aa70779aa1622f1f3f080ee712e4b58082d7d5cc720469",
+    "toolchain": "leanprover/lean4:v4.37.0-rc1",
+    "lakefile_sha256": "b96a1a0b45e250d91bbf78d3490b79a317678bf13b823227b731cb87e3fd5ce5",
+    "manifest_sha256": "6b5ad855ab2f8544071569928d1b84e8e6be14636e7b2809e7ccabb3937934ee",
+    "module_manifest_sha256": "db39a50d765652f9d55f1eefc711a31b9552ad17704c332c6f099d2f36196ad6",
+    "map_sha256": "dfbad839a5423dcffc9b36826d34e54cf26b5b7177b3d9bf7ae4880bb6023c11"
+  },
+  "input_hashes": {
+    "Development.AbelianVarietyTheory.Definitions.Divisors.ExistsMonoFamNontrivial": "b90a8d3caa528b79",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.CharacterGroupFinrankLeMinSignatureUnitaryTrait": "afb40fab2bee9679",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.CmHostUnitAddConjEqOne": "7559f6eb15fe483a",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsIsotropicSaturatedWeightFiltrationStatement": "861433dc00e6db83",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsLowerObjectAbelianPartTateIsometryStatement": "f550edb94feff794",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsOppositeTransversalIsotropic": "6c9ef842824fcb1b",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsTripleChartUnitaryBoundaryPointRigidStatement": "88ea87fa8e027989",
+    "Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.ExistsArcDataOfBadReductionFiniteExtension": "d853f550335f81c8",
+    "Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.GenericLieMultiplicitiesUniformisedGroup": "1e10ad8f5663ce56",
+    "Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.FormallyUnramifiedEtaleCompletion": "38da4d24c2a50ca1"
+  },
+  "source_blobs": {
+    "old": {
+      "Development.AbelianVarietyTheory.Definitions.Divisors.ExistsMonoFamNontrivial": "8d4dba82e7a6f084590e21cdc5b50a1a3e0e45d9",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.CharacterGroupFinrankLeMinSignatureUnitaryTrait": "e1cd62830d6ac5a31863818231151f2528d4004a",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.CmHostUnitAddConjEqOne": "de27a03a27902dde5eddd191774d6a967bdd2179",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsIsotropicSaturatedWeightFiltrationStatement": "d56e307777a7400d8d78312c0bcba44f2f5b624d",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsLowerObjectAbelianPartTateIsometryStatement": "f1d6b480937233c90c4db3fa4004483222e0e2da",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsOppositeTransversalIsotropic": "8a2cbb8be14667949372f4f78d772f9959f306dc",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsTripleChartUnitaryBoundaryPointRigidStatement": "18f6e25b46e1d4d71f75b3458ef70f067a9192be",
+      "Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.ExistsArcDataOfBadReductionFiniteExtension": "68f67cf4d189a6f9d76e209ff1de61ba02b856a9",
+      "Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.GenericLieMultiplicitiesUniformisedGroup": "a953382711341eda96d36e67a8497d45d7369661",
+      "Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.FormallyUnramifiedEtaleCompletion": "f6efe99036c7a08fe0bd9f14b624fa8045e87eeb"
+    },
+    "new": {
+      "Development.AbelianVarietyTheory.Definitions.Divisors.ExistsMonoFamNontrivial": "8d4dba82e7a6f084590e21cdc5b50a1a3e0e45d9",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.CharacterGroupFinrankLeMinSignatureUnitaryTrait": "e1cd62830d6ac5a31863818231151f2528d4004a",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.CmHostUnitAddConjEqOne": "de27a03a27902dde5eddd191774d6a967bdd2179",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsIsotropicSaturatedWeightFiltrationStatement": "d56e307777a7400d8d78312c0bcba44f2f5b624d",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsLowerObjectAbelianPartTateIsometryStatement": "f1d6b480937233c90c4db3fa4004483222e0e2da",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsOppositeTransversalIsotropic": "8a2cbb8be14667949372f4f78d772f9959f306dc",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsTripleChartUnitaryBoundaryPointRigidStatement": "18f6e25b46e1d4d71f75b3458ef70f067a9192be",
+      "Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.ExistsArcDataOfBadReductionFiniteExtension": "68f67cf4d189a6f9d76e209ff1de61ba02b856a9",
+      "Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.GenericLieMultiplicitiesUniformisedGroup": "6dff3aebe65006841fa43b66aa1bed144577fc68",
+      "Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.FormallyUnramifiedEtaleCompletion": "12a8db4822ee50051057b12d2fed9462a4c4e87b"
+    }
+  },
+  "cases": [
+    {
+      "name": "trace",
+      "targets": [
+        "Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.GenericLieMultiplicitiesUniformisedGroup",
+        "Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.FormallyUnramifiedEtaleCompletion"
+      ],
+      "direct_importers": [
+        "Development.AbelianVarietyTheory.Definitions.Divisors.ExistsMonoFamNontrivial",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.CharacterGroupFinrankLeMinSignatureUnitaryTrait",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.CmHostUnitAddConjEqOne",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsIsotropicSaturatedWeightFiltrationStatement",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsLowerObjectAbelianPartTateIsometryStatement",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsOppositeTransversalIsotropic",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsTripleChartUnitaryBoundaryPointRigidStatement",
+        "Development.AbelianVarietyTheory.Proofs.InertiaEigenvalues.ExistsArcDataOfBadReductionFiniteExtension"
+      ],
+      "expected_cone": 5917,
+      "expected_cold": 65,
+      "variants": {
+        "old": [
+          "trace-old.patch"
+        ],
+        "new": []
+      }
+    }
+  ]
+}
