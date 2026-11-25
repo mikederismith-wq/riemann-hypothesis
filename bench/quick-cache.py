@@ -148,7 +148,7 @@ def sandbox(tc, project, packages, cache, results, control):
     mounts += [(tc, "/opt/lean", "ro"), (project, "/work/project", "ro"),
                (project/".lake", "/work/project/.lake", "rw"), (packages, "/work/project/.lake/packages", "rw"),
                (cache, "/work/cache", "rw"), (results, "/work/result", "rw"), (control, "/control", "ro")]
-    cmd = ["docker","run","--rm","--read-only","--network=none","--cap-drop=ALL",
+    cmd = ["docker","run","--interactive","--rm","--read-only","--network=none","--cap-drop=ALL",
            "--security-opt=no-new-privileges","--cpus=4","--pids-limit=4096",
            "--user",f"{os.getuid()}:{os.getgid()}","--tmpfs","/tmp:mode=1777","--tmpfs","/home/build:mode=1777",
            "--workdir","/work/project"]
