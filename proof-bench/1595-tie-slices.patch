@@ -1,0 +1,110 @@
+diff --git a/src/Formalism/PolynomialDimension/MultinomialDepth/TieOps.lean b/src/Formalism/PolynomialDimension/MultinomialDepth/TieOps.lean
+--- a/src/Formalism/PolynomialDimension/MultinomialDepth/TieOps.lean
++++ b/src/Formalism/PolynomialDimension/MultinomialDepth/TieOps.lean
+@@ -77,35 +77,7 @@
+     (hind : iSupIndep R) (hRW : ∀ i, R i ≤ W) (hWR : W ≤ ⨆ i, R i) :
+     ∃ π : ι → V →ₗ[K] V, (∀ i x, π i x ∈ R i) ∧ (∀ i, ∀ x ∈ R i, π i x = x) ∧
+       (∀ i j, j ≠ i → ∀ x ∈ R j, π i x = 0) := by
+-  obtain ⟨D, hD⟩ := Submodule.exists_isCompl W
+-  have hc : ∀ i, IsCompl (R i) ((⨆ (j) (_ : j ≠ i), R j) ⊔ D) := by
+-    intro i
+-    constructor
+-    · rw [Submodule.disjoint_def]
+-      intro x hx hx2
+-      obtain ⟨y, hy, d, hd, rfl⟩ := Submodule.mem_sup.mp hx2
+-      have hyW : y ∈ W := (iSup_le fun j => iSup_le fun _ => hRW j) hy
+-      have hdW : d ∈ W := by
+-        have := W.sub_mem (hRW i hx) hyW
+-        rwa [add_sub_cancel_left] at this
+-      have hd0 : d = 0 := (Submodule.disjoint_def.mp hD.disjoint) d hdW hd
+-      subst hd0
+-      rw [add_zero] at hx ⊢
+-      exact (Submodule.disjoint_def.mp (hind i)) y hx hy
+-    · rw [codisjoint_iff, eq_top_iff]
+-      calc ⊤ = W ⊔ D := hD.codisjoint.eq_top.symm
+-        _ ≤ (⨆ j, R j) ⊔ D := sup_le_sup_right hWR D
+-        _ = R i ⊔ ((⨆ (j) (_ : j ≠ i), R j) ⊔ D) := by rw [iSup_split_single R i, sup_assoc]
+-  refine ⟨fun i => (R i).subtype ∘ₗ (R i).projectionOnto _ (hc i), fun i x => by simp,
+-    fun i x hx => ?_, fun i j hji x hx => ?_⟩
+-  · have := Submodule.projectionOnto_apply_left (hc i) ⟨x, hx⟩
+-    simp only [LinearMap.comp_apply, Submodule.subtype_apply]
+-    rw [this]
+-  · have hxq : x ∈ (⨆ (j) (_ : j ≠ i), R j) ⊔ D :=
+-      Submodule.mem_sup_left (Submodule.mem_iSup_of_mem j (Submodule.mem_iSup_of_mem hji hx))
+-    have := Submodule.projectionOnto_apply_right (hc i) ⟨x, hxq⟩
+-    simp only [LinearMap.comp_apply, Submodule.subtype_apply]
+-    rw [this]; rfl
++  apply _root_.Formalism.CountingSumsFrames.proj_exists <;> assumption
+ 
+ end Proj
+ 
+@@ -138,15 +110,7 @@
+   · by_contra hne
+     exact hv (h v (Ne.symm hne))
+ theorem ltr_of {m : σ →₀ ℕ} (h : ∀ v, m v ≠ 0 → fs v) : ltr fs m = 0 := by
+-  ext v
+-  unfold ltr
+-  rw [Finsupp.filter_apply, Finsupp.coe_zero, Pi.zero_apply]
+-  by_cases hv : fs v
+-  · simp [hv]
+-  · have : m v = 0 := by
+-      by_contra hne
+-      exact hv (h v hne)
+-    simp [hv, this]
++  apply _root_.Formalism.CountingSumsFrames.ltr_of <;> assumption
+ theorem frst_of' {m : σ →₀ ℕ} (h : ∀ v, m v ≠ 0 → ¬ fs v) : frst fs m = 0 := by
+   ext v
+   unfold frst
+@@ -156,15 +120,7 @@
+     exact h v hne hv
+   · rfl
+ theorem ltr_of' {m : σ →₀ ℕ} (h : ∀ v, m v ≠ 0 → ¬ fs v) : ltr fs m = m := by
+-  ext v
+-  unfold ltr
+-  rw [Finsupp.filter_apply]
+-  by_cases hv : fs v
+-  · have : m v = 0 := by
+-      by_contra hne
+-      exact h v hne hv
+-    simp [hv, this]
+-  · simp [hv]
++  apply _root_.Formalism.CountingSumsFrames.ltr_of' <;> assumption
+ theorem frst_add (m m' : σ →₀ ℕ) : frst fs (m + m') = frst fs m + frst fs m' := by
+   unfold frst
+   exact Finsupp.filter_add
+@@ -318,16 +274,7 @@
+ 
+ theorem weight_eq_zero_iff {σ : Type} (w : σ → ℤ) (hw : ∀ v, 0 ≤ w v) (m : σ →₀ ℕ) :
+     Finsupp.weight w m = 0 ↔ ∀ v, m v ≠ 0 → w v = 0 := by
+-  rw [Finsupp.weight_apply, Finsupp.sum, Finset.sum_eq_zero_iff_of_nonneg (fun v _ => nsmul_nonneg (hw v) _)]
+-  constructor
+-  · intro h v hv
+-    have := h v (Finsupp.mem_support_iff.mpr hv)
+-    rw [nsmul_eq_mul] at this
+-    rcases mul_eq_zero.mp this with h0 | h0
+-    · exact absurd (by exact_mod_cast h0 : m v = 0) hv
+-    · exact h0
+-  · intro h v hv
+-    rw [h v (Finsupp.mem_support_iff.mp hv), smul_zero]
++  apply _root_.Formalism.CountingSumsFrames.weight_eq_zero_iff <;> assumption
+ 
+ theorem isF_iff (j0 : ℕ) (g : MvPolynomial (Fin N × Fin r) ℚ_[p]) :
+     IsF (fsj N r j0) g ↔ g ∈ weightedHomogeneousSubmodule ℚ_[p] (wlat N r j0) 0 := by
+@@ -669,16 +616,7 @@
+     (hA : ∀ D x, x ∈ weightedHomogeneousSubmodule ℚ_[p] w D → A x ∈ weightedHomogeneousSubmodule ℚ_[p] w D)
+     (D : M) (x : MvPolynomial σ ℚ_[p]) :
+     weightedHomogeneousComponent w D (A x) = A (weightedHomogeneousComponent w D x) := by
+-  classical
+-  refine MvPolynomial.induction_on' x (fun d a => ?_) (fun f g hf hg => ?_)
+-  · have h0 : monomial d a ∈ weightedHomogeneousSubmodule ℚ_[p] w (Finsupp.weight w d) :=
+-      (mem_weightedHomogeneousSubmodule ..).mpr (isWeightedHomogeneous_monomial w d a rfl)
+-    have h1 := hA _ _ h0
+-    by_cases h : Finsupp.weight w d = D
+-    · subst h
+-      rw [whc_same_lemma w h0, whc_same_lemma w h1]
+-    · rw [whc_ne_lemma_2 w h0 (Ne.symm h), whc_ne_lemma_2 w h1 (Ne.symm h), map_zero]
+-  · simp only [map_add (f := _), hf, hg]
++  apply _root_.Formalism.CountingSumsFrames.whc_comm <;> assumption
+ 
+ theorem whc_keep {σ M M' : Type} [AddCommMonoid M] [AddCommMonoid M'] (w : σ → M) (w' : σ → M') (ν : M')
+     (D : M) {x : MvPolynomial σ ℚ_[p]} (hx : x ∈ weightedHomogeneousSubmodule ℚ_[p] w D) :

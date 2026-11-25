@@ -1,0 +1,31 @@
+name: Benchmark the shared monomial slice proofs
+on:
+  push:
+    branches: [bench/tieops-monomial-slices]
+  workflow_dispatch:
+concurrency:
+  group: fork-only-tieops-monomial-slices
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  measure:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/tieops-monomial-slices'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 115
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: proof-bench
+      - name: Check and time the pinned proof variants
+        timeout-minutes: 110
+        run: python3 proof-bench/proof.py
+      - name: Preserve individual compiler timings and logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: tieops-proof-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rh-proof-results
+          if-no-files-found: warn
+          retention-days: 7

@@ -1,0 +1,105 @@
+{
+  "revision": "fcb6eac7534875d32d68030967e2deae6d686151",
+  "cache_client_test": false,
+  "cases": [
+    {
+      "name": "tie-slices",
+      "targets": [
+        "Formalism.PolynomialDimension.MultinomialDepth.TieOps"
+      ],
+      "direct_importers": [
+        "Formalism.SharpRestriction.GrowthBounds.MonomialFactorials.SymmetryFinitenessWindowLevelDimOnAdmissible",
+        "Formalism.ThetaLogCoordinates.PartnerMeanCoordinates.LatticeTheoremEps28Valid"
+      ],
+      "expected_cone": 326,
+      "expected_cold": 33,
+      "expected_producer_cone": 29,
+      "expected_producer_cold": 1,
+      "variants": {
+        "main": [],
+        "pending": [
+          "1595-tie-slices.patch"
+        ],
+        "candidate": [
+          "tie-slices.patch"
+        ]
+      },
+      "source_blobs": {
+        "Formalism.PolynomialDimension.MultinomialDepth.TieOps": {
+          "main": "7133beea4bbd9efa1a8d1e4b6a5b0e2261e4ac2d",
+          "pending": "0142b8dfdaa4255cac88182a57fc7e725c5105f3",
+          "candidate": "0de4e5dec83152d651ce3664a71d7223c24ae30a"
+        },
+        "Formalism.ThetaLogCoordinates.PartnerMeanCoordinates.LatticeTheoremEps28Valid": {
+          "main": "340b076a29b8b96ec244318e69f6ba65a6273eb2",
+          "pending": "340b076a29b8b96ec244318e69f6ba65a6273eb2",
+          "candidate": "46ce0d860053c92ff26c9e8aab78dae3f9cd5480"
+        }
+      },
+      "removed_names": [
+        "Formalism.CountingSumsFrames.TO.C_stable",
+        "Formalism.CountingSumsFrames.TO.Cset",
+        "Formalism.CountingSumsFrames.TO.IsF",
+        "Formalism.CountingSumsFrames.TO.IsL",
+        "Formalism.CountingSumsFrames.TO.Mup",
+        "Formalism.CountingSumsFrames.TO.eq_sum_sl",
+        "Formalism.CountingSumsFrames.TO.ext",
+        "Formalism.CountingSumsFrames.TO.ext_Y",
+        "Formalism.CountingSumsFrames.TO.ext_eq_sum",
+        "Formalism.CountingSumsFrames.TO.ext_glAct",
+        "Formalism.CountingSumsFrames.TO.ext_monomial",
+        "Formalism.CountingSumsFrames.TO.ext_mul",
+        "Formalism.CountingSumsFrames.TO.ext_wh",
+        "Formalism.CountingSumsFrames.TO.frst",
+        "Formalism.CountingSumsFrames.TO.frst_add",
+        "Formalism.CountingSumsFrames.TO.frst_add_ltr",
+        "Formalism.CountingSumsFrames.TO.frst_isF",
+        "Formalism.CountingSumsFrames.TO.frst_of",
+        "Formalism.CountingSumsFrames.TO.frst_of'",
+        "Formalism.CountingSumsFrames.TO.fsj",
+        "Formalism.CountingSumsFrames.TO.glAct_isF",
+        "Formalism.CountingSumsFrames.TO.glAct_isL",
+        "Formalism.CountingSumsFrames.TO.isF_iff",
+        "Formalism.CountingSumsFrames.TO.isF_monomial_frst",
+        "Formalism.CountingSumsFrames.TO.isF_of_polLz",
+        "Formalism.CountingSumsFrames.TO.isL_iff",
+        "Formalism.CountingSumsFrames.TO.isL_monomial_ltr",
+        "Formalism.CountingSumsFrames.TO.killL_of_isL",
+        "Formalism.CountingSumsFrames.TO.ltr",
+        "Formalism.CountingSumsFrames.TO.ltr_add",
+        "Formalism.CountingSumsFrames.TO.ltr_isL",
+        "Formalism.CountingSumsFrames.TO.ltr_of",
+        "Formalism.CountingSumsFrames.TO.ltr_of'",
+        "Formalism.CountingSumsFrames.TO.midAct_eq",
+        "Formalism.CountingSumsFrames.TO.midAct_isF",
+        "Formalism.CountingSumsFrames.TO.midAct_isL",
+        "Formalism.CountingSumsFrames.TO.midAct_mul_F",
+        "Formalism.CountingSumsFrames.TO.monomial_eq_basis",
+        "Formalism.CountingSumsFrames.TO.monomial_split",
+        "Formalism.CountingSumsFrames.TO.mul_ltr_pol",
+        "Formalism.CountingSumsFrames.TO.polynomial_finite_weights",
+        "Formalism.CountingSumsFrames.TO.proj_exists",
+        "Formalism.CountingSumsFrames.TO.psi",
+        "Formalism.CountingSumsFrames.TO.psi_glAct",
+        "Formalism.CountingSumsFrames.TO.psi_id",
+        "Formalism.CountingSumsFrames.TO.psi_mem",
+        "Formalism.CountingSumsFrames.TO.sl_monomial",
+        "Formalism.CountingSumsFrames.TO.sl_mul",
+        "Formalism.CountingSumsFrames.TO.slc",
+        "Formalism.CountingSumsFrames.TO.slc_C",
+        "Formalism.CountingSumsFrames.TO.slc_glAct",
+        "Formalism.CountingSumsFrames.TO.slc_pol",
+        "Formalism.CountingSumsFrames.TO.slc_wh",
+        "Formalism.CountingSumsFrames.TO.slc_ycond",
+        "Formalism.CountingSumsFrames.TO.weight_eq_zero_iff",
+        "Formalism.CountingSumsFrames.TO.weight_first",
+        "Formalism.CountingSumsFrames.TO.weight_wv_zero",
+        "Formalism.CountingSumsFrames.TO.wfir",
+        "Formalism.CountingSumsFrames.TO.wh_first",
+        "Formalism.CountingSumsFrames.TO.whc_comm",
+        "Formalism.CountingSumsFrames.TO.whc_keep",
+        "Formalism.CountingSumsFrames.TO.wlat"
+      ]
+    }
+  ]
+}
