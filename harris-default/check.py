@@ -47,6 +47,25 @@ def module(name, path):
     return lib
 
 
+def prepare_runner_space(stage):
+    # Batch 14 expanded 65.71 GiB of project output on 45555269906. With
+    # 85.15 GiB at startup the stock build reached its disk reserve before
+    # finishing the first compiler. These SDKs belong to the disposable VM.
+    target = 94 * 1024**3
+    device = TEMP.stat().st_dev
+    starting_free = shutil.disk_usage(TEMP).free
+    removed = []
+    for name in ('/usr/local/lib/android/sdk', '/usr/share/dotnet', '/opt/ghc'):
+        if shutil.disk_usage(TEMP).free >= target:
+            break
+        sdk = Path(name)
+        if sdk.is_dir() and not sdk.is_symlink() and sdk.stat().st_dev == device:
+            subprocess.run(['sudo', '-n', 'rm', '-rf', '--', str(sdk)], check=True)
+            removed.append(name)
+    stage.write('runner-space', dict(starting_free_bytes=starting_free,
+                free_bytes=shutil.disk_usage(TEMP).free, released_sdk_directories=removed))
+
+
 def exact_tree(src, project, work, ks, case):
     # Regenerate the complete tracked tree from upstream's index, including every
     # path outside src. The Lean inputs are the same files whose blobs we hash here.
@@ -93,6 +112,7 @@ def main():
     if case["revision"] != ORIGINAL_BASE or len(case["descendants"]) != 15 or len(case["removed"]) != 2:
         raise ValueError("incorrect frozen Harris–Taylor case")
     src = ks.ROOT / "main"
+    prepare_runner_space(stage)
     stage.vm("initial")
     toolchain = host.toolchain()
     host.checkout(src, BASE, ["src", "scripts", *support.CFG], 1)
