@@ -1,4 +1,4 @@
-"""Run one stock default Lake build of the exact joint Harris–Taylor change."""
+"""Run the stock default build of the existing Harris–Taylor change merged onto batch 14."""
 
 from collections import Counter
 import gzip
@@ -21,14 +21,13 @@ TEMP = Path(os.environ["RUNNER_TEMP"]).resolve()
 OUT = TEMP / "rh-proof-results"
 FORK = "https://raw.githubusercontent.com/mikederismith-wq/riemann-hypothesis"
 FORK_GIT = "https://github.com/mikederismith-wq/riemann-hypothesis.git"
-BASE = "27b55787485ac2a5b5b3ed2dffc697e0ae6a2f59"
+BASE = "a18a350c3e5aad997766cff2670b292313e46574"
+ORIGINAL_BASE = "27b55787485ac2a5b5b3ed2dffc697e0ae6a2f59"
 PRODUCTION = "14c585298be9468fb0c37d00fc5de2165f5daca0"
-TREE = "4c8a03d31e9d9069e832cb51645aab72be950478"
+PRODUCTION_TREE = "4c8a03d31e9d9069e832cb51645aab72be950478"
+TREE = "40b317ce0cfc2f0bbafecbd15c0f9b65addfb060"
 HARRIS_CHECK = "c61a2dcaf85e1ad4253c0a99362952a1157082d2"
 DEFAULT_CHECK = "38e7218a5e0c84d462e5731c06511b5d0be2a421"
-# All 16 candidate public oleans from the exact-main downstream check 45546188832.
-# Its reference comparison established byte identity with main for the 15 importers.
-INTERFACE_DIGEST = "06d83baec89aad335027baf585ad353347f1a7d134684ad3a09ee68e30aefa61"
 
 
 def frozen(commit, path, digest):
@@ -56,7 +55,7 @@ def exact_tree(src, project, work, ks, case):
     def git(*args, env=None):
         return subprocess.check_output(["git", *args], cwd=src, env=env, text=True).strip()
     commit = git("cat-file", "-p", PRODUCTION).split("\n\n", 1)[0].splitlines()
-    if f"tree {TREE}" not in commit or [x for x in commit if x.startswith("parent ")] != ["parent " + BASE]:
+    if f"tree {PRODUCTION_TREE}" not in commit or [x for x in commit if x.startswith("parent ")] != ["parent " + ORIGINAL_BASE]:
         raise ValueError("wrong production commit or parent")
     index = {**os.environ, "GIT_INDEX_FILE": str(work / "production.index")}
     git("read-tree", BASE, env=index)
@@ -71,7 +70,7 @@ def exact_tree(src, project, work, ks, case):
     # Unchanged blobs outside the verified sparse checkout may be lazily fetched.
     # The index already carries their exact base object IDs.
     if git("write-tree", "--missing-ok", env=index) != TREE:
-        raise ValueError("candidate files do not reconstruct the complete production tree")
+        raise ValueError("candidate files do not reconstruct the verified batch-14 merge tree")
 
 
 def main():
@@ -91,7 +90,7 @@ def main():
     timer = ks.checked_file(ks.PROOF_COMMIT, "proof-bench/lean-timer.py", ks.TIMER_HASH)
     host.STATE, host.REPORT = ks.ROOT, OUT
     case = json.loads((stage.META / "case.json").read_text())
-    if case["revision"] != BASE or len(case["descendants"]) != 15 or len(case["removed"]) != 2:
+    if case["revision"] != ORIGINAL_BASE or len(case["descendants"]) != 15 or len(case["removed"]) != 2:
         raise ValueError("incorrect frozen Harris–Taylor case")
     src = ks.ROOT / "main"
     stage.vm("initial")
@@ -101,9 +100,10 @@ def main():
     prepare = host.load("harris_prepare", src / "scripts/ci-prepare.py")
     ci.validate_inputs(src, ci.DEPENDENCIES)
     mp, mf, rec = support.inputs(src, ci, prepare, BASE)
-    if (rec["build_exit_code"] != 0 or rec["candidate_tree"] != case["candidate_tree"] or
-            rec["source_tree"] != case["source_tree"] or
-            rec["module_manifest_sha256"] != "db39a50d765652f9d55f1eefc711a31b9552ad17704c332c6f099d2f36196ad6"):
+    if (rec["build_exit_code"] != 0 or rec["candidate_tree"] != "8a364f3f3bcdae0cb0e0c11daa2cf03a01462811" or
+            rec["source_tree"] != "cd27ae6abae1e26741a3b6fcf20f233f0a6c0789" or
+            rec["module_manifest_sha256"] != "d97ee858aae28eff224e33386529a02b300d544878ec91046a698278fe19daa2" or
+            rec["map_sha256"] != "3d42b2e4c52993c56d04346d12f8cc4d7628f54b4251d98cfa6b1323df6d20ea"):
         raise ValueError("incorrect successful main build or verified artifact manifest")
     packages = support.packages(host, src, ci, toolchain)
     empty = io.BytesIO()
@@ -127,7 +127,7 @@ def main():
         reverse = ks.incoming(graph)
         cold = support.cone(reverse, [root])
         rows = {row[0]: row for line in gzip.decompress(mf).splitlines()[1:] if (row := json.loads(line))}
-        if (set(rows) - retired != defaults or len(rows) != 59581 or len(defaults) != 59579 or
+        if (set(rows) - retired != defaults or len(rows) != 59534 or len(defaults) != 59532 or
                 set(graph) - defaults != {"Challenge"} or cold != {root, *case["descendants"]} or
                 sorted(reverse[root]) != case["direct"] or not cold <= defaults):
             raise ValueError("default target or downstream proof coverage changed")
@@ -138,7 +138,7 @@ def main():
             raise ValueError("unverified warm inputs")
         stage.write("expected", dict(base=BASE, production=PRODUCTION, tree=TREE, default_count=len(defaults),
                     unaffected_warm=len(warm), affected_cold=sorted(cold), direct=case["direct"],
-                    retired=sorted(retired), prior_interface_run=45546188832))
+                    retired=sorted(retired), production_tree=PRODUCTION_TREE))
         cache, shared, result, control = [work / n for n in ("cache", "downloads", "result", "control")]
         for path in [cache / "artifacts", shared, result, control, project / ".lake/packages"]:
             path.mkdir(parents=True)
@@ -169,8 +169,7 @@ def main():
         retired_outputs = sorted(n for n in retired if public_olean(n).exists())
         ok = (record["exit_code"] == 0 and record["disk_stop"] is None and record["bounded_workers"] and
               record["compiler_concurrency_peak"] == 1 and len(compilers) == len(cold) and
-              counts == Counter({n: 1 for n in cold}) and not missing_outputs and not retired_outputs and
-              interface_digest == INTERFACE_DIGEST)
+              counts == Counter({n: 1 for n in cold}) and not missing_outputs and not retired_outputs)
         record.update(matched_default_check=ok, compiler_count=len(compilers), successful=dict(sorted(counts.items())),
                       failed=[r["module"] for r in compilers if r["exit_code"]],
                       external=[r["module"] for r in compilers if not r["project"]],
@@ -180,7 +179,13 @@ def main():
         stage.write("default-verdict", record)
         stage.vm("after-default", cmd)
         if not ok:
-            raise RuntimeError("stock default build failed the compiler, output or interface checks")
+            raise RuntimeError("stock default build failed the compiler or output checks")
+        arm = (project, cmd, result, overrides, sorted(cold))
+        stage.compare_interfaces(ks, prepare, cold, rows, arm, cache, case)
+        comparison = json.loads((OUT / "importer-interface.json").read_text())
+        if len(comparison["removed"]) != 67 or any(
+                not comparison["modules"][m]["same_olean"] for m in case["descendants"]):
+            raise RuntimeError("unexpected public interface difference against the promoted batch-14 build")
         witness = result / "CheckExports.lean"
         witness.write_text("module\npublic import " + root + "\n#check @GlobalTheory.UPel.HT.realise_isKS\n")
         with (OUT / "public-scalar.log").open("w") as log:
