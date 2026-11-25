@@ -1,0 +1,33 @@
+name: Compare the shared theta twist transport
+on:
+  push:
+    branches: [bench/shared-theta-twist-transport]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fork-only-shared-theta-twist-transport
+  cancel-in-progress: false
+jobs:
+  compare:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/shared-theta-twist-transport'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: bench-series-twist
+      - name: Compare standalone and combined costs before building the direct importers
+        timeout-minutes: 115
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/rh-proof-results"
+          python3 bench-series-twist/run.py 2>&1 | tee "$RUNNER_TEMP/rh-proof-results/run.log"
+      - name: Preserve timings, compiler logs, and the public declaration inventory
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: shared-theta-twist-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rh-proof-results
+          retention-days: 7

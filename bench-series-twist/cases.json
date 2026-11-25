@@ -1,0 +1,35 @@
+{
+  "revision": "a18a350c3e5aad997766cff2670b292313e46574",
+  "receipt": {
+    "candidate_head": "a18a350c3e5aad997766cff2670b292313e46574",
+    "candidate_tree": "8a364f3f3bcdae0cb0e0c11daa2cf03a01462811",
+    "source_tree": "cd27ae6abae1e26741a3b6fcf20f233f0a6c0789",
+    "input_fingerprint": "a513db09c86b292bc0cea695691b8b0011bb6e1038474f53ae03a78bbb7972c3",
+    "toolchain": "leanprover/lean4:v4.37.0-rc1",
+    "lakefile_sha256": "b96a1a0b45e250d91bbf78d3490b79a317678bf13b823227b731cb87e3fd5ce5",
+    "manifest_sha256": "6b5ad855ab2f8544071569928d1b84e8e6be14636e7b2809e7ccabb3937934ee",
+    "module_manifest_sha256": "d97ee858aae28eff224e33386529a02b300d544878ec91046a698278fe19daa2",
+    "map_sha256": "3d42b2e4c52993c56d04346d12f8cc4d7628f54b4251d98cfa6b1323df6d20ea",
+    "build_exit_code": 0
+  },
+  "source_blobs": {
+    "Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.RowsAtStart": "e3a5718510d9f02ffd379d894b692c600307aa9b",
+    "Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.LayerUpStatement": "cf37f9a64176a5bd31ed42b1a9019a30713d11b0",
+    "Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Lb2OfThetaTwistStatement": "512eb914d2a0e2fdf8dab4d19efc3fb0a6c1ff12",
+    "Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.AllStagesAtMemberOfSpecializations": "b8dcaae242248b2d5921ca7d2ebf843726c3f57d",
+    "Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.ClassSumEq": "b69572c6f96ecb54cd4d1992295712b12574dc86",
+    "Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.MultiplicityBoundOfLocalComponents": "9bd57cdf94f8f17c4fb82d52c032c1ddb35a00a2",
+    "Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.ExistsNewTwistLamFull": "223e688fda00ab6cb13ce3391571e43ecde681fd",
+    "Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.FinitenessOfHyp": "95d9e2e37392a5e700d4d4a3a77774d508b88457"
+  },
+  "patched_blobs": {
+    "Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Lb2OfThetaTwistStatement": "e64b67989d1cb397ec115002d835536a97981be6",
+    "Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.ClassSumEq": "57f08052186be4215efe94951d8058c1efd4269c"
+  },
+  "patch_sha256": "7ba609966a14b19da1d3d212befa760300005cdc552120fe2bb8742137f33049",
+  "cases": [
+    {
+      "name": "series-twist"
+    }
+  ]
+}

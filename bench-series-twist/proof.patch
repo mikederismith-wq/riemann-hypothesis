@@ -1,0 +1,309 @@
+diff --git a/src/Development/AbelianVarietyTheory/Proofs/IwasawaDecomposition/ClassSumEq.lean b/src/Development/AbelianVarietyTheory/Proofs/IwasawaDecomposition/ClassSumEq.lean
+--- a/src/Development/AbelianVarietyTheory/Proofs/IwasawaDecomposition/ClassSumEq.lean
++++ b/src/Development/AbelianVarietyTheory/Proofs/IwasawaDecomposition/ClassSumEq.lean
+@@ -37,7 +37,6 @@
+ import Mathlib.Tactic.NormNum.Prime
+ import Mathlib.Tactic.NormNum.RealSqrt
+ import Development.AbelianVarietyTheory.Definitions.AutomorphicMembership.NStageTrivialCharacterCoeffEqAlt
+-import Development.AbelianVarietyTheory.Definitions.NonGaloisDescent.NoFormsOff
+ import Formalism.LocalToGlobal.IndefiniteReal.DoubleCosetOperators.GoodPartLeTypeSubspace
+ 
+ @[expose] public section
+diff --git a/src/Development/AutomorphicArithmetic/ThetaCorrespondence/ThetaPairLifts/ThirdPlaceSeries/Lb2OfThetaTwistStatement.lean b/src/Development/AutomorphicArithmetic/ThetaCorrespondence/ThetaPairLifts/ThirdPlaceSeries/Lb2OfThetaTwistStatement.lean
+--- a/src/Development/AutomorphicArithmetic/ThetaCorrespondence/ThetaPairLifts/ThirdPlaceSeries/Lb2OfThetaTwistStatement.lean
++++ b/src/Development/AutomorphicArithmetic/ThetaCorrespondence/ThetaPairLifts/ThirdPlaceSeries/Lb2OfThetaTwistStatement.lean
+@@ -10,6 +10,7 @@
+ public import Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.ExistsNormalisedReadingTransportedNewTwistStatement
+ public import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.LiftOfMovedTwistStatement
+ public import Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.DofOTw
++import Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.ClassSumEq
+ import Mathlib.Algebra.Order.Floor.Extended
+ import Mathlib.Algebra.Order.Floor.Semifield
+ import Mathlib.Algebra.Order.Interval.Basic
+@@ -48,7 +49,7 @@
+ -- Members: Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.SeriesAtThetaTwist, Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.StateB2OfRationalData, Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Lb2OfThetaTwist, Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Lb2OfThetaTwistStatement
+ 
+ -- ===== clump member: Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.SeriesAtThetaTwist =====
+--- clump-header: {"m": "Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.SeriesAtThetaTwist", "h": "module\n\npublic import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.ExpTh\nimport Mathlib.Algebra.Order.Floor.Extended\nimport Mathlib.Algebra.Order.Floor.Semifield\nimport Mathlib.Algebra.Order.Interval.Basic\nimport Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp\nimport Mathlib.Combinatorics.Enumerative.DyckWord\nimport Mathlib.Combinatorics.SimpleGraph.Triangle.Removal\nimport Mathlib.Data.NNRat.Floor\nimport Mathlib.Geometry.Euclidean.Volume.Basic\nimport Mathlib.NumberTheory.Chebyshev\nimport Mathlib.NumberTheory.Height.NumberField\nimport Mathlib.NumberTheory.Height.Projectivization\nimport Mathlib.NumberTheory.LucasLehmer\nimport Mathlib.NumberTheory.SelbergSieve\nimport Mathlib.RingTheory.Radical.NatInt\nimport Mathlib.Tactic.Echelon.Zsqrtd\nimport Mathlib.Tactic.Inclusion.Extension.Core.Core\nimport Mathlib.Tactic.Inclusion.Extension.Interval.BinarySplit\nimport Mathlib.Tactic.Inclusion.Extension.IntervalDyadicReal.Exp\nimport Mathlib.Tactic.Inclusion.Extension.IntervalDyadicReal.Hypotheses\nimport Mathlib.Tactic.Inclusion.Extension.IntervalInt.Basic\nimport Mathlib.Tactic.Inclusion.Extension.IntervalInt.Hypotheses\nimport Mathlib.Tactic.NormNum.Irrational\nimport Mathlib.Tactic.NormNum.IsCoprime\nimport Mathlib.Tactic.NormNum.IsSquare\nimport Mathlib.Tactic.NormNum.LegendreSymbol\nimport Mathlib.Tactic.NormNum.ModEq\nimport Mathlib.Tactic.NormNum.NatFib\nimport Mathlib.Tactic.NormNum.NatLog\nimport Mathlib.Tactic.NormNum.NatSqrt\nimport Mathlib.Tactic.NormNum.Ordinal\nimport Mathlib.Tactic.NormNum.Prime\nimport Mathlib.Tactic.NormNum.RealSqrt\n\n"}
++-- clump-header: {"m": "Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.SeriesAtThetaTwist", "h": "module\n\npublic import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.ExpTh\nimport Development.AbelianVarietyTheory.Proofs.IwasawaDecomposition.ClassSumEq\nimport Mathlib.Algebra.Order.Floor.Extended\nimport Mathlib.Algebra.Order.Floor.Semifield\nimport Mathlib.Algebra.Order.Interval.Basic\nimport Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp\nimport Mathlib.Combinatorics.Enumerative.DyckWord\nimport Mathlib.Combinatorics.SimpleGraph.Triangle.Removal\nimport Mathlib.Data.NNRat.Floor\nimport Mathlib.Geometry.Euclidean.Volume.Basic\nimport Mathlib.NumberTheory.Chebyshev\nimport Mathlib.NumberTheory.Height.NumberField\nimport Mathlib.NumberTheory.Height.Projectivization\nimport Mathlib.NumberTheory.LucasLehmer\nimport Mathlib.NumberTheory.SelbergSieve\nimport Mathlib.RingTheory.Radical.NatInt\nimport Mathlib.Tactic.Echelon.Zsqrtd\nimport Mathlib.Tactic.Inclusion.Extension.Core.Core\nimport Mathlib.Tactic.Inclusion.Extension.Interval.BinarySplit\nimport Mathlib.Tactic.Inclusion.Extension.IntervalDyadicReal.Exp\nimport Mathlib.Tactic.Inclusion.Extension.IntervalDyadicReal.Hypotheses\nimport Mathlib.Tactic.Inclusion.Extension.IntervalInt.Basic\nimport Mathlib.Tactic.Inclusion.Extension.IntervalInt.Hypotheses\nimport Mathlib.Tactic.NormNum.Irrational\nimport Mathlib.Tactic.NormNum.IsCoprime\nimport Mathlib.Tactic.NormNum.IsSquare\nimport Mathlib.Tactic.NormNum.LegendreSymbol\nimport Mathlib.Tactic.NormNum.ModEq\nimport Mathlib.Tactic.NormNum.NatFib\nimport Mathlib.Tactic.NormNum.NatLog\nimport Mathlib.Tactic.NormNum.NatSqrt\nimport Mathlib.Tactic.NormNum.Ordinal\nimport Mathlib.Tactic.NormNum.Prime\nimport Mathlib.Tactic.NormNum.RealSqrt\n\n"}
+ section -- clump:auto
+ @[expose] public section
+ 
+@@ -66,250 +67,44 @@
+ set_option linter.unusedVariables false
+ set_option backward.isDefEq.lazyProjDelta false
+ set_option backward.isDefEq.lazyWhnfCore false
+-section L1
++section
+ variable {B : Base} {C : Cols B} {a : Late B C} (b : Late B C)
+-private abbrev weight_pz {n : ℕ} (x : ExportSeries.Weight a.D n) : ExportSeries.Weight b.D n where
+-  p := (x.p)
+-  q := (x.q)
+-  ap := (x.ap)
+-  am := (x.am)
+-  c := (x.c)
+-  lam := (x.lam)
+-private abbrev twist_pz {A : Type} [CommGroup A] (x : Twist a.D A) : Twist b.D A where
+-  Q := (x.Q)
+-  chi := (x.chi)
+-  res := (x.res)
+-private abbrev typeDat_pz {r : ℕ} (x : TypeDat a.D r) : TypeDat b.D r where
+-  Pg := (x.Pg)
+-  P := (x.P)
+-  mu := (x.mu)
+-private abbrev univTw_pz {A : Type} [AddCommGroup A] (x : UnivTwist a.D A) : UnivTwist b.D A where
+-  del := (x.del)
+-  kap := (x.kap)
+-private def frame_pz {S T : HSp a.D} (x : Frame S T) : @Frame b.D ((S)) ((T)) where
+-  ψ := (x.ψ)
+-  θ := (x.θ)
+-  sT := (x.sT)
+-  BS := (x.BS)
+-  BT := (x.BT)
+-  ΛS := (x.ΛS)
+-  ΛT := (x.ΛT)
+-  βS := (x.βS)
+-  βT := (x.βT)
+-  f₀ := (x.f₀)
+-private def base_pz {S T : HSp a.D} (x : ExportSeries.Base S T) : @ExportSeries.Base b.D ((S)) ((T)) where
+-  hr := (x.hr)
+-  F := frame_pz b x.F
+-  G := ((typeDat_pz b x.G))
+-  de := twist_pz b x.de
+-  w := ((weight_pz b x.w))
+-  mu0 := (x.mu0)
+-  eta := (x.eta)
+-private theorem twist_good_pz {A : Type} [CommGroup A] {x : Twist a.D A} (h : x.Good) : (twist_pz b x).Good :=
+-  { isOpen := (h.isOpen)
+-    rat := (h.rat)
+-    real := (h.real)
+-    split := (h.split)
+-    unram := (h.unram)
+-    res := (h.res) }
+-private theorem weight_good_pz {n : ℕ} {x : ExportSeries.Weight a.D n} (h : x.Good) : (weight_pz b x).Good :=
+-  { le := (h.le)
+-    lam_eq := (h.lam_eq) }
+-private theorem places_imp_pz {P Q} (h : @PlacesOK a.D P Q) : @PlacesOK b.D ((P)) ((Q)) :=
+-  { split := (h.split)
+-    disj := (h.disj)
+-    prime := (h.prime) }
+-private theorem frame_good_pz {S T : HSp a.D} {x : Frame S T} (h : x.Good) : (frame_pz b x).Good :=
+-  { rank_le := (h.rank_le)
+-    onbS := (h.onbS)
+-    cartT := (h.cartT)
+-    onbT := (h.onbT)
+-    sdS := (h.sdS)
+-    sdT := (h.sdT)
+-    frS := (h.frS)
+-    frT := (h.frT)
+-    vac := by
+-      delta IsVacO
+-      rewrite [thetaFun_eq a b, vacuum_eq a b]
+-      exact (h.vac) }
+-private theorem base_good_pz {S T : HSp a.D} {x : ExportSeries.Base S T} (h : x.Good) : (base_pz b x).Good :=
+-  { even := (h.even)
+-    odd := (h.odd)
+-    frame := frame_good_pz (a := a) b h.frame
+-    de := twist_good_pz (a := a) b h.de
+-    places := places_imp_pz (a := a) b h.places
+-    wt := weight_good_pz (a := a) b h.wt
+-    sig := (h.sig)
+-    sigOK := (h.sigOK)
+-    eta := (h.eta)
+-    hecke := (h.hecke)
+-    real := (h.real)
+-    unram := (h.unram)
+-    tame := (h.tame)
+-    inf := (h.inf) }
+-private theorem classes_imp_pz {V : HSp a.D} {J} {I : Type} {r : I → GA a.D V} (h : IsClassSystem V J r) :
+-    @IsClassSystem b.D ((V)) ((J)) I ((r)) :=
+-  { fin := (h.fin)
+-    reps := (h.reps)
+-    stab := (h.stab) }
+-variable (a) in
+-private abbrev placeMapB_pz : type_of% (@Frame.placeMap b.D) := @fun S T F => ((@Frame.placeMap a.D ((S)) ((T)) (((frame_pz a F)))))
+-variable (a) in
+-private theorem placeMap_eq_pz : @Frame.placeMap b.D = @placeMapB_pz B C a b := by
+-  funext S T F e
+-  delta Frame.placeMap
+-  rewrite [placeModel_eq a b]
+-  rfl
+-variable (a) in
+-private abbrev vecAtB_pz : type_of% (@ExportSeries.Base.vecAt b.D) := @fun S T F => ((@ExportSeries.Base.vecAt a.D ((S)) ((T)) (((base_pz a F)))))
+-variable (a) in
+-private theorem vecAt_eq_pz : @ExportSeries.Base.vecAt b.D = @vecAtB_pz B C a b := by
+-  funext S T F Q φ
+-  delta ExportSeries.Base.vecAt Frame.vec
+-  rewrite [placeMap_eq_pz a b]
+-  rfl
+-variable (a) in
+-private abbrev thetaB_pz : type_of% (@ExportSeries.Base.theta b.D) := @fun S T F => ((@ExportSeries.Base.theta a.D ((S)) ((T)) (((base_pz a F)))))
+-variable (a) in
+-private theorem theta_eq_pz : @ExportSeries.Base.theta b.D = @thetaB_pz B C a b := by
+-  funext S T F ω h
+-  delta ExportSeries.Base.theta ExportSeries.Base.vecBase
+-  rewrite [vecAt_eq_pz a b]
+-  rfl
+-variable (a) in
+-private abbrev genSetB_pz : type_of% (@ExportSeries.Base.genSet b.D) := @fun S T F ω ψ => ((@ExportSeries.Base.genSet a.D ((S)) ((T)) (((base_pz a F))) ((ω)) (twist_pz a ψ)))
+-variable (a) in
+-private theorem genSet_eq_pz : @ExportSeries.Base.genSet b.D = @genSetB_pz B C a b := by
+-  funext S T F ω ψ h P
+-  delta ExportSeries.Base.genSet ExportSeries.Base.gen ExportSeries.Base.vecFlat
+-  rewrite [vecAt_eq_pz a b]
+-  rfl
+-variable (a) in
+-private abbrev classSumB_pz : type_of% (@ExportSeries.Base.classSum b.D) := @fun S T F ω ψ => ((@ExportSeries.Base.classSum a.D ((S)) ((T)) (((base_pz a F))) ((ω)) (twist_pz a ψ)))
+-variable (a) in
+-private theorem classSum_eq_pz : @ExportSeries.Base.classSum b.D = @classSumB_pz B C a b := by
+-  funext S T F ω ψ I i h
+-  delta ExportSeries.Base.classSum ExportSeries.Base.vecFlat
+-  rewrite [vecAt_eq_pz a b]
+-  rfl
+-variable (a) in
+-private abbrev xiCoefB_pz : type_of% (@ExportSeries.Base.xiCoef b.D) := @fun S T F A i1 i2 ω u => ((@ExportSeries.Base.xiCoef a.D ((S)) ((T)) (((base_pz a F))) A i1 i2 ((ω)) (univTw_pz a u)))
+-variable (a) in
+-private theorem xiCoef_eq_pz : @ExportSeries.Base.xiCoef b.D = @xiCoefB_pz B C a b := by
+-  funext S T F A i1 i2 ω u Q Φ h P c
+-  delta ExportSeries.Base.xiCoef ExportSeries.Base.xi ExportSeries.Base.vecFam
+-  rewrite [vecAt_eq_pz a b]
+-  rfl
+-end L1
+-section L2
+-open GlobalTheory.SeriesTie
+-variable {B : Base} {C : Cols B} {a : Late B C} (b : Late B C)
+-private abbrev recip_pz {Ω : Type} [i1 : Field Ω] [i2 : Algebra a.D.host.E Ω] (x : Recip a.D Ω) : @Recip b.D Ω i1 ((i2)) :=
+-  @Recip.mk b.D Ω i1 (i2) (x.κ) (x.art)
+-private theorem recip_good_pz {Ω : Type} [i1 : Field Ω] [i2 : Algebra a.D.host.E Ω] {x : Recip a.D Ω} (h : x.Good) :
+-    @Recip.Good b.D Ω i1 ((i2)) (@recip_pz B C a b Ω i1 i2 x) :=
+-  @Recip.Good.mk b.D Ω i1 (i2) (@recip_pz B C a b Ω i1 i2 x) (h.cont) (h.rat) (h.loc) (h.artin)
+-private theorem choice_imp_pz {ch} (h : @IsChoice a.D ch) : @IsChoice b.D ((ch)) :=
+-  { pair := (h.pair)
+-    one := (h.one) }
+-end L2
++
++private abbrev base_pz {S T : HSp a.D} (x : ExportSeries.Base S T) : @ExportSeries.Base b.D ((S)) ((T)) :=
++  SerCopy.baT (a := a) b x
++end
++
+ abbrev lt_pz {B : Base} {C : Cols B} (c : Late B C) (n : NStage B C c.W) : Late B C := ⟨c.W, c.V, c.S, n, c.G⟩
+-section L2
++
++private abbrev transportStage {B : Base} {C : Cols B} (c : Late B C) (n : NStage B C c.W) : SerCopy.Oth c.W :=
++  ⟨c.V, c.S, n, c.G⟩
++
++section
+ open GlobalTheory.SeriesTie
+ variable {B : Base} {C : Cols B} {c : Late B C} {a : NStage B C c.W} (b : NStage B C c.W)
+-section
+ variable {N : NData (lt_pz c a).D.R (lt_pz c a).D.host (lt_pz c a).D.what₂} {X : NTw (lt_pz c a).D.R (lt_pz c a).D.host (lt_pz c a).D.what₂ (lt_pz c a).D.LL0 N}
+-private def setup_pz (x : Setup X) : @Setup (lt_pz c b).D ((N)) ((X)) :=
+-  @Setup.mk (lt_pz c b).D N X
+-    (rc := recip_pz (a := lt_pz c a) (lt_pz c b) x.rc)
+-    (ch := x.ch)
+-    (bad := x.bad)
+-    (e := x.e)
+-    (ek := x.ek)
+-    (B := fun i j s => base_pz (a := lt_pz c a) (lt_pz c b) (x.B i j s))
+-    (om := x.om)
+-    (Cl := fun i j s t => x.Cl i j s (twist_pz (a := lt_pz c b) (lt_pz c a) t))
+-    (finCl := fun i j s t => x.finCl i j s (twist_pz (a := lt_pz c b) (lt_pz c a) t))
+-    (rep := fun i j s t => x.rep i j s (twist_pz (a := lt_pz c b) (lt_pz c a) t))
+-    (β := x.β)
+-    (eG := x.eG)
++
++private abbrev setup_pz (x : Setup X) : @Setup (lt_pz c b).D ((N)) ((X)) :=
++  SerCopy.seT (o := transportStage c a) (transportStage c b) x
++
+ private theorem setup_good_pz {x : Setup X} (h : x.Good) : (setup_pz (c := c) (a := a) b x).Good :=
+-  { rc := recip_good_pz (a := lt_pz c a) (lt_pz c b) h.rc
+-    ch := fun i => choice_imp_pz (a := lt_pz c a) (lt_pz c b) (h.ch i)
+-    bad_ne := h.bad_ne
+-    goodSetup_bad_mem_badPlaces := h.goodSetup_bad_mem_badPlaces
+-    goodSetup_badPlaces_conj := h.goodSetup_badPlaces_conj
+-    goodSetup_placesOverTwo_subset := h.goodSetup_placesOverTwo_subset
+-    goodSetup_count_eq_zero_off_badPlaces := h.goodSetup_count_eq_zero_off_badPlaces
+-    e_LL0 := h.e_LL0
+-    ek_e := h.ek_e
+-    latS := h.latS
+-    latT := h.latT
+-    Pg := h.Pg
+-    base := fun i j s => base_good_pz (a := lt_pz c a) (lt_pz c b) (h.base i j s)
+-    delta := fun i j s => congrArg (twist_pz (a := lt_pz c a) (lt_pz c b)) (h.delta i j s)
+-    weil := fun i j s t ht => weilDatum_imp (a := lt_pz c a) (lt_pz c b) _ _ _ _ _ _ (h.weil i j s (twist_pz (a := lt_pz c b) (lt_pz c a) t) (twist_good_pz (a := lt_pz c b) (lt_pz c a) ht))
+-    classes := fun i j s t ht hA => classes_imp_pz (a := lt_pz c a) (lt_pz c b) (h.classes i j s (twist_pz (a := lt_pz c b) (lt_pz c a) t) (twist_good_pz (a := lt_pz c b) (lt_pz c a) ht)
+-      ⟨places_imp_pz (a := lt_pz c b) (lt_pz c a) hA.1, hA.2⟩) }
+-private theorem isDatum_imp_pz {x : Setup X} {i j s Q g P} (h : x.IsDatum i j s Q g P) :
+-    (setup_pz (c := c) (a := a) b x).IsDatum (i) (j) s (Q) (g) (P) :=
+-  { split := (h.split)
+-    off := (h.off)
+-    fin := (h.fin)
+-    supp := (h.supp)
+-    mem := (h.mem) }
+-private theorem isHecke_imp_pz {x : Setup X} {i j s k P α R z} (h : x.IsHeckeDatum i j s k P α R z) :
+-    (setup_pz (c := c) (a := a) b x).IsHeckeDatum (i) (j) s k (P) (α) (R) (z) :=
+-  { elt := (h.elt)
+-    reps := (h.reps)
+-    det := (h.det) }
+-end
+-variable (a) in
+-private abbrev isDatumB_pz : type_of% (@Setup.IsDatum (lt_pz c b).D) := @fun N X ρ => ((@Setup.IsDatum (lt_pz c a).D ((N)) ((X)) (((setup_pz (c := c) (a := b) a ρ)))))
+-variable (a) in
+-private theorem isDatum_eq_pz : @Setup.IsDatum (lt_pz c b).D = @isDatumB_pz B C c a b := by
+-  funext N X ρ i j s Q g P
+-  exact propext ⟨fun h => ((isDatum_imp_pz (c := c) (a := b) a h)), fun h => ((isDatum_imp_pz (c := c) (a := a) b (x := setup_pz (c := c) (a := b) a ρ) (i := (i)) (j := (j)) (s := s) (Q := (Q)) (g := (g)) (P := (P)) ((h))))⟩
+-variable (a) in
+-private abbrev isHeckeB_pz : type_of% (@Setup.IsHeckeDatum (lt_pz c b).D) := @fun N X ρ => ((@Setup.IsHeckeDatum (lt_pz c a).D ((N)) ((X)) (((setup_pz (c := c) (a := b) a ρ)))))
+-variable (a) in
+-private theorem isHecke_eq_pz : @Setup.IsHeckeDatum (lt_pz c b).D = @isHeckeB_pz B C c a b := by
+-  funext N X ρ i j s k P α R z
+-  exact propext ⟨fun h => ((isHecke_imp_pz (c := c) (a := b) a h)), fun h => ((isHecke_imp_pz (c := c) (a := a) b (x := setup_pz (c := c) (a := b) a ρ) (i := (i)) (j := (j)) (s := s) (k := k) (P := (P)) (α := (α)) (R := (R)) (z := (z)) ((h))))⟩
+-section
+-variable {N : NData (lt_pz c a).D.R (lt_pz c a).D.host (lt_pz c a).D.what₂} {X : NTw (lt_pz c a).D.R (lt_pz c a).D.host (lt_pz c a).D.what₂ (lt_pz c a).D.LL0 N} {ρ : Setup X}
++  SerCopy.seGood (o := transportStage c a) (transportStage c b) h
++
++variable {ρ : Setup X}
+   {Y : NExp (lt_pz c a).D.R (lt_pz c a).D.host (lt_pz c a).D.what₂ (lt_pz c a).D.LL0 N X} {i : X.Tw} {j : Fin (lt_pz c a).D.R.m} {s : Bool} {rd : Rd ρ Y i j s}
++
+ private def cell_pz {hρ : ρ.Good} (x : CellTie hρ Y rd) :
+     @CellTie (lt_pz c b).D ((N)) ((X)) (setup_pz (c := c) (a := a) b ρ) (setup_good_pz (c := c) (a := a) b hρ) ((Y)) ((i)) ((j)) s ((rd)) :=
+-  @CellTie.mk (lt_pz c b).D (N) (X) (setup_pz (c := c) (a := a) b ρ) (setup_good_pz (c := c) (a := a) b hρ) (Y) (i) (j) s (rd)
+-    (supp := (x.supp))
+-    (cls := (x.cls))
+-    (coef := (x.coef))
+-    (rdV := (x.rdV))
+-    (U_eq := (x.U_eq))
+-    (psiU_eq := (x.psiU_eq))
+-    (dat := fun d => ((isDatum_imp_pz (c := c) (a := a) b (x.dat ((d))))))
+-    (dat_onto := by delta Setup.theta; rewrite [isDatum_eq_pz (c := c) a b, theta_eq_pz (lt_pz c a) (lt_pz c b)]; exact (x.dat_onto))
+-    (lev_iff := (x.lev_iff))
+-    (th_eq := by delta Setup.theta; rewrite [theta_eq_pz (lt_pz c a) (lt_pz c b)]; exact (x.th_eq))
+-    (thPsi_iff := by delta Setup.gens; rewrite [genSet_eq_pz (lt_pz c a) (lt_pz c b)]; exact (x.thPsi_iff))
+-    (thU_eq := by delta Setup.xi; rewrite [xiCoef_eq_pz (lt_pz c a) (lt_pz c b)]; exact (x.thU_eq))
+-    (thU_off := by delta Setup.xi; rewrite [xiCoef_eq_pz (lt_pz c a) (lt_pz c b)]; exact (x.thU_off))
+-    (rdV_inj := (x.rdV_inj))
+-    (mtLat_iff := (x.mtLat_iff))
+-    (thP_eq := by delta Setup.sum; rewrite [classSum_eq_pz (lt_pz c a) (lt_pz c b)]; exact (x.thP_eq))
++  SerCopy.cellT (o := transportStage c a) (transportStage c b) x
++
+ private theorem hecke_imp_pz (h : HeckeTie rd) :
+-    @HeckeTie (lt_pz c b).D ((N)) ((X)) (setup_pz (c := c) (a := a) b ρ) ((Y)) ((i)) ((j)) s ((rd)) := by
+-  delta HeckeTie HeckeAt
+-  rewrite [isHecke_eq_pz (c := c) a b]
+-  refine h
++    @HeckeTie (lt_pz c b).D ((N)) ((X)) (setup_pz (c := c) (a := a) b ρ) ((Y)) ((i)) ((j)) s ((rd)) :=
++  SerCopy.heckeTieT (o := transportStage c a) (transportStage c b) h
++
+ private theorem rat_imp_pz {hρ : ρ.Good} (h : SeriesTie.Rat hρ rd) :
+-    @SeriesTie.Rat (lt_pz c b).D ((N)) ((X)) (setup_pz (c := c) (a := a) b ρ) (setup_good_pz (c := c) (a := a) b hρ) ((Y)) ((i)) ((j)) s ((rd)) := by
+-  delta SeriesTie.Rat RatBase RatTwist RatUniv Setup.theta Setup.gens Setup.xi
+-  rewrite [isDatum_eq_pz (c := c) a b, theta_eq_pz (lt_pz c a) (lt_pz c b), genSet_eq_pz (lt_pz c a) (lt_pz c b), xiCoef_eq_pz (lt_pz c a) (lt_pz c b)]
+-  refine h
+-end
+-end L2
++    @SeriesTie.Rat (lt_pz c b).D ((N)) ((X)) (setup_pz (c := c) (a := a) b ρ) (setup_good_pz (c := c) (a := a) b hρ) ((Y)) ((i)) ((j)) s ((rd)) :=
++  SerCopy.ratT (o := transportStage c a) (transportStage c b) h
++end
+ section L3
+ open GlobalTheory.SeriesTie
+ variable {B : Base} {C : Cols B} {c : Late B C} {a : NStage B C c.W} (b : NStage B C c.W)
