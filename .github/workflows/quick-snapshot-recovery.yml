@@ -1,0 +1,69 @@
+name: Verify partial source snapshot retention
+on:
+  push:
+    branches: [bench/quick-snapshot-recovery]
+permissions:
+  contents: read
+jobs:
+  paired:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /bench-snapshot/
+            /scripts/
+            /.github/workflows/build-pr.yml
+            /lakefile.toml
+            /lake-manifest.json
+            /lean-toolchain
+      - name: Pin the historical source and the benchmarked controller
+        shell: bash
+        run: |
+          set -euo pipefail
+          fixture="$RUNNER_TEMP/incident.git"
+          git init --bare -q "$fixture"
+          git -C "$fixture" fetch --depth=1 --no-tags https://github.com/leanprover-community/riemann-hypothesis.git d6e650901f2ddbf6eb29596b68addadb6faecfe8
+          git -C "$fixture" update-ref HEAD FETCH_HEAD
+          test "$(git -C "$fixture" rev-parse HEAD:src)" = 9c05c6e7e9f974062d5c7b0b7f7690fc13ff737b
+          python - <<'PY'
+          import base64, hashlib, json, os
+          from pathlib import Path
+          here = Path('bench-snapshot')
+          case=json.loads((here/'case.json').read_bytes())
+          assert hashlib.sha256((here/'reclaim.patch').read_bytes()).hexdigest()==case['candidate_patch_sha256']
+          data=base64.b64decode((here/'main.ltar.b64').read_bytes())
+          assert hashlib.sha256(data).hexdigest()==case['prior_artifact']['row'][3]
+          (Path(os.environ['RUNNER_TEMP'])/'Main.ltar').write_bytes(data)
+          PY
+          cp scripts/ci-build.py scripts/_snapshot_old_ci.py
+          git apply --check bench-snapshot/reclaim.patch
+          git apply bench-snapshot/reclaim.patch
+      - name: Check successful, interrupted and cleanup-error behavior
+        run: |
+          set -euo pipefail
+          python scripts/tests/test_ci_build.py --resource-tests-only
+          python - <<'PY'
+          import importlib.util
+          def load(name,path):
+              s=importlib.util.spec_from_file_location(name,path)
+              m=importlib.util.module_from_spec(s)
+              s.loader.exec_module(m)
+              return m
+          tests=load('test_ci','scripts/tests/test_ci_build.py')
+          tests.snapshot_tests(load('ci','scripts/ci-build.py'))
+          PY
+          python -m unittest discover -s scripts/tests -p test_quick_check.py
+      - name: Replay the observed extraction point and a complete snapshot in alternating pairs
+        run: |
+          python -u bench-snapshot/run.py --historical "$RUNNER_TEMP/incident.git" --artifact "$RUNNER_TEMP/Main.ltar" --work "$RUNNER_TEMP/ab-work" --output results/paired.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: quick-snapshot-recovery-${{ github.run_id }}
+          path: results/
+          retention-days: 7
+          if-no-files-found: ignore

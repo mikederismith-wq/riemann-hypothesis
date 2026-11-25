@@ -1,0 +1,43 @@
+{
+  "main": "27b55787485ac2a5b5b3ed2dffc697e0ae6a2f59",
+  "receipt": {
+    "candidate_tree": "7a78580d283e03a0bcdbff1e72e709d2157e389a",
+    "source_tree": "a31c35b83301bc718b77810110f0289778d51b41",
+    "input_fingerprint": "40a14d37cdf6329093aa70779aa1622f1f3f080ee712e4b58082d7d5cc720469",
+    "toolchain": "leanprover/lean4:v4.37.0-rc1",
+    "lakefile_sha256": "b96a1a0b45e250d91bbf78d3490b79a317678bf13b823227b731cb87e3fd5ce5",
+    "manifest_sha256": "6b5ad855ab2f8544071569928d1b84e8e6be14636e7b2809e7ccabb3937934ee",
+    "module_manifest_sha256": "db39a50d765652f9d55f1eefc711a31b9552ad17704c332c6f099d2f36196ad6",
+    "map_sha256": "dfbad839a5423dcffc9b36826d34e54cf26b5b7177b3d9bf7ae4880bb6023c11"
+  },
+  "incident": {
+    "schema": 1,
+    "candidate_head": "d6e650901f2ddbf6eb29596b68addadb6faecfe8",
+    "candidate_tree": "5583d4d1fbbfb000077b425ee31b2a0093ceb2ce",
+    "source_tree": "9c05c6e7e9f974062d5c7b0b7f7690fc13ff737b",
+    "build_roots": {},
+    "lakefile_sha256": "b96a1a0b45e250d91bbf78d3490b79a317678bf13b823227b731cb87e3fd5ce5",
+    "manifest_sha256": "6b5ad855ab2f8544071569928d1b84e8e6be14636e7b2809e7ccabb3937934ee",
+    "toolchain": "leanprover/lean4:v4.37.0-rc1",
+    "input_fingerprint": "1e6bf93fde29fe10d1ec4ff88bb008a5ae227a99f72a298421d79c44d56fd4d9"
+  },
+  "pr": 1422,
+  "run": 45466293140,
+  "last_good": 45465347513,
+  "failure_file": "src/Development/AutomorphicArithmetic/AutomorphicVarieties/ModularityArgument/KatoQuadraticCharacters/KatoTwoOfVanishOrd.lean",
+  "source_files_before_failure": 29112,
+  "dirs_before_failure": 440,
+  "bytes_before_failure": 536324527,
+  "prior_artifact": {
+    "url": "https://rh-cache.taucetiproject.org/artifacts/leanprover-community/riemann-hypothesis/b97f2ec6bdc4752e.art",
+    "row": [
+      "Main",
+      "bdabe557f783fbe8",
+      "b97f2ec6bdc4752e.ltar",
+      "d5963fbc95d509373627c0fc7973a9073f245b04df9ac6b30429694af7d68d11"
+    ],
+    "bytes": 3460
+  },
+  "candidate_patch_sha256": "4c98f00a82bd46a297bd7de14e5ae54309f3600a93b55643ce674f086c1cfb62",
+  "observed_run_url": "https://github.com/leanprover-community/riemann-hypothesis/actions/runs/45466293140/job/138702113818"
+}

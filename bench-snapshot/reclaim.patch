@@ -1,0 +1,71 @@
+diff --git a/scripts/ci-build.py b/scripts/ci-build.py
+index e6039859..3c26797c 100644
+--- a/scripts/ci-build.py
++++ b/scripts/ci-build.py
+@@ -297,6 +297,24 @@ def safe_file(root, relative):
+ 
+ 
+ def snapshot(candidate, head, destination):
++    new_inputs = [destination / name for name in ("src", *SNAPSHOT_CONFIGS)
++                  if not os.path.lexists(destination / name)]
++    try:
++        extract_snapshot(candidate, head, destination)
++    except BaseException as error:
++        # Compilation has not started. A failed extraction can strand thousands of input files.
++        for path in new_inputs:
++            try:
++                if path.is_dir() and not path.is_symlink():
++                    shutil.rmtree(path)
++                else:
++                    path.unlink(missing_ok=True)
++            except OSError as cleanup_error:
++                error.add_note(f"Could not discard partial snapshot input {path}: {cleanup_error}")
++        raise
++
++
++def extract_snapshot(candidate, head, destination):
+     # Expose only attested build inputs, not PR scripts, docs, Git config, or caches.
+     command = ["git", "-C", str(candidate), "archive", head, "--", "src", *SNAPSHOT_CONFIGS]
+     process = subprocess.Popen(command, stdout=subprocess.PIPE, env=trusted_env())
+diff --git a/scripts/tests/test_ci_build.py b/scripts/tests/test_ci_build.py
+index d4735ba3..460f48db 100644
+--- a/scripts/tests/test_ci_build.py
++++ b/scripts/tests/test_ci_build.py
+@@ -176,6 +176,37 @@ def snapshot_tests(ci):
+         head = ci.git(candidate, "rev-parse", "HEAD")
+         ci.snapshot(candidate, head, destination)
+ 
++        partial = root / "partial"
++        partial.mkdir()
++        prior = partial / "prior.olean"
++        prior.write_bytes(b"retained")
++        copy = shutil.copyfileobj
++
++        def interrupted_copy(source, output):
++            copy(source, output)
++            if Path(output.name).suffix == ".lean":
++                raise OSError(errno.ENOSPC, "disk full")
++
++        with patch.object(shutil, "copyfileobj", side_effect=interrupted_copy):
++            for path in (partial, destination):
++                try:
++                    ci.snapshot(candidate, head, path)
++                except OSError as error:
++                    assert error.errno == errno.ENOSPC
++                else:
++                    raise AssertionError("incomplete source snapshot succeeded")
++        assert list(partial.iterdir()) == [prior]
++        assert prior.read_bytes() == b"retained"
++        with patch.object(shutil, "copyfileobj", side_effect=interrupted_copy), \
++                patch.object(shutil, "rmtree", side_effect=OSError(errno.EACCES, "cleanup failed")):
++            try:
++                ci.snapshot(candidate, head, partial)
++            except OSError as error:
++                assert error.errno == errno.ENOSPC
++                assert any("cleanup failed" in note for note in error.__notes__)
++            else:
++                raise AssertionError("cleanup hid the original error")
++
+         def rejects(message):
+             try:
+                 ci.verify_snapshot(candidate, head, destination)
