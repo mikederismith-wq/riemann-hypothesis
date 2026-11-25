@@ -1,0 +1,31 @@
+name: Measure the Harris–Taylor joint root and accepted scalar edit
+on:
+  push:
+    branches: [bench/joint-root-direct-rho]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fork-only-harris-joint-root-rho
+  cancel-in-progress: false
+jobs:
+  compare:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/joint-root-direct-rho'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 170
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: edge-measure
+      - name: Compile both real clients and measure the accepted edit and joint target
+        timeout-minutes: 155
+        run: python3 edge-measure/observe.py
+      - name: Save stock compiler observations and source verification
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: direct-rho-joint-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/joint-edge-results
+          if-no-files-found: error
+          retention-days: 7

@@ -1,0 +1,126 @@
+{
+  "main": "a18a350c3e5aad997766cff2670b292313e46574",
+  "production": "14c585298be9468fb0c37d00fc5de2165f5daca0",
+  "split": "1bbf7dc51b1f9d23547d2b8c7723e2c61c4b127a",
+  "accepted_scalar_edit": "bcfbf2ad3dfb918abcbc05d093634c11f741c98d",
+  "pre_scalar": "4a5b4a2d2a5177a2b6cb876425f0cb4cb6b85061",
+  "trees": {
+    "old": {
+      "pre": "11f5fb7f0c29689f0edf3523e33421cd90f2e60c",
+      "post": "1ea8d3c59341383eeb4766ada9a33e33c08f88f1"
+    },
+    "new": {
+      "pre": "b64c375e860c0537c3dbb3086fb2bdf233f61aec",
+      "post": "164b736f4dad93248c4538a3dc2a1dfc82658540"
+    }
+  },
+  "expected": {
+    "safe": {
+      "count": 6110,
+      "sha256": "3d532e7a8a90d5ba55569cfa25b9a30b55fbddd19332c9acdab7e1ad53e1cfb3"
+    },
+    "old_exclusive": {
+      "count": 221,
+      "sha256": "c9e0e5251ed6f836d0ca92e96da89de712e43b6bb9641d4e60175c356e298c0e"
+    },
+    "joint_old": 5108,
+    "joint_new": 4887,
+    "union": 6115,
+    "clients": [
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement"
+    ],
+    "changed_in_union": [
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsSqZeroLiftRealisingKs",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorHodgeFiltrationNaturalityStatement",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorRealiseKodairaSpencerDirectionStatement",
+      "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement"
+    ],
+    "cycles": 2,
+    "post_client_cones": {
+      "old": {
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsSqZeroLiftRealisingKs": 5108,
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement": 6013,
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement": 6115,
+        "Main": 59496
+      },
+      "new": {
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsSqZeroLiftRealisingKs": 4887,
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement": 6013,
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement": 6115,
+        "Main": 59496
+      }
+    }
+  },
+  "files": {
+    "old_j": {
+      "git_blob": "aa0bb029399e712ecdb8b6283a9f36973a6a8fc6",
+      "sha256": "de7abe69769ecfee57caae65b796df65e995819dbb51e92069a6eb5ad2fd24a1",
+      "bytes": 76346
+    },
+    "new_j": {
+      "git_blob": "ba61301a17772c517ada3ebc7b7b4513a6069b98",
+      "sha256": "1c21afc6e2e926dd99b8c366382cbd4cfcd8ac1b56f54bf5c5eeeaff1f7b8b52",
+      "bytes": 76527
+    },
+    "old_s": {
+      "git_blob": "b1e8d563d1c4f875458d7f8039ba50db01c242c3",
+      "sha256": "b72dcb59df392cacaa1f68cc1aa464ab088595b0cdd4cd2faece10b534fe4005",
+      "bytes": 74384
+    },
+    "new_s": {
+      "git_blob": "3a1bcf43bdc90398b692f78d42464a5dafc53faf",
+      "sha256": "59f3cdd2d4670320a580a747c8c57d6ae414cfa772b2820c95f10b8b4004a0ea",
+      "bytes": 73295
+    },
+    "early": {
+      "git_blob": "39467cb97a15350b8ba20dcf639f8c3a449755f2",
+      "sha256": "636ada224352a5263523cd92db4f29bd055cf9dc2c355e02c5c19bf199ee6eb8",
+      "bytes": 100005
+    },
+    "late": {
+      "git_blob": "1c2f3b8956aab6fb5c1c33ce9ab0e4dfded08d67",
+      "sha256": "462cbcd86a7396c52139e293dd9e4201840115096e2476d31daa6bdca77a746c",
+      "bytes": 35790
+    }
+  },
+  "receipt": {
+    "build_exit_code": 0,
+    "build_receipt_sha256": "e93a2e1e1e29e60391e03611986839c0fb9c99c82b7334de39491b2a0623fc73",
+    "build_roots": {},
+    "candidate_head": "a18a350c3e5aad997766cff2670b292313e46574",
+    "candidate_tree": "8a364f3f3bcdae0cb0e0c11daa2cf03a01462811",
+    "delta_artifacts": 50872,
+    "input_fingerprint": "a513db09c86b292bc0cea695691b8b0011bb6e1038474f53ae03a78bbb7972c3",
+    "lakefile_sha256": "b96a1a0b45e250d91bbf78d3490b79a317678bf13b823227b731cb87e3fd5ce5",
+    "manifest_sha256": "6b5ad855ab2f8544071569928d1b84e8e6be14636e7b2809e7ccabb3937934ee",
+    "map_key": "ci/maps/3d42b2e4c52993c56d04346d12f8cc4d7628f54b4251d98cfa6b1323df6d20ea.jsonl",
+    "map_sha256": "3d42b2e4c52993c56d04346d12f8cc4d7628f54b4251d98cfa6b1323df6d20ea",
+    "module_manifest_bytes": 4480775,
+    "module_manifest_key": "ci/module-manifests/d97ee858aae28eff224e33386529a02b300d544878ec91046a698278fe19daa2.jsonl.gz",
+    "module_manifest_sha256": "d97ee858aae28eff224e33386529a02b300d544878ec91046a698278fe19daa2",
+    "promoted_from": "f6be536360c20109380ca3dcaf9ad653131b8e6e",
+    "receipt": {
+      "base_map_sha256": "2ac0c1ba61229279c8aa0778c05193f667824e842cd0444d6218ed0c508662de",
+      "build_exit_code": 0,
+      "build_roots": {},
+      "candidate_head": "a18a350c3e5aad997766cff2670b292313e46574",
+      "candidate_tree": "8a364f3f3bcdae0cb0e0c11daa2cf03a01462811",
+      "input_fingerprint": "a513db09c86b292bc0cea695691b8b0011bb6e1038474f53ae03a78bbb7972c3",
+      "lakefile_sha256": "b96a1a0b45e250d91bbf78d3490b79a317678bf13b823227b731cb87e3fd5ce5",
+      "manifest_sha256": "6b5ad855ab2f8544071569928d1b84e8e6be14636e7b2809e7ccabb3937934ee",
+      "map_sha256": "3d42b2e4c52993c56d04346d12f8cc4d7628f54b4251d98cfa6b1323df6d20ea",
+      "module_manifest_bytes": 4480775,
+      "module_manifest_sha256": "d97ee858aae28eff224e33386529a02b300d544878ec91046a698278fe19daa2",
+      "schema": 1,
+      "source_tree": "cd27ae6abae1e26741a3b6fcf20f233f0a6c0789",
+      "toolchain": "leanprover/lean4:v4.37.0-rc1"
+    },
+    "repository": "leanprover-community/riemann-hypothesis",
+    "schema": 1,
+    "source_tree": "cd27ae6abae1e26741a3b6fcf20f233f0a6c0789",
+    "toolchain": "leanprover/lean4:v4.37.0-rc1",
+    "verification": "opaque artifacts; stock Lake content hashes; no proof imports"
+  }
+}
