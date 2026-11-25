@@ -1,0 +1,31 @@
+name: Compare joint scalar realisation and its OrdGen consumer
+on:
+  push:
+    branches: [bench/scalar-joint-ordgen]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fork-only-scalar-joint-ordgen
+  cancel-in-progress: false
+jobs:
+  compare:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/scalar-joint-ordgen'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 325
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: scalar-measure
+      - name: Measure changed providers, direct consumers, and the additional OrdGen prerequisites
+        timeout-minutes: 318
+        run: python3 scalar-measure/measure.py
+      - name: Preserve source checks, proof interfaces, and raw compiler observations
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: scalar-joint-ordgen-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/scalar-measure-results
+          if-no-files-found: error
+          retention-days: 7
