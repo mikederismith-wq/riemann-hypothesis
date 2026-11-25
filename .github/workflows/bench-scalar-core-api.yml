@@ -1,0 +1,30 @@
+name: Check the unrestricted Harris–Taylor scalar realisation
+on:
+  push:
+    branches: [bench/scalar-core-api]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fork-unrestricted-scalar-proof
+  cancel-in-progress: false
+jobs:
+  check:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/scalar-core-api'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 32
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: scalar-core
+      - name: Check the stronger public signature, proof constants and axioms
+        run: python3 scalar-core/check.py
+      - name: Save proof diagnostics and exact input identity
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: unrestricted-scalar-proof-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rh-strong-core-result
+          if-no-files-found: error
+          retention-days: 7
