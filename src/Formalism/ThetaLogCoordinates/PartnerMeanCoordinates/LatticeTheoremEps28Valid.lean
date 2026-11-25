@@ -765,7 +765,7 @@ theorem tieOpsX_main : TieOpsX := by
         _ = ((N + 2) * r ^ 2 : ℝ) * lgv := by ring
         _ ≤ κ := hκ
     exact_mod_cast h3.trans (Nat.le_ceil κ)
-  have hspZ : ∀ μ v, v ∈ TO.Cset p (LL.setTies T n) (T.pos i + 1 + 1) T.J T.thr →
+  have hspZ : ∀ μ v, v ∈ Formalism.CountingSumsFrames.Cset p (LL.setTies T n) (T.pos i + 1 + 1) T.J T.thr →
       (GA p (LL.setTies T n) (T.pos i + 1 + 1)).IsHW μ v → v ∈ IntPol p (Fin N × Fin r) →
       v ∈ Submodule.span ℤ_[p] (Set.range fun x : (Σ w : Ω, Fin (nb i w.1)) =>
           T.Ffull p (LL.setTies T n) i ρ (n i) (f' x.1.1 x.2)) := by
