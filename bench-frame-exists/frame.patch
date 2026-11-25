@@ -1,0 +1,101 @@
+--- a/src/Formalism/LocalToGlobal/Divisibility/DefGroupLemmas.lean
++++ b/src/Formalism/LocalToGlobal/Divisibility/DefGroupLemmas.lean
+@@ -1307,96 +1307,8 @@
+ 
+ end FrGlue
+ 
+-theorem frame_exists_alt : FrameExists := by
+-  classical
+-  intro F E _ _ _ _ _ n L hL
+-  have hfin : Module.Finite (𝓞 E) L := Module.Finite.iff_fg.2 hL.fg
+-  have hspan := hL.span_eq_top
+-  obtain ⟨c, hc0, hc⟩ := Formalism.UG.P.adelstabL_lower (F := F) L hspan
+-  obtain ⟨d0, hd00, hd0⟩ := Formalism.UG.P.adelstabL_upper (F := F) L hfin
+-  obtain ⟨p, hp0, hp⟩ := Ring.not_isField_iff_exists_prime.1 (RingOfIntegers.not_isField E)
+-  let P0 : Pl E := ⟨p, hp, hp0⟩
+-  set D1 : ℕ := Ideal.absNorm (Ideal.span {c * d0} : Ideal (𝓞 F)) with hD1
+-  set D2 : ℕ := Ideal.absNorm P0.asIdeal with hD2
+-  have hD1' : D1 ≠ 0 := by
+-    rw [hD1, Ne, Ideal.absNorm_eq_zero_iff, Ideal.span_singleton_eq_bot]
+-    exact mul_ne_zero hc0 hd00
+-  have hD2' : D2 ≠ 0 := by
+-    rw [hD2, Ne, Ideal.absNorm_eq_zero_iff]
+-    exact hp0
+-  obtain ⟨t, ht⟩ : ∃ t : 𝓞 F, t * (c * d0) = (D1 : 𝓞 F) :=
+-    Ideal.mem_span_singleton'.1 (Ideal.absNorm_mem _)
+-  have hP0 : ((D1 * D2 : ℕ) : 𝓞 E) ∈ P0.asIdeal := by
+-    rw [Nat.cast_mul]
+-    exact Ideal.mul_mem_left _ _ (Ideal.absNorm_mem _)
+-  obtain ⟨b, d, hbL, hd, hcop, hdL⟩ := fr_good_basis L hL.fg (D1 * D2) (mul_ne_zero hD1' hD2') P0 hP0
+-  have hcopF : ∀ v : HeightOneSpectrum (𝓞 F), ((D1 * D2 : ℕ) : 𝓞 F) ∈ v.asIdeal →
+-      ((d : ℕ) : 𝓞 F) ∉ v.asIdeal := by
+-    intro v h1 h2
+-    obtain ⟨x, y, hxy⟩ := Nat.isCoprime_iff_coprime.2 hcop
+-    have h3 : (1 : 𝓞 F) ∈ v.asIdeal := by
+-      have e : (1 : 𝓞 F) = (x : 𝓞 F) * ((d : ℕ) : 𝓞 F) + (y : 𝓞 F) * ((D1 * D2 : ℕ) : 𝓞 F) := by
+-        have := congrArg (Int.cast : ℤ → 𝓞 F) hxy
+-        push_cast at this ⊢
+-        exact this.symm
+-      rw [e]
+-      exact Ideal.add_mem _ (Ideal.mul_mem_left _ _ h2) (Ideal.mul_mem_left _ _ h1)
+-    exact v.isPrime.ne_top ((Ideal.eq_top_iff_one _).2 h3)
+-  obtain ⟨e, w, w', he, hw, hw', hee, hew', hdw, hDw'⟩ := fr_adele ((D1 * D2 : ℕ) : 𝓞 F) ((d : ℕ) : 𝓞 F)
+-    (Nat.cast_ne_zero.2 (mul_ne_zero hD1' hD2')) hcopF
+-  have hdE : (d : E) ≠ 0 := Nat.cast_ne_zero.2 hd
+-  have hspanb : Submodule.span E (Set.range b) = ⊤ := by
+-    rw [eq_top_iff, ← hspan, Submodule.span_le]
+-    intro x hx
+-    have h2 : ((d : ℕ) : 𝓞 E) • x ∈ Submodule.span E (Set.range b) :=
+-      Submodule.span_subset_span (𝓞 E) E _ (hdL x hx)
+-    have h3 : x = ((d : E))⁻¹ • (((d : ℕ) : 𝓞 E) • x) := by
+-      rw [← algebraMap_smul E (((d : ℕ) : 𝓞 E)) x, map_natCast, inv_smul_smul₀ hdE]
+-    rw [SetLike.mem_coe, h3]
+-    exact Submodule.smul_mem _ _ h2
+-  choose Cc hCc using fun k : Fin n => (Submodule.mem_span_range_iff_exists_fun E).1
+-    (hspanb ▸ Submodule.mem_top : (Pi.single k 1 : Fin n → E) ∈ Submodule.span E (Set.range b))
+-  have hBC : (Matrix.of fun i j => b j i : Matrix (Fin n) (Fin n) E) * (Matrix.of fun j k => Cc k j) = 1 := by
+-    ext i k
+-    have h1 := congrFun (hCc k) i
+-    rw [Finset.sum_apply] at h1
+-    rw [Matrix.mul_apply, Matrix.one_apply, ← Pi.single_apply, ← h1]
+-    exact Finset.sum_congr rfl fun j _ => mul_comm _ _
+-  have hmem : ∀ {a : Af F}, a ∈ intAd F → ((1 : E) ⊗ₜ[F] a : E ⊗[F] Af F) ∈ intAf F E :=
+-    fun {a} ha => Subring.subset_closure (Or.inr ⟨⟨a, ha⟩, rfl⟩)
+-  have hDeq : t * d0 * (D2 : 𝓞 F) * c = ((D1 * D2 : ℕ) : 𝓞 F) := by
+-    rw [Nat.cast_mul, ← ht]; ring
+-  refine fr_glue L _ _ hBC (fun j => hbL j) ((1 : E) ⊗ₜ[F] e) ((1 : E) ⊗ₜ[F] w)
+-    (((1 : E) ⊗ₜ[F] w') * Formalism.UG.P.levelafC E (t * d0 * (D2 : 𝓞 F))) (Formalism.UG.P.levelafC E c) (hmem he) (hmem hw)
+-    ?_ ?_ ?_ ((d : ℕ) : 𝓞 E) ?_ ?_ hc ?_
+-  · rw [Algebra.TensorProduct.tmul_mul_tmul, one_mul, hee]
+-  · rw [← mul_assoc, Algebra.TensorProduct.tmul_mul_tmul, hew', TensorProduct.tmul_zero, zero_mul]
+-  · rw [mul_assoc, ← Formalism.UG.P.levelafC_mul, hDeq]
+-    unfold Formalism.UG.P.levelafC
+-    rw [Algebra.TensorProduct.tmul_mul_tmul, one_mul, mul_comm w', hDw', TensorProduct.tmul_sub]
+-    rfl
+-  · have h1 : inclE (F := F) (E := E) (Af F) (algebraMap (𝓞 E) E ((d : ℕ) : 𝓞 E)) =
+-        Formalism.UG.P.levelafC E ((d : ℕ) : 𝓞 F) := by
+-      rw [levelafC_eq_incl]
+-      simp only [map_natCast]
+-    rw [h1]
+-    unfold Formalism.UG.P.levelafC
+-    rw [Algebra.TensorProduct.tmul_mul_tmul, one_mul, hdw]
+-  · intro x hx
+-    obtain ⟨a, ha⟩ := (Submodule.mem_span_range_iff_exists_fun (𝓞 E)).1 (hdL x hx)
+-    refine ⟨a, ?_⟩
+-    rw [← ha]
+-    funext i
+-    rw [Finset.sum_apply]
+-    simp only [Matrix.mulVec, dotProduct, Matrix.of_apply, Pi.smul_apply, Algebra.smul_def]
+-    exact Finset.sum_congr rfl fun j _ => mul_comm _ _
+-  · intro v hv i
+-    have e1 : ((1 : E) ⊗ₜ[F] w') * Formalism.UG.P.levelafC E (t * d0 * (D2 : 𝓞 F)) * v i =
+-        ((1 : E) ⊗ₜ[F] w') * Formalism.UG.P.levelafC E (t * (D2 : 𝓞 F)) * (Formalism.UG.P.levelafC E d0 * v i) := by
+-      rw [show t * d0 * (D2 : 𝓞 F) = t * (D2 : 𝓞 F) * d0 by ring, Formalism.UG.P.levelafC_mul]
+-      ring
+-    rw [e1]
+-    exact mul_mem (mul_mem (hmem hw') (Formalism.UG.P.levelafC_mem _)) (hd0 v hv i)
++theorem frame_exists_alt : FrameExists :=
++  GlobalTheory.latticeFrame.exists_frame
+ 
+ section Lat
+ 

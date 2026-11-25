@@ -1,0 +1,33 @@
+name: Compare the imported lattice-frame existence theorem
+on:
+  push:
+    branches: [bench/frame-exists-alt]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fork-only-frame-exists-alt
+  cancel-in-progress: false
+jobs:
+  measure:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/frame-exists-alt'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: bench-frame-exists
+      - name: Measure alternating warm frame-existence proof CPU
+        timeout-minutes: 95
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/rh-proof-results"
+          python3 bench-frame-exists/run.py 2>&1 | tee "$RUNNER_TEMP/rh-proof-results/run.log"
+      - name: Preserve compiler measurements and proof-checking logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: frame-exists-alt-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rh-proof-results
+          retention-days: 7
