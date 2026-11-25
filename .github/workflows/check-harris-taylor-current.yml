@@ -1,0 +1,31 @@
+name: Check Harris–Taylor proofs on current main
+on:
+  push:
+    branches: [bench/harris-taylor-current-main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fork-harris-taylor-current-main
+  cancel-in-progress: false
+jobs:
+  check:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/harris-taylor-current-main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 170
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: ks-downstream
+      - name: Check affected sources with native Lake
+        timeout-minutes: 160
+        run: python3 ks-downstream/check.py
+      - name: Save source checks and runner resource observations
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: harris-taylor-current-main-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rh-proof-results
+          if-no-files-found: warn
+          retention-days: 7

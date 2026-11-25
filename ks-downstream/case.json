@@ -1,0 +1,56 @@
+{
+  "revision": "27b55787485ac2a5b5b3ed2dffc697e0ae6a2f59",
+  "patch_sha256": "ccba711345b7e427765376b1892408d64ffe966d6c53397c2228d8916db171eb",
+  "candidate_sha256": "c30d26d06cc87c7fb7b0b681d7e42d14c3c7873de2ff479bc40bee67027126a2",
+  "removed": [
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.RedPullConstMorVPull",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorExistsGluedFirstOrderDeformation"
+  ],
+  "survivor": "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
+  "direct": [
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement"
+  ],
+  "descendants": [
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorIntegralModelNonempty",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorIntegralModelNonemptyStatement",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.PeriodsSpanPureDecomposition",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement",
+    "Development.AbelianVarietyTheory.Proofs.SatakeParameters.SPowSmooth",
+    "Development.AutomorphicArithmetic.CharacterBoxes.MainConclusion",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.FiniteEtaleModels.KsGoodHolds",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.IntegralStructures.GeometricFlagBases.CovLink",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.IntegralStructures.GeometricFlagBases.GeometricRealizationOfWeightOne",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.IsogenyEtaleTranslation.TrFEtHolds",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.LefschetzSigmaSums.HodgeTraceOfLefschetzAndGroupSide",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.PAdicWittLattices.ExistsDeeperNormalLevel",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.PAdicWittLattices.FibrePowerTowerAdmissibleLevel",
+    "Development.AutomorphicArithmetic.Foundations.GaloisRepresentations.SphericalCoordinates.FixedPointsIntBaseHolds",
+    "Main"
+  ],
+  "sides": {
+    "old": {
+      "roots": [
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.RedPullConstMorVPull",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorExistsGluedFirstOrderDeformation",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement"
+      ],
+      "closure": 6120
+    },
+    "new": {
+      "roots": [
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
+        "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement"
+      ],
+      "closure": 6118
+    }
+  },
+  "candidate_tree": "7a78580d283e03a0bcdbff1e72e709d2157e389a",
+  "source_tree": "a31c35b83301bc718b77810110f0289778d51b41",
+  "published_receipt_sha256": "9daf8c301d442822c2679db34190f06ca5a51065e17501e972119c4998b5dc60",
+  "stages": {
+    "ordinary_warm": 12122,
+    "all_warm": 59527,
+    "cold": 16
+  }
+}
