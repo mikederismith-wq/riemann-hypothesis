@@ -1,7 +1,7 @@
 {
   "revision": "27b55787485ac2a5b5b3ed2dffc697e0ae6a2f59",
   "verified_root": "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
-  "source_sha256": "56d79c7c58e8395164215833004b55dcb6ea450d6bd73de67b6451239879af39",
+  "source_sha256": "e21fd813fc213bcb489763f3c61acf9c3a35a3a00170963dfe90d66521759d16",
   "project_import_blob_sha1": {
     "Development.AbelianVarietyTheory.Definitions.Divisors.InfUniv": "0e58fac542fd6b32ee14d9eaebd09d602af78115",
     "Development.AbelianVarietyTheory.Definitions.Divisors.IsKSValueOneOfRetraction": "b41a14a661784adab1974f29e278094a155cb2fd",

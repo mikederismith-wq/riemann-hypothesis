@@ -405,7 +405,11 @@ theorem GlobalTheory.HTRealise.realise_core_scalar_api_probe (p : ℕ) [Fact p.P
       ∀ x ∈ Fil o₀.A, IsFilLift m'.cart x (f x) := by
   have e : spMap (algebraMap k (DualNumber k)) ≫ s = spMap tR := by
     rw [hs, htR, ← GlobalTheory.Cris.spMap_comp]
-  simpa only [e] using (GlobalTheory.UPel.HT.realise_singleton_scalar_api_probe p D R b N hN k s o₀ β hs φ hφ f hf)
+  let P (v : Sp (DualNumber k) ⟶ Sp R) : Prop :=
+    ∃ (o' : GlobalTheory.UPel.HT.Obj b N v)
+      (m' : GlobalTheory.UPel.HT.ObjMap o₀ o' (spMap (TrivSqZeroExt.fstHom k k k).toRingHom)),
+      ∀ x ∈ Fil o₀.A, IsFilLift m'.cart x (f x)
+  exact (congrArg P e).mp (GlobalTheory.UPel.HT.realise_singleton_scalar_api_probe p D R b N hN k s o₀ β hs φ hφ f hf)
 
 end
 

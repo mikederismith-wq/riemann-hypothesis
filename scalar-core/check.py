@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import tarfile
 import time
+import tomllib
 import traceback
 from types import SimpleNamespace
 
@@ -20,7 +21,7 @@ PIN = "27b55787485ac2a5b5b3ed2dffc697e0ae6a2f59"
 TARGET = "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement"
 TARGET_BLOB = "931a7dc89aad88d943b931230c430e903d01c055"
 TARGET_OLEAN = "9cdedada2d28f8f9c6878e00e2ab6d889f46ea99b910caa625bc32a6a7f4e9cc"
-PROBE_HASH = "56d79c7c58e8395164215833004b55dcb6ea450d6bd73de67b6451239879af39"
+PROBE_HASH = "e21fd813fc213bcb489763f3c61acf9c3a35a3a00170963dfe90d66521759d16"
 FORK = "https://raw.githubusercontent.com/mikederismith-wq/riemann-hypothesis"
 DRIVER = "79e6b8f8c8442f79968ff5e5dfc3bf4fc3daecdc"
 DRIVER_HASH = "74bb741fefdebe233a5b3494ed46150a14bc104cb95d53ff75adab63225dd26d"
@@ -81,7 +82,7 @@ def main():
     if ci.git(project, "rev-parse", f"HEAD:src/{modpath}.lean") != TARGET_BLOB:
         raise ValueError("the source of the imported universal module has changed")
     manifest = HERE / "inputs-pinned.json"
-    if digest(manifest) != "403809643c7cabb0e12c3358e245b0920d32ab937c2a26d9d9b796180580b1e0":
+    if digest(manifest) != "3577a8dc5fa2f9d81ca48b6d3ea30a48af0bb4529cc1e594aaaad8f62433e235":
         raise ValueError("input list differs from the verified source scan")
     frozen = json.loads(manifest.read_text())
     sources = frozen["project_import_blob_sha1"]
@@ -125,10 +126,30 @@ def main():
     if digest(root_olean) != TARGET_OLEAN:
         raise ValueError("restored universal module differs from the published main output")
     shutil.copyfile(probe, result / probe.name)
+    with (project / "lakefile.toml").open("rb") as stream:
+        cfg = tomllib.load(stream)
+    lean_options = cfg["leanOptions"]
+    project_flags = cfg["moreLeanArgs"]
+    dev = next(lib for lib in cfg["lean_lib"] if lib["name"] == "Development")
+    if (lean_options != {"autoImplicit": False, "relaxedAutoImplicit": False, "maxSynthPendingDepth": 3,
+                         "pp": {"unicode": {"fun": True}}, "maxHeartbeats": 4000000}
+            or project_flags != ["--tstack=400000"] or dev.get("leanOptions")):
+        raise ValueError("effective official Development Lean settings have drifted")
+    def flags(opts, prefix=""):
+        for key, val in opts.items():
+            name = prefix + key
+            if isinstance(val, dict):
+                yield from flags(val, name + ".")
+            else:
+                arg = str(val).lower() if isinstance(val, bool) else str(val)
+                yield "-D" + name + "=" + arg
+    lean_flags = [*project_flags, *flags(lean_options)]
+    write("lean-settings.json", {"toolchain": record["toolchain"], "args": lean_flags,
+                                 "source": "lakefile.toml", "library": "Development"})
     started = time.monotonic()
     with (OUT / "lean-diagnostics.log").open("w") as log:
         ret = subprocess.run([*cmd, "/opt/lean/bin/lake", "--packages", overrides, "env", "/opt/lean/bin/lean",
-                              "-R", "/work/result", f"/work/result/{probe.name}"], stdout=log, stderr=subprocess.STDOUT)
+                              *lean_flags, "-R", "/work/result", f"/work/result/{probe.name}"], stdout=log, stderr=subprocess.STDOUT)
     write("result.json", dict(revision=PIN, source_sha256=PROBE_HASH, modules_restored=len(wanted),
                               imported_olean_sha256=TARGET_OLEAN, lean_exit_code=ret.returncode,
                               probe_wall_seconds=time.monotonic() - started))
