@@ -1,0 +1,31 @@
+name: Measure the Harris–Taylor proof gain on current main
+on:
+  push:
+    branches: [bench/harris-taylor-current-cpu]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fork-harris-taylor-current-cpu
+  cancel-in-progress: false
+jobs:
+  measure:
+    if: github.repository == 'mikederismith-wq/riemann-hypothesis' && github.ref == 'refs/heads/bench/harris-taylor-current-cpu'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          sparse-checkout: ks-cpu
+      - name: Build and time both proof paths
+        timeout-minutes: 115
+        run: python3 ks-cpu/measure.py
+      - name: Preserve paired timings and published compiler hashes
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: harris-taylor-current-cpu-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rh-proof-results
+          if-no-files-found: warn
+          retention-days: 7
