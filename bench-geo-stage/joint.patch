@@ -1,0 +1,110 @@
+--- a/src/Development/AbelianVarietyTheory/Proofs/IwasawaDecomposition/GeometricHalfToAnalyticDataEnlargedBase.lean
++++ b/src/Development/AbelianVarietyTheory/Proofs/IwasawaDecomposition/GeometricHalfToAnalyticDataEnlargedBase.lean
+@@ -777,7 +777,7 @@
+   cases h
+   rfl
+ 
+-private theorem eqAtP_congr_stages (X X' : Stages) (hPre : X'.B.toPre = X.B.toPre)
++private theorem eqAtP_equivP_congr_stages (X X' : Stages) (hPre : X'.B.toPre = X.B.toPre)
+     (T : CoreJ X.toD7) (T' : CoreJ X'.toD7)
+     (hH : HEq T'.Q.H T.Q.H) (hl : HEq T'.Q.l T.Q.l) (hc : HEq T'.Q.c T.Q.c)
+     (hDw : HEq T'.Q.Dw T.Q.Dw) (hXo : HEq T'.Q.Xo T.Q.Xo) (hU : HEq T'.U T.U)
+@@ -795,7 +795,8 @@
+     {Pg : Finset (Pl X.toD7.host.E)} {Pg' : Finset (Pl X'.toD7.host.E)} (hP : HEq Pg' Pg)
+     {eG : G → G0 Pg X.toD7.R.r} {eG' : G' → G0 Pg' X'.toD7.R.r} (he : HEq eG' eG)
+     {Y : G → ℂ} {Y' : G' → ℂ} (hY : HEq Y' Y) :
+-    EqAtP T' i' σ' hV2 c' a' n' lev' β' Pg' eG' Y' ↔ EqAtP T i σ hV1 c a n lev β Pg eG Y := by
++    (EqAtP T' i' σ' hV2 c' a' n' lev' β' Pg' eG' Y' ↔ EqAtP T i σ hV1 c a n lev β Pg eG Y) ∧
++      (EquivP T' i' σ' hV2 c' a' n' lev' β' Pg' eG' Y' ↔ EquivP T i σ hV1 c a n lev β Pg eG Y) := by
+   obtain ⟨B', C', W', V', S', N', G''⟩ := X'
+   rcases B' with ⟨P'⟩
+   change P' = X.B.toPre at hPre
+@@ -819,51 +820,7 @@
+   obtain rfl : Pg' = Pg := eq_of_heq hP
+   cases hi; cases hcc; cases hlev; cases he; cases hY
+   dsimp only [EqAtP, EquivP, Formalism.L2.Pj.Core.cuspA]
+-  rfl
+-
+-private theorem equivP_congr_stages (X X' : Stages) (hPre : X'.B.toPre = X.B.toPre)
+-    (T : CoreJ X.toD7) (T' : CoreJ X'.toD7)
+-    (hH : HEq T'.Q.H T.Q.H) (hl : HEq T'.Q.l T.Q.l) (hc : HEq T'.Q.c T.Q.c)
+-    (hDw : HEq T'.Q.Dw T.Q.Dw) (hXo : HEq T'.Q.Xo T.Q.Xo) (hU : HEq T'.U T.U)
+-    (hV : HEq T'.V T.V) (hdict : HEq T'.dict T.dict) (hmu : HEq T'.mu T.mu)
+-    (i : Fin X.toD7.R.m) (i' : Fin X'.toD7.R.m) (hii : (i : ℕ) = i')
+-    {a : (X.toD7.host.E →+* ℂ) × ℕ → ℕ} {a' : (X'.toD7.host.E →+* ℂ) × ℕ → ℕ} (ha : HEq a' a)
+-    {n n' : ℕ} (hn : n' = n)
+-    {σ : T.Q.c.F →+* ℂ} {σ' : T'.Q.c.F →+* ℂ} (hσ : HEq σ' σ)
+-    (hV1 : T.V ((i : ℕ) + 1) σ = Wc X.toD7 i) (hV2 : T'.V ((i' : ℕ) + 1) σ' = Wc X'.toD7 i')
+-    {c : (T.U ((i : ℕ) + 1) σ).Comp → ℂ} {c' : (T'.U ((i' : ℕ) + 1) σ').Comp → ℂ} (hcc : HEq c' c)
+-    {G G' : Type} [iG : Group G] [iG' : Group G'] (hG : G' = G) (hi : HEq iG' iG)
+-    {lev : G → (T.Q.Dw ((i : ℕ) + 1)).La →ₗ[𝓞 X.toD7.host.E] (T.Q.Dw ((i : ℕ) + 1)).La}
+-    {lev' : G' → (T'.Q.Dw ((i' : ℕ) + 1)).La →ₗ[𝓞 X'.toD7.host.E] (T'.Q.Dw ((i' : ℕ) + 1)).La} (hlev : HEq lev' lev)
+-    {β : GL (Fin (Wc X.toD7 i).rank) (EAf X.toD7)} {β' : GL (Fin (Wc X'.toD7 i').rank) (EAf X'.toD7)} (hβ : HEq β' β)
+-    {Pg : Finset (Pl X.toD7.host.E)} {Pg' : Finset (Pl X'.toD7.host.E)} (hP : HEq Pg' Pg)
+-    {eG : G → G0 Pg X.toD7.R.r} {eG' : G' → G0 Pg' X'.toD7.R.r} (he : HEq eG' eG)
+-    {Y : G → ℂ} {Y' : G' → ℂ} (hY : HEq Y' Y) :
+-    EquivP T' i' σ' hV2 c' a' n' lev' β' Pg' eG' Y' ↔ EquivP T i σ hV1 c a n lev β Pg eG Y := by
+-  obtain ⟨B', C', W', V', S', N', G''⟩ := X'
+-  rcases B' with ⟨P'⟩
+-  change P' = X.B.toPre at hPre
+-  subst hPre
+-  rcases T' with ⟨⟨⟨H', l', cf', Dw', Xo', eO'⟩, U', V'', dict', mu', Kf', pb'⟩, cE', chiW', x₀', iota'⟩
+-  dsimp only at hH hl hc hDw hXo hU hV hdict hmu
+-  obtain rfl : H' = T.Q.H := eq_of_heq hH
+-  obtain rfl : l' = T.Q.l := eq_of_heq hl
+-  obtain rfl : cf' = T.Q.c := eq_of_heq hc
+-  obtain rfl : Dw' = T.Q.Dw := eq_of_heq hDw
+-  obtain rfl : Xo' = T.Q.Xo := eq_of_heq hXo
+-  obtain rfl : U' = T.U := eq_of_heq hU
+-  obtain rfl : V'' = T.V := eq_of_heq hV
+-  obtain rfl : dict' = T.dict := eq_of_heq hdict
+-  obtain rfl : mu' = T.mu := eq_of_heq hmu
+-  obtain rfl : i = i' := Fin.ext hii
+-  obtain rfl : a' = a := eq_of_heq ha
+-  subst hn hG
+-  obtain rfl : σ' = σ := eq_of_heq hσ
+-  obtain rfl : β' = β := eq_of_heq hβ
+-  obtain rfl : Pg' = Pg := eq_of_heq hP
+-  cases hi; cases hcc; cases hlev; cases he; cases hY
+-  dsimp only [EqAtP, EquivP, Formalism.L2.Pj.Core.cuspA]
+-  rfl
++  exact ⟨Iff.rfl, Iff.rfl⟩
+ 
+ private theorem wtA_heq_stages (X X' : Stages) (hPre : X'.B.toPre = X.B.toPre)
+     {j j' : ℕ} (hj : j = j') (w : WeightFamilies.Wt X.toD7 j) (w' : WeightFamilies.Wt X'.toD7 j')
+@@ -1019,18 +976,18 @@
+         (fun g => (w.st Z).toD7.what₂.embLL (((z.R.FW i).chi g : (w.st Z).toD7.what₂.LLˣ) : (w.st Z).toD7.what₂.LL)) :=
+       heq_fun_of hG _ _ fun g' g hgg => by rw [hchi g' g hgg]; exact hι _
+     have hβ := heq_βW_stages (w.st Z) (w'.st Z') h1 hβW i i' hii
+-    have key := eqAtP_congr_stages (w.st Z) (w'.st Z') h1 z.core core'
++    have key := eqAtP_equivP_congr_stages (w.st Z) (w'.st Z') h1 z.core core'
+       hcore.1 hcore.2.1 hcore.2.2.1 hcore.2.2.2.1 hcore.2.2.2.2.1 hcore.2.2.2.2.2.1 hcore.2.2.2.2.2.2.1
+       hcore.2.2.2.2.2.2.2.1 hcore.2.2.2.2.2.2.2.2.1 i i' hii ha a3 hσ hV1 hV' hc0 hG hi (hO i i' hii) hβ hPg he hX
+-    have hA := key.1 hA'
++    have hA := key.1.mp hA'
+     have hz := z.geo.equivAll i σ hg0 hV1 ⟨c₀, hcu0, (eqAt_iff z.core i z.R.toRealDat z.geo.κ (z.geo.O i) σ hV1 c₀ z.alg_eq hχ).2 hA⟩
+     have hB := (eqAt_iff z.core i z.R.toRealDat z.geo.κ (z.geo.O i) σ hV1 _ z.alg_eq hχ).1 hz
+     have hcE := cE_heq_stages (w.st Z) (w'.st Z') h1 z.core core'
+       hcore.1 hcore.2.1 hcore.2.2.1 hcore.2.2.2.1 hcore.2.2.2.2.1 hcore.2.2.2.2.2.1 hcore.2.2.2.2.2.2.2.2.2.2.1 (congrArg (· + 1) hii) hσ
+-    have key2 := eqAtP_congr_stages (w.st Z) (w'.st Z') h1 z.core core'
++    have key2 := eqAtP_equivP_congr_stages (w.st Z) (w'.st Z') h1 z.core core'
+       hcore.1 hcore.2.1 hcore.2.2.1 hcore.2.2.2.1 hcore.2.2.2.2.1 hcore.2.2.2.2.2.1 hcore.2.2.2.2.2.2.1
+       hcore.2.2.2.2.2.2.2.1 hcore.2.2.2.2.2.2.2.2.1 i i' hii ha a3 hσ hV1 hV' hcE hG hi (hO i i' hii) hβ hPg he hX
+-    exact (eqAt_iff core' i' R'.toRealDat κ' (O' i') σ' hV' _ halg' hχ').2 (key2.2 hB)
++    exact (eqAt_iff core' i' R'.toRealDat κ' (O' i') σ' hV' _ halg' hχ').2 (key2.1.mpr hB)
+   · obtain ⟨a1, a2, a3⟩ := hκ i i' hii
+     have ha := wtA_heq_stages (w.st Z) (w'.st Z') h1 (congrArg (· + 1) hii) (z.geo.κ i) (κ' i') a1 a2
+     have hchi := ((hI i i' hii).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2 (enlEmb hR) hι).2.2.1
+@@ -1042,10 +999,10 @@
+     have hσ := sOv_heq_stages (w.st Z) (w'.st Z') h1 z.core core' hcore.1 hcore.2.1 hcore.2.2.1 (z.geo.O i).hle (O' i').hle
+     have hcE := cE_heq_stages (w.st Z) (w'.st Z') h1 z.core core'
+       hcore.1 hcore.2.1 hcore.2.2.1 hcore.2.2.2.1 hcore.2.2.2.2.1 hcore.2.2.2.2.2.1 hcore.2.2.2.2.2.2.2.2.2.2.1 (congrArg (· + 1) hii) hσ
+-    have key := equivP_congr_stages (w.st Z) (w'.st Z') h1 z.core core'
++    have key := eqAtP_equivP_congr_stages (w.st Z) (w'.st Z') h1 z.core core'
+       hcore.1 hcore.2.1 hcore.2.2.1 hcore.2.2.2.1 hcore.2.2.2.2.1 hcore.2.2.2.2.2.1 hcore.2.2.2.2.2.2.1
+       hcore.2.2.2.2.2.2.2.1 hcore.2.2.2.2.2.2.2.2.1 i i' hii ha a3 hσ (z.geo.O i).hV (O' i').hV hcE hG hi (hO i i' hii) hβ hPg he hX
+-    exact (equivAt_iff core' i' (κ' i') R'.toRealDat (O' i') _ hχ').2 (key.2 hB)
++    exact (equivAt_iff core' i' (κ' i') R'.toRealDat (O' i') _ hχ').2 (key.2.mpr hB)
+ 
+ end GlobalTheory.Mem.R3.Rw.EqvMove
+ 
