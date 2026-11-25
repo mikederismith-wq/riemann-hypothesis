@@ -1,7 +1,7 @@
 {
   "revision": "fcb6eac7534875d32d68030967e2deae6d686151",
-  "patch_sha256": "14fdbb07c2cb22f129b3eee5113b3d1acd1b8e3d9789422b22f4ce4e6fb26942",
-  "candidate_sha256": "2db22ed8d35c756853623e77856f09a5f7155eb740ad263c09744222b355170d",
+  "patch_sha256": "1b3effa84aeeb79f8c6f1ae57809899b05e387d9a6425870bf5154a18ab79042",
+  "candidate_sha256": "e1b7352def9def13dcb60e229ea16f62dfc8cbae4c2cac424ec310f6688c9db5",
   "removed": [
     "Development.AbelianVarietyTheory.Proofs.DivisorProofs.RedPullConstMorVPull",
     "Development.AbelianVarietyTheory.Proofs.DivisorProofs.HarrisTaylorExistsGluedFirstOrderDeformation"
@@ -42,7 +42,7 @@
         "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ExistsUniversalTangentHarrisTaylorRepresentingFaStatement",
         "Development.AbelianVarietyTheory.Proofs.DivisorProofs.SmoothOfRelativeDimensionStatement"
       ],
-      "closure": 5973
+      "closure": 5975
     }
   }
 }

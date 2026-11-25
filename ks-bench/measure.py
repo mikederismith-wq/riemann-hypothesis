@@ -105,7 +105,32 @@ def offline_sandbox(h, tc, project, packages, cache, results, control):
         hidden = package / ".lake"
         hidden.mkdir(exist_ok=True)
         cmd[2:2] = ["--volume", f"{hidden}:/work/project/.lake/packages/{package.name}/.lake:rw"]
+    # ProofWidgets asks Lake to refresh package-lock.json.hash beside its
+    # tracked lock file. Give each arm private sidecars and mount its real
+    # JS, TypeScript, and package configuration inputs individually read-only.
+    widget = packages / "proofwidgets/widget"
+    sidecars = results.parent / "widget-sidecars"
+    shutil.copytree(widget, sidecars, ignore=shutil.ignore_patterns("node_modules"))
+    target = "/work/project/.lake/packages/proofwidgets/widget"
+    mounts = ["--volume", f"{sidecars}:{target}:rw"]
+    for item in sorted(sidecars.rglob("*")):
+        if item.is_file() and item.suffix not in {".hash", ".trace"}:
+            relpath = item.relative_to(sidecars)
+            mounts.extend(["--volume", f"{widget/relpath}:{target}/{relpath}:ro"])
+    if (widget/"node_modules").exists():
+        (sidecars/"node_modules").mkdir()
+        mounts.extend(["--volume", f"{widget/'node_modules'}:{target}/node_modules:ro"])
+    cmd[2:2] = mounts
     return cmd
+
+def measured(sup, arm, roots, label, check_extra=False):
+    try:
+        return sup.build(arm, roots, RESULTS, label, check_extra=check_extra)
+    except Exception:
+        log = RESULTS/(label+".log")
+        if log.is_file():
+            print("\n".join(log.read_text(errors="replace").splitlines()[-60:])[-12000:], flush=True)
+        raise
 
 def prepare_arm(side, work, case, base_graph, project, published, sup, h, ci, prep, tc, packages):
     graph = base_graph.copy()
@@ -163,9 +188,15 @@ def public_tables(sup, case, arms, pgraphs):
         other = "new" if side=="old" else "old"
         # Include explicitly touched modules even when their imports are private.
         scanned = sorted((pub[side] - pub[other]) | set(case["sides"][side]["roots"]))
-        project, cmd, result, _, _ = arms[side]
+        project, cmd, result, overrides, _ = arms[side]
         (result/"inspect.list").write_text("\n".join(scanned)+"\n")
         shutil.copyfile(HERE/"Public.lean", result/"Public.lean")
+        (result/"CheckExports.lean").write_text(
+            "module\npublic import "+case["survivor"]+"\n#check @GlobalTheory.UPel.HT.realise_isKS\n")
+        witness = RESULTS/(side+"-export-witness.log")
+        with witness.open("w") as out:
+            run(*cmd, "/opt/lean/bin/lake", "--packages", overrides, "env", "/opt/lean/bin/lean", "-R",
+                "/work/result", "/work/result/CheckExports.lean", stdout=out, stderr=subprocess.STDOUT)
         path = RESULTS/(side+"-declarations.jsonl")
         with path.open("w") as out, (RESULTS/(side+"-signatures.stderr")).open("w") as err:
             run(*cmd, "/opt/lean/bin/lean", "--run", "/work/result/Public.lean", "/work/result/inspect.list",
@@ -180,6 +211,7 @@ def public_tables(sup, case, arms, pgraphs):
     a, b = tables["old"], tables["new"]
     altered = sorted(n for n in a.keys() & b.keys()
                      if any(a[n][k] != b[n][k] for k in ("typeHash","universeParameters")))
+    print("Changed public declaration types", altered, flush=True)
     write("public-interface.json", dict(
         public_project_modules_removed=sorted(pub["old"]-pub["new"]),
         public_project_modules_added=sorted(pub["new"]-pub["old"]),
@@ -230,7 +262,7 @@ def main():
                 s=case["survivor"]
                 pg[s]=[b.decode() for b in PUBLIC_IMPORTS.findall((project/"src"/rel(s)).read_bytes())]
             pgraphs[side]=pg
-            sup.build(arms[side],case["sides"][side]["roots"],RESULTS,"warm-"+side)
+            measured(sup, arms[side], case["sides"][side]["roots"], "warm-"+side)
         cones = {s:sup.cone(graphs[s],case["sides"][s]["roots"]) for s in arms}
         write("dependency-delta.json",dict(added=sorted(cones["new"]-cones["old"]),removed=sorted(cones["old"]-cones["new"])))
         # Capture interface failures separately; complete the measurements too.
@@ -245,7 +277,7 @@ def main():
         for i,side in enumerate(("old","new","new","old","old","new","new","old")):
             sup.disk(f"trial {i} {side}")
             label=f"{i}-{side}"
-            values=sup.build(arms[side],case["sides"][side]["roots"],RESULTS,label,check_extra=True)
+            values=measured(sup, arms[side], case["sides"][side]["roots"], label, check_extra=True)
             totals[side].append(values)
             wall[side].append(json.loads((RESULTS/(label+".json")).read_text())["wall_s"])
             write("observations.json",dict(cpu_seconds=totals,workflow_step_seconds=wall))
@@ -253,6 +285,7 @@ def main():
                         total_compiler_cpu=statistics.median(sum(row.values()) for row in totals[s]),
                         timed_workflow_wall=statistics.median(wall[s])) for s in arms}
         write("medians.json",summary)
+        print(json.dumps(summary), flush=True)
         if signature_failure:
             raise ValueError("signature verification failed: "+signature_failure)
         write("phase.json",dict(phase="complete"))
